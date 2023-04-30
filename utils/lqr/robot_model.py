@@ -57,6 +57,23 @@ class RobotModel:
         y  = self.mat_c@x
         
         return x, y
+    
+
+    def forward_cartesian(self, x_pos, y_pos, x, u):
+
+        x, y = self.forward(x, u)
+
+        dl    = y[0]    #velocity (distance in y[2])
+        theta = y[3]    #angle
+
+        dx      = numpy.cos(theta)*dl
+        dy      = numpy.sin(theta)*dl
+
+        x_pos_new = x_pos + dx*self.dt
+        y_pos_new = y_pos + dy*self.dt
+        
+        return x_pos_new, y_pos_new, x, u
+        
 
     
     def render(self, y):
