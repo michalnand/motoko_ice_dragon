@@ -161,9 +161,12 @@ class Render:
         glPopMatrix()
 
         glPushMatrix()
+
+        glLineWidth(6)
+        glColor3f(0.3, 0.0, 1.0)
         glBegin(GL_LINES)
 
-        glColor3f(1.0, 0.0, 0.0)
+
         for j in range(len(self.path) - 1):
             x0 = self.path[j][0]
             y0 = self.path[j][1]
