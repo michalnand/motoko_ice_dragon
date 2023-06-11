@@ -70,7 +70,7 @@ if __name__ == "__main__":
     print("ki=\n", numpy.round(ki, 5), "\n")
     print("\n\n")
 
-    
+    '''
     #plot poles, both : open and closed loop
     re_ol, im_ol, re_cl, im_cl = LibsControl.get_poles(ds.mat_a, ds.mat_b, k)
     LibsControl.plot_poles(re_ol, im_ol, re_cl, im_cl, "results/poles.png")
@@ -93,9 +93,10 @@ if __name__ == "__main__":
     x_result[:, 1]*= 180.0/numpy.pi
     
     LibsControl.plot_closed_loop_response(t_result, u_result, x_result, file_name = "results/closed_loop_response.png", u_labels = ["uL [N]", "uR [N]"], x_labels = ["dtheta [deg/s]", "theta [deg]", "dx [m/s]", "x [m]"] )
+    '''
     
+    #testing in runtime
     
-   
     #random targets
     targets_count = 100
     targets = 2.0*numpy.random.rand(targets_count, 2) - 1.0

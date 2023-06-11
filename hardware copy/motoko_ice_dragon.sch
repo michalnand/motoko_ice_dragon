@@ -23235,6 +23235,9 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="L_ENCODER" library="con-lstb" library_urn="urn:adsk.eagle:library:162" deviceset="MA04-1" device="" package3d_urn="urn:adsk.eagle:package:8337/1"/>
 <part name="GND1" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
 <part name="+3V13" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="+3V3" device=""/>
+<part name="R_ENCODER" library="con-lstb" library_urn="urn:adsk.eagle:library:162" deviceset="MA04-1" device="" package3d_urn="urn:adsk.eagle:package:8337/1"/>
+<part name="GND2" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
+<part name="+3V16" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="+3V3" device=""/>
 <part name="R7" library="resistor" library_urn="urn:adsk.eagle:library:348" deviceset="R-EU_" device="M0805" package3d_urn="urn:adsk.eagle:package:26079/1" value="4k7"/>
 <part name="C16" library="resistor" library_urn="urn:adsk.eagle:library:348" deviceset="C-EU" device="C0805" package3d_urn="urn:adsk.eagle:package:26137/1" value="100n"/>
 <part name="GND8" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
@@ -23306,17 +23309,6 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="GND37" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
 <part name="P+3" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="VCC" device=""/>
 <part name="P+4" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="VCC" device=""/>
-<part name="R4" library="resistor" library_urn="urn:adsk.eagle:library:348" deviceset="R-EU_" device="M0805" package3d_urn="urn:adsk.eagle:package:26079/1" value="4k7"/>
-<part name="R37" library="resistor" library_urn="urn:adsk.eagle:library:348" deviceset="R-EU_" device="M0805" package3d_urn="urn:adsk.eagle:package:26079/1" value="4k7"/>
-<part name="+3V51" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="+3V3" device=""/>
-<part name="+3V52" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="+3V3" device=""/>
-<part name="L_ENCODER1" library="con-lstb" library_urn="urn:adsk.eagle:library:162" deviceset="MA04-1" device="" package3d_urn="urn:adsk.eagle:package:8337/1"/>
-<part name="GND2" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
-<part name="+3V16" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="+3V3" device=""/>
-<part name="R40" library="resistor" library_urn="urn:adsk.eagle:library:348" deviceset="R-EU_" device="M0805" package3d_urn="urn:adsk.eagle:package:26079/1" value="4k7"/>
-<part name="R41" library="resistor" library_urn="urn:adsk.eagle:library:348" deviceset="R-EU_" device="M0805" package3d_urn="urn:adsk.eagle:package:26079/1" value="4k7"/>
-<part name="+3V53" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="+3V3" device=""/>
-<part name="+3V54" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="+3V3" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -23956,6 +23948,15 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <instance part="+3V13" gate="G$1" x="189.23" y="218.44" smashed="yes">
 <attribute name="VALUE" x="186.69" y="213.36" size="1.778" layer="96" rot="R90"/>
 </instance>
+<instance part="R_ENCODER" gate="1" x="309.118" y="212.852" smashed="yes">
+<attribute name="VALUE" x="307.848" y="202.692" size="1.778" layer="96"/>
+</instance>
+<instance part="GND2" gate="1" x="320.548" y="203.962" smashed="yes">
+<attribute name="VALUE" x="318.008" y="201.422" size="1.778" layer="96"/>
+</instance>
+<instance part="+3V16" gate="G$1" x="320.548" y="220.472" smashed="yes">
+<attribute name="VALUE" x="318.008" y="215.392" size="1.778" layer="96" rot="R90"/>
+</instance>
 <instance part="R7" gate="G$1" x="218.44" y="220.98" smashed="yes" rot="MR0">
 <attribute name="NAME" x="222.25" y="222.4786" size="1.778" layer="95" rot="MR0"/>
 <attribute name="VALUE" x="222.25" y="217.678" size="1.778" layer="96" rot="MR0"/>
@@ -24199,43 +24200,6 @@ You are welcome to use this library for commercial purposes. For attribution, we
 </instance>
 <instance part="P+4" gate="VCC" x="386.08" y="167.64" smashed="yes">
 <attribute name="VALUE" x="383.54" y="165.1" size="1.778" layer="96" rot="R90"/>
-</instance>
-<instance part="R4" gate="G$1" x="194.31" y="198.12" smashed="yes" rot="MR90">
-<attribute name="NAME" x="195.8086" y="194.31" size="1.778" layer="95" rot="MR90"/>
-<attribute name="VALUE" x="191.008" y="194.31" size="1.778" layer="96" rot="MR90"/>
-</instance>
-<instance part="R37" gate="G$1" x="198.12" y="198.12" smashed="yes" rot="MR90">
-<attribute name="NAME" x="199.6186" y="194.31" size="1.778" layer="95" rot="MR90"/>
-<attribute name="VALUE" x="194.818" y="194.31" size="1.778" layer="96" rot="MR90"/>
-</instance>
-<instance part="+3V51" gate="G$1" x="194.31" y="186.69" smashed="yes" rot="R180">
-<attribute name="VALUE" x="196.85" y="191.77" size="1.778" layer="96" rot="R270"/>
-</instance>
-<instance part="+3V52" gate="G$1" x="198.12" y="186.69" smashed="yes" rot="R180">
-<attribute name="VALUE" x="200.66" y="191.77" size="1.778" layer="96" rot="R270"/>
-</instance>
-<instance part="L_ENCODER1" gate="1" x="294.64" y="214.63" smashed="yes">
-<attribute name="VALUE" x="293.37" y="204.47" size="1.778" layer="96"/>
-</instance>
-<instance part="GND2" gate="1" x="306.07" y="205.74" smashed="yes">
-<attribute name="VALUE" x="303.53" y="203.2" size="1.778" layer="96"/>
-</instance>
-<instance part="+3V16" gate="G$1" x="306.07" y="222.25" smashed="yes">
-<attribute name="VALUE" x="303.53" y="217.17" size="1.778" layer="96" rot="R90"/>
-</instance>
-<instance part="R40" gate="G$1" x="311.15" y="201.93" smashed="yes" rot="MR90">
-<attribute name="NAME" x="312.6486" y="198.12" size="1.778" layer="95" rot="MR90"/>
-<attribute name="VALUE" x="307.848" y="198.12" size="1.778" layer="96" rot="MR90"/>
-</instance>
-<instance part="R41" gate="G$1" x="314.96" y="201.93" smashed="yes" rot="MR90">
-<attribute name="NAME" x="316.4586" y="198.12" size="1.778" layer="95" rot="MR90"/>
-<attribute name="VALUE" x="311.658" y="198.12" size="1.778" layer="96" rot="MR90"/>
-</instance>
-<instance part="+3V53" gate="G$1" x="311.15" y="190.5" smashed="yes" rot="R180">
-<attribute name="VALUE" x="313.69" y="195.58" size="1.778" layer="96" rot="R270"/>
-</instance>
-<instance part="+3V54" gate="G$1" x="314.96" y="190.5" smashed="yes" rot="R180">
-<attribute name="VALUE" x="317.5" y="195.58" size="1.778" layer="96" rot="R270"/>
 </instance>
 </instances>
 <busses>
@@ -24563,6 +24527,12 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <wire x1="189.23" y1="205.74" x2="189.23" y2="204.47" width="0.1524" layer="91"/>
 </segment>
 <segment>
+<pinref part="R_ENCODER" gate="1" pin="1"/>
+<wire x1="316.738" y1="207.772" x2="320.548" y2="207.772" width="0.1524" layer="91"/>
+<pinref part="GND2" gate="1" pin="GND"/>
+<wire x1="320.548" y1="207.772" x2="320.548" y2="206.502" width="0.1524" layer="91"/>
+</segment>
+<segment>
 <pinref part="C16" gate="G$1" pin="2"/>
 <pinref part="GND8" gate="1" pin="GND"/>
 <wire x1="209.55" y1="209.55" x2="209.55" y2="207.01" width="0.1524" layer="91"/>
@@ -24638,12 +24608,6 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <pinref part="C18" gate="G$1" pin="1"/>
 <pinref part="GND37" gate="1" pin="GND"/>
 <wire x1="386.08" y1="152.4" x2="386.08" y2="140.97" width="0.1524" layer="91"/>
-</segment>
-<segment>
-<pinref part="L_ENCODER1" gate="1" pin="1"/>
-<wire x1="302.26" y1="209.55" x2="306.07" y2="209.55" width="0.1524" layer="91"/>
-<pinref part="GND2" gate="1" pin="GND"/>
-<wire x1="306.07" y1="209.55" x2="306.07" y2="208.28" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="VCC" class="0">
@@ -24946,6 +24910,12 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <wire x1="189.23" y1="213.36" x2="189.23" y2="215.9" width="0.1524" layer="91"/>
 </segment>
 <segment>
+<pinref part="R_ENCODER" gate="1" pin="4"/>
+<wire x1="316.738" y1="215.392" x2="320.548" y2="215.392" width="0.1524" layer="91"/>
+<pinref part="+3V16" gate="G$1" pin="+3V3"/>
+<wire x1="320.548" y1="215.392" x2="320.548" y2="217.932" width="0.1524" layer="91"/>
+</segment>
+<segment>
 <pinref part="R9" gate="G$1" pin="2"/>
 <pinref part="+3V17" gate="G$1" pin="+3V3"/>
 <wire x1="247.65" y1="50.8" x2="247.65" y2="53.34" width="0.1524" layer="91"/>
@@ -25010,32 +24980,6 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <pinref part="+3V50" gate="G$1" pin="+3V3"/>
 <pinref part="C38" gate="G$1" pin="1"/>
 <wire x1="331.47" y1="166.37" x2="331.47" y2="153.67" width="0.1524" layer="91"/>
-</segment>
-<segment>
-<pinref part="R4" gate="G$1" pin="1"/>
-<pinref part="+3V51" gate="G$1" pin="+3V3"/>
-<wire x1="194.31" y1="193.04" x2="194.31" y2="189.23" width="0.1524" layer="91"/>
-</segment>
-<segment>
-<pinref part="R37" gate="G$1" pin="1"/>
-<pinref part="+3V52" gate="G$1" pin="+3V3"/>
-<wire x1="198.12" y1="193.04" x2="198.12" y2="189.23" width="0.1524" layer="91"/>
-</segment>
-<segment>
-<pinref part="L_ENCODER1" gate="1" pin="4"/>
-<wire x1="302.26" y1="217.17" x2="306.07" y2="217.17" width="0.1524" layer="91"/>
-<pinref part="+3V16" gate="G$1" pin="+3V3"/>
-<wire x1="306.07" y1="217.17" x2="306.07" y2="219.71" width="0.1524" layer="91"/>
-</segment>
-<segment>
-<pinref part="R40" gate="G$1" pin="1"/>
-<pinref part="+3V53" gate="G$1" pin="+3V3"/>
-<wire x1="311.15" y1="196.85" x2="311.15" y2="193.04" width="0.1524" layer="91"/>
-</segment>
-<segment>
-<pinref part="R41" gate="G$1" pin="1"/>
-<pinref part="+3V54" gate="G$1" pin="+3V3"/>
-<wire x1="314.96" y1="196.85" x2="314.96" y2="193.04" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="SCL" class="0">
@@ -25853,12 +25797,8 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <net name="L_SCL" class="0">
 <segment>
 <pinref part="L_ENCODER" gate="1" pin="3"/>
-<wire x1="185.42" y1="210.82" x2="198.12" y2="210.82" width="0.1524" layer="91"/>
-<label x="201.93" y="210.82" size="1.778" layer="95"/>
-<pinref part="R37" gate="G$1" pin="2"/>
-<wire x1="198.12" y1="210.82" x2="199.39" y2="210.82" width="0.1524" layer="91"/>
-<wire x1="198.12" y1="203.2" x2="198.12" y2="210.82" width="0.1524" layer="91"/>
-<junction x="198.12" y="210.82"/>
+<wire x1="185.42" y1="210.82" x2="194.31" y2="210.82" width="0.1524" layer="91"/>
+<label x="196.85" y="210.82" size="1.778" layer="95"/>
 </segment>
 <segment>
 <pinref part="U2" gate="B" pin="PD14"/>
@@ -25870,11 +25810,7 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <segment>
 <pinref part="L_ENCODER" gate="1" pin="2"/>
 <wire x1="185.42" y1="208.28" x2="194.31" y2="208.28" width="0.1524" layer="91"/>
-<label x="201.93" y="208.28" size="1.778" layer="95"/>
-<pinref part="R4" gate="G$1" pin="2"/>
-<wire x1="194.31" y1="208.28" x2="199.39" y2="208.28" width="0.1524" layer="91"/>
-<wire x1="194.31" y1="203.2" x2="194.31" y2="208.28" width="0.1524" layer="91"/>
-<junction x="194.31" y="208.28"/>
+<label x="196.85" y="208.28" size="1.778" layer="95"/>
 </segment>
 <segment>
 <pinref part="U2" gate="B" pin="PD15"/>
@@ -25884,34 +25820,26 @@ You are welcome to use this library for commercial purposes. For attribution, we
 </net>
 <net name="R_SCL" class="0">
 <segment>
+<pinref part="R_ENCODER" gate="1" pin="3"/>
+<wire x1="316.738" y1="212.852" x2="325.628" y2="212.852" width="0.1524" layer="91"/>
+<label x="328.168" y="212.852" size="1.778" layer="95"/>
+</segment>
+<segment>
 <pinref part="U2" gate="B" pin="PE1"/>
 <wire x1="146.05" y1="248.92" x2="152.4" y2="248.92" width="0.1524" layer="91"/>
 <label x="153.67" y="248.92" size="1.778" layer="95"/>
 </segment>
-<segment>
-<pinref part="L_ENCODER1" gate="1" pin="3"/>
-<wire x1="302.26" y1="214.63" x2="314.96" y2="214.63" width="0.1524" layer="91"/>
-<label x="318.77" y="214.63" size="1.778" layer="95"/>
-<pinref part="R41" gate="G$1" pin="2"/>
-<wire x1="314.96" y1="214.63" x2="316.23" y2="214.63" width="0.1524" layer="91"/>
-<wire x1="314.96" y1="207.01" x2="314.96" y2="214.63" width="0.1524" layer="91"/>
-<junction x="314.96" y="214.63"/>
-</segment>
 </net>
 <net name="R_SDA" class="0">
+<segment>
+<pinref part="R_ENCODER" gate="1" pin="2"/>
+<wire x1="316.738" y1="210.312" x2="325.628" y2="210.312" width="0.1524" layer="91"/>
+<label x="328.168" y="210.312" size="1.778" layer="95"/>
+</segment>
 <segment>
 <pinref part="U2" gate="B" pin="PE0"/>
 <wire x1="146.05" y1="246.38" x2="152.4" y2="246.38" width="0.1524" layer="91"/>
 <label x="153.67" y="246.38" size="1.778" layer="95"/>
-</segment>
-<segment>
-<pinref part="L_ENCODER1" gate="1" pin="2"/>
-<wire x1="302.26" y1="212.09" x2="311.15" y2="212.09" width="0.1524" layer="91"/>
-<label x="318.77" y="212.09" size="1.778" layer="95"/>
-<pinref part="R40" gate="G$1" pin="2"/>
-<wire x1="311.15" y1="212.09" x2="316.23" y2="212.09" width="0.1524" layer="91"/>
-<wire x1="311.15" y1="207.01" x2="311.15" y2="212.09" width="0.1524" layer="91"/>
-<junction x="311.15" y="212.09"/>
 </segment>
 </net>
 <net name="N$1" class="0">
