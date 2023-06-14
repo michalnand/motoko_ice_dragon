@@ -48,7 +48,7 @@ class Render:
         return 0
 
 
-    def render(self, x_pos, y_pos, theta, target_x_pos, target_y_pos):
+    def render(self, x_pos, y_pos, theta, target_x_pos, target_y_pos, trajectories, trajectory_eval):
 
         self.path.append([x_pos, y_pos])
 
@@ -160,14 +160,17 @@ class Render:
 
         glPopMatrix()
 
-        glPushMatrix()
+        glPushMatrix()  
+
+
 
         glLineWidth(6)
-        glColor3f(0.3, 0.0, 1.0)
+        
         glBegin(GL_LINES)
 
 
         for j in range(len(self.path) - 1):
+            glColor3f(0.3, 0.0, 1.0)
             x0 = self.path[j][0]
             y0 = self.path[j][1]
             x1 = self.path[j+1][0]
@@ -178,6 +181,65 @@ class Render:
         glEnd()
 
         glPopMatrix()
+
+
+
+        
+        glPushMatrix()
+
+        glLineWidth(1)
+        glColor3f(1.0, 1.0, 1.0)
+        glBegin(GL_LINES)
+
+        for j in range(trajectories.shape[1]):
+            for i in range(trajectories.shape[0]-1):
+                x0 = trajectories[i][j][0] 
+                y0 = trajectories[i][j][1]
+                x1 = trajectories[i+1][j][0] 
+                y1 = trajectories[i+1][j][1]
+                glVertex3f(x0,  r/2, -y0)
+                glVertex3f(x1,  r/2, -y1)
+
+        glEnd()
+
+        glLineWidth(6)
+        glColor3f(1.0, 0.0, 0.0)
+        glBegin(GL_LINES)
+
+        j = numpy.argmin(trajectory_eval)
+
+        print("best = ", j)
+
+        for i in range(trajectories.shape[0]-1):
+            x0 = trajectories[i][j][0] 
+            y0 = trajectories[i][j][1]
+            x1 = trajectories[i+1][j][0] 
+            y1 = trajectories[i+1][j][1]
+            glVertex3f(x0,  r/2, -y0)
+            glVertex3f(x1,  r/2, -y1)
+
+        glEnd()
+
+        glPopMatrix()
+        
+
+        '''
+        glLineWidth(6)
+        glColor3f(1.0, 0.0, 0.0)
+        glBegin(GL_LINES)
+
+        j = 0
+
+        for i in range(trajectories.shape[0]-1):
+            x0 = trajectories[i][j][0] 
+            y0 = trajectories[i][j][1]
+            x1 = trajectories[i+1][j][0] 
+            y1 = trajectories[i+1][j][1]
+            glVertex3f(x0,  r/2, -y0)
+            glVertex3f(x1,  r/2, -y1)
+
+        glEnd()
+        '''
 
 
         glfw.swap_buffers(self.window)

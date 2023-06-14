@@ -43,43 +43,47 @@ class DifferentialRobot:
         self.mat_c[3][3] = 1.0
         
 
-        self.renderer = Render(700, 700)
+        #state
+        self.x       = numpy.zeros((self.mat_a.shape[0], 1))
+        self.y       = numpy.zeros((self.mat_c.shape[0], 1))
 
         #cartesian state space
         self.theta = 0
         self.x_pos = 0
         self.y_pos = 0
 
+    def copy(self):
+        result = DifferentialRobot()
 
-    def forward(self, x, u):
-        dx = self.mat_a@x + self.mat_b@u
+        result.theta = self.theta
+        result.x_pos = self.x_pos
+        result.y_pos = self.y_pos
 
-        x  = x + dx*self.dt
-        y  = self.mat_c@x
+        return result
+
+
+    def forward(self, u):
+        dx = self.mat_a@self.x + self.mat_b@u
+
+        self.x  = self.x + dx*self.dt
+        self.y  = self.mat_c@self.x
 
         #angular velocity
-        w  = y[0, 0]
+        w  = self.y[0, 0]
         #velocity
-        v = y[2, 0]
+        v = self.y[2, 0]
 
+
+        theta = self.y[1, 0]
 
         #position in cartesian
-        self.x_pos+= v*numpy.cos(self.theta)*self.dt
-        self.y_pos+= v*numpy.sin(self.theta)*self.dt
+        self.x_pos+= v*numpy.cos(theta)*self.dt
+        self.y_pos+= v*numpy.sin(theta)*self.dt
         self.theta+= w*self.dt
          
-        
-        #wrap into -pi .. pi
-        #self.theta = numpy.arctan2(numpy.sin(self.theta), numpy.cos(self.theta))
-
-        #wrao into 0 .. 2pi
+        #wrap into 0 .. 2pi
         self.theta = numpy.mod(self.theta, 2.0*numpy.pi)
 
+        return
 
-        return x, y
-
-    
-    def render(self, target_x_pos, target_y_pos):
-        
-        
-        self.renderer.render(self.x_pos, self.y_pos, self.theta, target_x_pos, target_y_pos)
+   

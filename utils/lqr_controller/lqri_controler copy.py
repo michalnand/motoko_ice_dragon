@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import time
 
 from differential_robot import *
-from trajectory_solver  import *
+
 
 def get_required(targets, current_target_idx, robot_x, robot_y, robot_theta):
         
@@ -43,12 +43,6 @@ if __name__ == "__main__":
     q = [0.0, 1.0, 0.0, 10.0]
     q = numpy.diag(q)
 
-    qa = [0.0, 1.0, 0.0, 10.0]
-    qa = numpy.diag(qa)
-
-    qb = [0.0, 10.0, 0.0, 10.0]
-    qb = numpy.diag(qb)
-
     
     r = [0.001, 0.001] 
     r =  numpy.diag(r)
@@ -63,12 +57,12 @@ if __name__ == "__main__":
     u_result, x_result, y_result = ds.step_response(amplitude = [1, -0.5], steps=steps)
     LibsControl.plot_open_loop_response(t_result, x_result, "results/open_loop_response",  labels = ["dtheta [deg/s]", "theta [deg]", "dx [m/s]", "x [m]"])
 
-  
+
+    
     lqri     = LibsControl.LQRISolver(ds.mat_a, ds.mat_b, ds.mat_c, q, r, dt)
 
     k, ki    = lqri.solve() 
 
-    trajectory_solver = TrajectorySolver(ds.mat_a, ds.mat_b, ds.mat_c, qa, qb, r, dt, 16)
     
     #print solved controller matrices
     print("controller\n\n")
@@ -114,45 +108,30 @@ if __name__ == "__main__":
     k = model.mat_c.shape[0]  #outputs count
 
 
+    x       = numpy.zeros((n, 1))
+    y       = numpy.zeros((k, 1))
+    u       = numpy.zeros((m, 1))
+
+
     error_sum = numpy.zeros((k, 1))
     
     steps = 0
     current_target_idx     = 0
 
     
-    renderer = Render(700, 700)
 
-    trajectories = []
-    trajectory_eval = []
     while(True):
-      
 
-        if steps%10 == 0:
-            target_x = targets[current_target_idx][0]
-            target_y = targets[current_target_idx][1]
-            trajectories, trajectory_eval =  trajectory_solver.predict(target_x, target_y, model.x_pos, model.y_pos, model.theta, model.x, error_sum, 256)
-
-
-            
-            idx = numpy.argmin(trajectory_eval)
-            k  = trajectory_solver.k_mat[idx]
-            ki = trajectory_solver.ki_mat[idx]
-
-            lqri.k = k
-            lqri.ki = ki
-
-        
         d_distance, d_theta = get_required(targets, current_target_idx, model.x_pos, model.y_pos, model.theta)
-
-
+      
         d_distance = 1.5*d_distance
 
-        yr = numpy.array([[0.0, model.x[1, 0] + d_theta, 0.0,  model.x[3, 0] + d_distance]]).T
+       
+        yr = numpy.array([[0.0, x[1, 0] + d_theta, 0.0,  x[3, 0] + d_distance]]).T
 
-        u, error_sum = lqri.forward(yr, model.y, model.x, error_sum)
+        u, error_sum = lqri.forward(yr, y, x, error_sum)
                  
-        model.forward(u)
-
+        x, y = model.forward(x, u)
 
         #generate next target
         if d_distance < 0.1:
@@ -162,8 +141,7 @@ if __name__ == "__main__":
         if steps%10 == 0:
             x_pos = targets[current_target_idx][0]
             y_pos = targets[current_target_idx][1]
-
-            renderer.render(model.x_pos, model.y_pos, model.theta, x_pos, y_pos, trajectories, trajectory_eval)
+            model.render(x_pos, y_pos)
             
         time.sleep(0.1*dt)
         
