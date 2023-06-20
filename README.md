@@ -19,10 +19,10 @@
 
 ![lqr_structure](doc/diagrams/control-lqri_synth.png)
 
-![lqr_results](utils/lqr_controller/results/poles.png)
-![lqr_results](utils/lqr_controller/results/poles_mesh_cl.png)
+![lqr_results](simulations/lqr_controller/results/poles.png)
+![lqr_results](simulations/lqr_controller/results/poles_mesh_cl.png)
 
-![lqr_results](utils/lqr_controller/results/closed_loop_response.png)
+![lqr_results](simulations/lqr_controller/results/closed_loop_response.png)
 
 # meta LQR control
 ![lqr_structure](doc/diagrams/control-mlqri.png)

@@ -4,6 +4,7 @@
 *.bin
 *.asm
 *.elf
+*.hex 
 
 
 #python 
