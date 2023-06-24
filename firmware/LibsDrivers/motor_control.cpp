@@ -81,7 +81,7 @@ void MotorControl::set_torque(int32_t left_torque, int32_t right_torque)
     this->left_torque  = left_torque;
     this->right_torque = right_torque;
 }
-
+ 
 
 void MotorControl::callback()
 {
@@ -89,20 +89,42 @@ void MotorControl::callback()
     left_encoder.update(250);  
     right_encoder.update(250);  
 
-    int32_t left_phase = SINE_TABLE_SIZE/4; 
+    int32_t left_u;
+    int32_t left_phase; 
+    
     if (this->left_torque < 0) 
-    { 
-        left_phase = -left_phase; 
+    {
+        left_u     = -this->left_torque;
+        left_phase = -SINE_TABLE_SIZE/4; 
+        
+    }
+    else
+    {
+        left_u     = this->left_torque;
+        left_phase = SINE_TABLE_SIZE/4; 
     }
 
-    int32_t right_phase = SINE_TABLE_SIZE/4; 
-    if (this->right_torque < 0) 
-    { 
-        right_phase = -right_phase; 
-    } 
+    int32_t right_u;
+    int32_t right_phase; 
 
-    set_torque_from_rotation(this->left_torque,   left_phase,  left_encoder.angle,   0);
-    set_torque_from_rotation(this->right_torque,  right_phase, right_encoder.angle,  1);
+    if (this->right_torque < 0) 
+    {
+        right_u     = -this->right_torque;
+        right_phase = -SINE_TABLE_SIZE/4; 
+        
+    }
+    else
+    {
+        right_u     = this->right_torque;
+        right_phase = SINE_TABLE_SIZE/4; 
+    }
+
+
+   
+    
+
+    set_torque_from_rotation(left_u,   left_phase,  left_encoder.angle,   0);
+    set_torque_from_rotation(right_u,  right_phase, right_encoder.angle,  1);
 }
 
 
@@ -113,14 +135,14 @@ void MotorControl::hold()
 
     timer.delay_ms(200);
 }
-    
+     
 
 
-void MotorControl::set_torque_from_rotation(int32_t torque, uint32_t phase, uint32_t rotor_angle, int motor_id)
+void MotorControl::set_torque_from_rotation(int32_t torque, int32_t phase, uint32_t rotor_angle, int motor_id)
 {
     //field vector domain
     int32_t q = (torque*cos_tab(phase))/SINE_TABLE_MAX;
-    int32_t d = (torque*sin_tab(phase))/SINE_TABLE_MAX;
+    int32_t d = (torque*sin_tab(phase))/SINE_TABLE_MAX; 
 
     uint32_t theta = (rotor_angle*MOTOR_POLES)/(2*4);
 

@@ -421,8 +421,6 @@ void motor_driver_test()
     unsigned int state = 0;
 
 
-    
-
     while(1)  
     {
       led = 1; 
@@ -454,7 +452,7 @@ void motor_driver_test()
       {
         for (unsigned int i = 0; i < 5; i++)
         {
-          motor_control.set_torque(MOTOR_CONTROL_MAX, MOTOR_CONTROL_MAX); 
+          motor_control.set_torque(MOTOR_CONTROL_MAX, -MOTOR_CONTROL_MAX); 
           timer.delay_ms(1000);
           motor_control.set_torque(0, 0); 
           timer.delay_ms(300);
@@ -464,6 +462,6 @@ void motor_driver_test()
       }
 
 
-      motor_control.set_torque(speed, speed);      
+      motor_control.set_torque(speed, -speed);      
   }
 }

@@ -22,17 +22,17 @@ class MotorControl
         void init();
         void set_torque(int32_t left_torque, int32_t right_torque);
 
-        void callback();
+        void callback(); 
 
         void hold();
 
     private:
-        void    set_torque_from_rotation(int32_t torque, uint32_t phase, uint32_t rotor_angle, int motor_id);
+        void    set_torque_from_rotation(int32_t torque, int32_t phase, uint32_t rotor_angle, int motor_id);
         int32_t clamp(int32_t value, int32_t min, int32_t max);
 
     private: 
         int32_t left_torque;
-        int32_t right_torque;
+        int32_t right_torque; 
 
         TI2C<TGPIOD, 14, 15, 5> left_i2c;
         TI2C<TGPIOE, 0,   1, 5> right_i2c;
