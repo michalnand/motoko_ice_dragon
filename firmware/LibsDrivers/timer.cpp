@@ -23,8 +23,6 @@ Timer::Timer()
     
 } 
 
-
-
 void Timer::init(uint32_t frequency)
 {
     g_time      = 0;

@@ -12,6 +12,14 @@ I2C_Interface::~I2C_Interface()
 
 }
 
+unsigned char I2C_Interface::check(unsigned char dev_adr)
+{
+  start();
+  unsigned char ack_res = write(dev_adr);
+  stop(); 
+
+  return ack_res;
+}
  
 void I2C_Interface::write_reg(unsigned char dev_adr, unsigned char reg_adr, unsigned char value)
 {

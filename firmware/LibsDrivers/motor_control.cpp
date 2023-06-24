@@ -1,0 +1,131 @@
+#include <motor_control.h>
+#include <gonio.h>
+
+//helping stuff
+#define SQRT3       ((int32_t)1773)      // sqrt(3)     = 1773/1024
+#define SQRT3INV    ((int32_t)591)       // 1/sqrt(3)   = 591/1024
+
+#define max2(x,y) (((x) >= (y)) ? (x) : (y))
+#define min2(x,y) (((x) <= (y)) ? (x) : (y))
+
+#define max3(x, y, z) (max2(max2(x, y), z))
+#define min3(x, y, z) (min2(min2(x, y), z))
+
+
+
+void MotorControl::init()
+{
+    left_pwm.init();
+    right_pwm.init();
+
+    hold();
+
+    left_encoder.init(&left_i2c);
+    right_encoder.init(&right_i2c);
+
+    set_torque(0, 0);
+}
+
+void MotorControl::set_torque(int32_t left_torque, int32_t right_torque)
+{
+    this->left_torque  = left_torque;
+    this->right_torque = right_torque;
+}
+
+
+void MotorControl::callback()
+{
+    //read rotor angle, dt = 250uS
+    left_encoder.update(250);  
+    right_encoder.update(250);  
+
+    int32_t left_phase = SINE_TABLE_SIZE/4; 
+    if (this->left_torque < 0) 
+    { 
+        left_phase = -left_phase; 
+    }
+
+    int32_t right_phase = SINE_TABLE_SIZE/4; 
+    if (this->right_torque < 0) 
+    { 
+        right_phase = -right_phase; 
+    } 
+
+    set_torque_from_rotation(this->left_torque,   left_phase,  left_encoder.angle,   0);
+    set_torque_from_rotation(this->right_torque,  right_phase, right_encoder.angle,  1);
+}
+
+
+void MotorControl::hold()
+{
+    set_torque_from_rotation(500,   SINE_TABLE_SIZE/4,  0,   0);
+    set_torque_from_rotation(500,  SINE_TABLE_SIZE/4,   0,  1);
+
+    timer.delay_ms(200);
+}
+    
+
+
+void MotorControl::set_torque_from_rotation(int32_t torque, uint32_t phase, uint32_t rotor_angle, int motor_id)
+{
+    //field vector domain
+    int32_t q = (torque*cos_tab(phase))/SINE_TABLE_MAX;
+    int32_t d = (torque*sin_tab(phase))/SINE_TABLE_MAX;
+
+    uint32_t theta = (rotor_angle*MOTOR_POLES)/(2*4);
+
+
+    //inverse Park transform
+    int32_t alpha = (d*cos_tab(theta) - q*sin_tab(theta))/SINE_TABLE_MAX;
+    int32_t beta  = (d*sin_tab(theta) + q*cos_tab(theta))/SINE_TABLE_MAX;
+
+
+    //inverse Clarke transform
+    int32_t a = alpha;
+    int32_t b = -(alpha/2) + (SQRT3*beta)/(2*1024);
+    int32_t c = -(alpha/2) - (SQRT3*beta)/(2*1024);
+
+
+    //transform into space-vector modulation, to achieve full voltage range
+    int32_t min_val = min3(a, b, c);
+    int32_t max_val = max3(a, b, c); 
+
+    int32_t com_val = (min_val + max_val)/2;  
+
+    //normalise into 0..MOTOR_CONTROL_MAX
+    int32_t a_pwm = ((a - com_val)*SQRT3INV)/1024 + MOTOR_CONTROL_MAX/2;
+    int32_t b_pwm = ((b - com_val)*SQRT3INV)/1024 + MOTOR_CONTROL_MAX/2;
+    int32_t c_pwm = ((c - com_val)*SQRT3INV)/1024 + MOTOR_CONTROL_MAX/2;
+    
+     
+    a_pwm = clamp((a_pwm*PWM_PERIOD)/MOTOR_CONTROL_MAX, 0, PWM_PERIOD);
+    b_pwm = clamp((b_pwm*PWM_PERIOD)/MOTOR_CONTROL_MAX, 0, PWM_PERIOD);
+    c_pwm = clamp((c_pwm*PWM_PERIOD)/MOTOR_CONTROL_MAX, 0, PWM_PERIOD);
+
+
+    if (motor_id == 0)
+    {
+        left_pwm.set(a_pwm, b_pwm, c_pwm);
+    }
+    else
+    {
+        right_pwm.set(a_pwm, b_pwm, c_pwm);
+    }
+}
+
+
+
+int32_t MotorControl::clamp(int32_t value, int32_t min, int32_t max)
+{
+    if (value > max)
+    {
+        value = max;
+    }
+
+    if (value < min)
+    {
+        value = min;
+    }
+
+    return value;
+}

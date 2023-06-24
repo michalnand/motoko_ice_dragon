@@ -4,13 +4,11 @@
 class KalmanFilter
 {
     public:
-        KalmanFilter();
-
         void init();
 
         /*
             z   - position measurement
-            pz  - position measurement uncertaininty (variance)
+            pz  - position measurement uncertainity (variance)
         */
         float step(float z, float pz);
 
@@ -18,6 +16,6 @@ class KalmanFilter
         float x_hat;
         float p;
 };
-
+ 
 
 #endif

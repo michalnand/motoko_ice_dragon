@@ -9,6 +9,7 @@ class I2C_Interface
     public:
       I2C_Interface();
       virtual ~I2C_Interface();
+      
 
       virtual void start() { }
       virtual void stop() { }
@@ -18,6 +19,8 @@ class I2C_Interface
 
 
     public:
+        unsigned char check(unsigned char dev_adr);
+
         void write_reg(unsigned char dev_adr, unsigned char reg_adr, unsigned char value);
         void write_reg_16bit(unsigned char dev_adr, unsigned char reg_adr, unsigned int value);
         void write_reg_multi(unsigned char dev_adr, unsigned char reg_adr, unsigned char *data, unsigned int count);

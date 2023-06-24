@@ -1,37 +1,43 @@
 #include "device.h"
-#include <clock.h>
+#include <drivers.h>
+#include <tests.h>
 
-#include <gpio.h>
-#include <timer.h>
+#include <pwm.h>
  
 #define LED_GPIO        TGPIOE
 #define LED_PIN         2
 
 #define KEY_GPIO        TGPIOE
 #define KEY_PIN         3
-  
 
-Timer timer;
- 
+
 
 int main(void) 
 {
-  SetSysClock(SysClok216_8HSE);
+  drivers_init();
 
-  timer.init();
-  
+  terminal << "\n\n\n";
+  terminal << "machine ready\n";
+
   Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;        //user led
   led = 1; 
 
   Gpio<KEY_GPIO, KEY_PIN, GPIO_MODE_IN_PULLUP> key;  //user button
 
+  /*
+  PWMLeft pwm;
+  pwm.init();
+  pwm.set(10, 20, 30);
+  */
+  //ir_sensor_test();
+  //gyro_sensor_test();
+  //line_sensor_test();
 
-  //Gpio<TGPIOC, 14, GPIO_MODE_OUT> ir_led;         //ir led
-  //ir_led = 1; 
 
-  Gpio<TGPIOC, 15, GPIO_MODE_OUT> line_led;         //line led
-  line_led = 1; 
+  //encoder_sensor_test();
 
+  //left_motor_pwm_test();
+  //right_motor_pwm_test();
 
   while (1)
   {
@@ -42,11 +48,11 @@ int main(void)
     timer.delay_ms(100);
 
     led = 1; 
-    timer.delay_ms(300);
+    timer.delay_ms(200);
 
     led = 0; 
-    timer.delay_ms(900); 
+    timer.delay_ms(400);
   }
-
+ 
   return 0;
 } 

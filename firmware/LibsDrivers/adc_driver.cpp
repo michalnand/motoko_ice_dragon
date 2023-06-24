@@ -2,31 +2,41 @@
 #include <adc_driver.h>
 #include <gpio.h>
 
+#include <drivers.h>
 
-volatile uint32_t g_adc_current_idx;
-volatile uint16_t g_adc_channels[ADC_CHANNELS_COUNT];
-volatile uint16_t g_adc_result[ADC_CHANNELS_COUNT];
 
-#ifdef __cplusplus
+
+ADC_driver *g_adc_ptr;
+
+#ifdef __cplusplus 
 extern "C" {
 #endif
  
 void ADC_IRQHandler(void)
 {
     //read value
-    g_adc_result[g_adc_current_idx] = ADC_GetConversionValue(ADC1);
-
+    g_adc_ptr->adc_result[g_adc_ptr->adc_current_idx] = ADC_GetConversionValue(ADC1);
     ADC_ClearITPendingBit(ADC1, ADC_IT_EOC);
-    //ADC1->SR = ~(uint32_t)(ADC_IT_EOC>>8);
+    
+    //move to next channel
+    g_adc_ptr->adc_current_idx = (g_adc_ptr->adc_current_idx + 1)%ADC_CHANNELS_COUNT;
 
-    g_adc_current_idx = (g_adc_current_idx + 1)%ADC_CHANNELS_COUNT;
+    //one complete measurement scan done, process results
+    if (g_adc_ptr->adc_current_idx == 0)
+    {
+        g_adc_ptr->callback();
+        g_adc_ptr->measurement_id++;
+    }
 
-    ADC_RegularChannelConfig(ADC1, g_adc_channels[g_adc_current_idx], 1, ADC_SampleTime_15Cycles);
-     
+
+    //trigger next masurement
+    //ADC_RegularChannelConfig(ADC1, adc_channels[adc_current_idx], 1, ADC_SampleTime_15Cycles);
+    //ADC_RegularChannelConfig(ADC1, g_adc_ptr->adc_channels[g_adc_ptr->adc_current_idx], 1, ADC_SampleTime_112Cycles); 
+    ADC_RegularChannelConfig(ADC1, g_adc_ptr->adc_channels[g_adc_ptr->adc_current_idx], 1, ADC_SampleTime_480Cycles); 
+
     ADC_SoftwareStartConv(ADC1);
-    //ADC1->CR2 |= (uint32_t)ADC_CR2_SWSTART;
 }
-
+ 
 #ifdef __cplusplus
 }
 #endif
@@ -36,20 +46,16 @@ ADC_driver::ADC_driver()
 
 }
 
-ADC_driver::~ADC_driver()
-{
-
-}
-
 void ADC_driver::init()
 {
     //clear results
-
-    g_adc_current_idx  = 0; 
+    adc_current_idx       = 0; 
+    measurement_id= 0;
+    g_adc_ptr          = this;
 
     for (unsigned int i = 0; i < ADC_CHANNELS_COUNT; i++)
     {
-        g_adc_result[i] = 0;
+        adc_result[i] = 0;
     }
 
     //configure pins to analog input mode
@@ -62,24 +68,30 @@ void ADC_driver::init()
     Gpio<TGPIOA, 6, GPIO_MODE_AN> adc_6;
     Gpio<TGPIOA, 7, GPIO_MODE_AN> adc_7;
 
-    Gpio<TGPIOC, 4, GPIO_MODE_AN> ir_front;
-    Gpio<TGPIOB, 0, GPIO_MODE_AN> adc_right;
-    Gpio<TGPIOC, 5, GPIO_MODE_AN> adc_left;
+    
+    Gpio<TGPIOB, 1, GPIO_MODE_AN>   ir_left;
+    Gpio<TGPIOC, 5, GPIO_MODE_AN>   ir_front_left;
+    Gpio<TGPIOC, 4, GPIO_MODE_AN>   ir_front_right;
+    Gpio<TGPIOB, 0, GPIO_MODE_AN>   ir_right;
+
+
 
     //channels mapping
-    g_adc_channels[0]   = ADC_LINE_0;
-    g_adc_channels[1]   = ADC_LINE_1;
-    g_adc_channels[2]   = ADC_LINE_2;
-    g_adc_channels[3]   = ADC_LINE_3;
-    g_adc_channels[4]   = ADC_LINE_4;
-    g_adc_channels[5]   = ADC_LINE_5;
-    g_adc_channels[6]   = ADC_LINE_6;
-    g_adc_channels[7]   = ADC_LINE_7;
+    adc_channels[0]   = ADC_LINE_0;
+    adc_channels[1]   = ADC_LINE_1;
+    adc_channels[2]   = ADC_LINE_2;
+    adc_channels[3]   = ADC_LINE_3;
+    adc_channels[4]   = ADC_LINE_4;
+    adc_channels[5]   = ADC_LINE_5;
+    adc_channels[6]   = ADC_LINE_6;
+    adc_channels[7]   = ADC_LINE_7;
 
-    g_adc_channels[8]   = ADC_FRONT;
-    g_adc_channels[9]   = ADC_RIGHT;
-    g_adc_channels[10]  = ADC_LEFT;
-    
+    adc_channels[8]   = ADC_IR_LEFT;
+    adc_channels[9]   = ADC_IR_FRONT_LEFT;
+    adc_channels[10]  = ADC_IR_FRONT_RIGHT;
+    adc_channels[11]  = ADC_IR_RIGHT;
+
+
     //ADC init
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
 
@@ -104,8 +116,7 @@ void ADC_driver::init()
 
     ADC_Init(ADC1, &ADC_InitStruct);
 
-    ADC_RegularChannelConfig(ADC1, g_adc_channels[0], 1, ADC_SampleTime_480Cycles);
-
+    ADC_RegularChannelConfig(ADC1, adc_channels[0], 1, ADC_SampleTime_112Cycles);
 
     ADC_ITConfig(ADC1, ADC_IT_EOC, ENABLE);
 
@@ -115,7 +126,7 @@ void ADC_driver::init()
     NVIC_InitTypeDef         NVIC_InitStructure;
 
     NVIC_InitStructure.NVIC_IRQChannel                      = ADC_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority    = 0;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority    = 2;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority           = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd                   = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
@@ -126,5 +137,11 @@ void ADC_driver::init()
 
 uint16_t* ADC_driver::get()
 {
-    return (uint16_t*)g_adc_result;
+    return (uint16_t*)adc_result;
 }
+ 
+
+void ADC_driver::callback()
+{
+    ir_sensor.callback();
+} 
