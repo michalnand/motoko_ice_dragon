@@ -126,7 +126,7 @@ int Gyro::init(I2C_Interface &i2c_interface, int dt)
     sensitivity = LSM6DS0_G_FS_500_MDPS;
 
     
-    timer.delay_ms(100);
+    timer.delay_ms(10);
 
     //meassure gyro offset
     

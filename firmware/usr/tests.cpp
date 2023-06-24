@@ -79,11 +79,29 @@ void line_sensor_test()
 }
 
 
+/*
 void encoder_sensor_test()
 {
     Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;        //user led
     
-    while(1)
+    TI2C<TGPIOD, 14, 15, 4> left_i2c;
+    TI2C<TGPIOE, 0,   1, 4> right_i2c;
+
+
+    left_i2c.init();  
+    right_i2c.init();
+ 
+ 
+    AS5600      left_encoder; 
+    AS5600      right_encoder;
+
+    int left_init_res  = left_encoder.init(&left_i2c);
+    int right_init_res = right_encoder.init(&right_i2c);
+
+    terminal << "encoder test\n\n";
+    terminal << "init_res = " << left_init_res << " " << right_init_res << "\n";
+
+    while(1) 
     {
       led = 1; 
       timer.delay_ms(50);
@@ -91,8 +109,38 @@ void encoder_sensor_test()
       led = 0; 
       timer.delay_ms(50);
 
-      //terminal << "encoder_l = " << motor_control.l_angle << " " << motor_control.l_angle_position << " " << motor_control.l_angular_velocity << "\n";
-      //terminal << "encoder_r = " << motor_control.r_angle << " " << motor_control.r_angle_position << " " << motor_control.r_angular_velocity << "\n";
+      
+      left_encoder.update(100000);  
+      right_encoder.update(100000);   
+
+      terminal << "encoder_l = " << left_encoder.angle << " " << left_encoder.position << " " << left_encoder.angular_velocity << "\n";
+      terminal << "encoder_r = " << right_encoder.angle << " " << right_encoder.position << " " << right_encoder.angular_velocity << "\n";
+      terminal << "\n\n";
+  }
+}
+*/
+
+
+
+void encoder_sensor_test()
+{
+    Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;        //user led
+
+    
+    motor_control.set_torque(MOTOR_CONTROL_MAX/4, 0);
+
+    while(1)  
+    {
+      led = 1; 
+      timer.delay_ms(50);
+
+      led = 0; 
+      timer.delay_ms(50);
+
+      
+      terminal << "encoder_l = " << motor_control.left_encoder.angle  << " " << motor_control.left_encoder.position  << " " << motor_control.left_encoder.angular_velocity << "\n";
+      terminal << "encoder_r = " << motor_control.right_encoder.angle << " " << motor_control.right_encoder.position << " " << motor_control.right_encoder.angular_velocity << "\n";
+      terminal << "\n\n";
   }
 }
 
@@ -358,5 +406,64 @@ void right_motor_pwm_test()
     {
       speed--; 
     }
+  }
+}
+
+
+
+
+void motor_driver_test()
+{
+    Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;        //user led
+
+    
+    int speed = 0;
+    unsigned int state = 0;
+
+
+    
+
+    while(1)  
+    {
+      led = 1; 
+      timer.delay_ms(10);
+
+      led = 0; 
+      timer.delay_ms(10);
+
+      if (state == 0)
+      {
+        speed+= 5;
+        if (speed >= MOTOR_CONTROL_MAX)
+        {
+          timer.delay_ms(1000);
+          state = 1;
+        }
+      }
+      else if (state == 1)
+      {
+        speed-= 5;
+        
+        if (speed <= 5)
+        {
+          state = 2;
+          motor_control.set_torque(0, 0);
+        }
+      }
+      else
+      {
+        for (unsigned int i = 0; i < 5; i++)
+        {
+          motor_control.set_torque(MOTOR_CONTROL_MAX, MOTOR_CONTROL_MAX); 
+          timer.delay_ms(1000);
+          motor_control.set_torque(0, 0); 
+          timer.delay_ms(300);
+        }
+
+        state = 0;
+      }
+
+
+      motor_control.set_torque(speed, speed);      
   }
 }

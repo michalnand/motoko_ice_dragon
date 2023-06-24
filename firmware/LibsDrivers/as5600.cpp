@@ -44,7 +44,7 @@ int AS5600::init(I2C_Interface *i2c_)
     if (ack == 0)
     {
         return -1;
-    }
+    }  
 
       
     //power on

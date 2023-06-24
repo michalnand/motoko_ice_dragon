@@ -33,11 +33,14 @@ int main(void)
   //gyro_sensor_test();
   //line_sensor_test();
 
-
+ 
   //encoder_sensor_test();
 
   //left_motor_pwm_test();
   //right_motor_pwm_test();
+
+  //encoder_sensor_test();
+  motor_driver_test();
 
   while (1)
   {

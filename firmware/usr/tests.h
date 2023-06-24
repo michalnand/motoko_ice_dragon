@@ -12,4 +12,7 @@ void left_motor_pwm_test();
 void right_motor_connect_test();
 void right_motor_pwm_test();
 
+
+void motor_driver_test();
+
 #endif

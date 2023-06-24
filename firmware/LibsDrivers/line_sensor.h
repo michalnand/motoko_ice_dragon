@@ -2,7 +2,6 @@
 #define _LINE_SENSOR_H_
 
 #include <gpio.h>
-#include <thread.h>
 #include <array.h>
 
 
@@ -34,7 +33,7 @@ struct sLineSensorResult
 
  
 
-class LineSensor: public Thread
+class LineSensor
 {
   protected:
       Gpio<TGPIOC, 15, GPIO_MODE_OUT> sensor_led;        //sensor white led

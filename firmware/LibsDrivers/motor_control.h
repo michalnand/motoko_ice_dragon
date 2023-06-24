@@ -1,8 +1,6 @@
 #ifndef _MOTOR_CONTROL_H_
 #define _MOTOR_CONTROL_H_
-
-#include <drivers.h>
-
+ 
 #include <pwm.h>
 #include <as5600.h>
 
@@ -36,14 +34,16 @@ class MotorControl
         int32_t left_torque;
         int32_t right_torque;
 
-        TI2C<TGPIOD, 15, 14, 10> left_i2c;
-        TI2C<TGPIOE, 0,   1, 10> right_i2c;
+        TI2C<TGPIOD, 14, 15, 5> left_i2c;
+        TI2C<TGPIOE, 0,   1, 5> right_i2c;
 
-        AS5600      left_encoder;
-        AS5600      right_encoder;
 
         PWMLeft     left_pwm;
         PWMRight    right_pwm;
+
+    public:
+        AS5600      left_encoder;
+        AS5600      right_encoder;
 };
 
 #endif

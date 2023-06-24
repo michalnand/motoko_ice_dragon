@@ -1,6 +1,8 @@
+#include <drivers.h>
+
 #include <motor_control.h>
 #include <gonio.h>
-
+ 
 //helping stuff
 #define SQRT3       ((int32_t)1773)      // sqrt(3)     = 1773/1024
 #define SQRT3INV    ((int32_t)591)       // 1/sqrt(3)   = 591/1024
@@ -13,15 +15,63 @@
 
 
 
+//timer 2 interrupt handler, running commutation process, 4kHz
+MotorControl *g_motor_control_ptr;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void TIM2_IRQHandler(void)
+{ 
+    g_motor_control_ptr->callback();
+    TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);  
+} 
+ 
+#ifdef __cplusplus
+}
+#endif
+
+
 void MotorControl::init()
 {
+    g_motor_control_ptr = this;
+
     left_pwm.init();
     right_pwm.init();
 
     hold();
 
+    left_i2c.init();
+    right_i2c.init();
+
     left_encoder.init(&left_i2c);
-    right_encoder.init(&right_i2c);
+    right_encoder.init(&right_i2c); 
+
+
+    //init timer 2 interrupt for callback calling, 4kHz
+    
+    TIM_TimeBaseInitTypeDef     TIM_TimeBaseStructure;
+    NVIC_InitTypeDef            NVIC_InitStructure;
+
+    
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+
+    TIM_TimeBaseStructure.TIM_Prescaler         = 0;
+    TIM_TimeBaseStructure.TIM_CounterMode       = TIM_CounterMode_Up;
+    TIM_TimeBaseStructure.TIM_Period            = (216*250);
+    TIM_TimeBaseStructure.TIM_ClockDivision     = 0; 
+    TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;   
+
+    TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+    TIM_ITConfig(TIM2, TIM_IT_CC1, ENABLE);
+    TIM_Cmd(TIM2, ENABLE);  
+
+    NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority    = 1;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority           = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
 
     set_torque(0, 0);
 }
@@ -58,8 +108,8 @@ void MotorControl::callback()
 
 void MotorControl::hold()
 {
-    set_torque_from_rotation(500,   SINE_TABLE_SIZE/4,  0,   0);
-    set_torque_from_rotation(500,  SINE_TABLE_SIZE/4,   0,  1);
+    set_torque_from_rotation(500,  0,   0,  0);
+    set_torque_from_rotation(500,  0,   0,  1);
 
     timer.delay_ms(200);
 }
@@ -105,7 +155,7 @@ void MotorControl::set_torque_from_rotation(int32_t torque, uint32_t phase, uint
 
     if (motor_id == 0)
     {
-        left_pwm.set(a_pwm, b_pwm, c_pwm);
+        left_pwm.set(b_pwm, a_pwm, c_pwm);
     }
     else
     {

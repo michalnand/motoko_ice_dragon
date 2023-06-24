@@ -8,24 +8,20 @@
 #define OK_I2C_ACK 1
 
 
-#define SetHighSCL()  {scl = 1;}
-#define SetLowSCL()   {scl = 0;}
- 
+#define SetHighSCL()  {scl.set_mode(GPIO_MODE_IN_FLOATING);}
+#define SetLowSCL()   {scl.set_mode(GPIO_MODE_OUT);}
 #define SetHighSDA()  {sda.set_mode(GPIO_MODE_IN_FLOATING);}
-#define SetLowSDA()   {sda = 0; sda.set_mode(GPIO_MODE_OUT);}
-
-//#define SetHighSDA()  {sda = 1;} 
-//#define SetLowSDA()   {sda = 0;}
+#define SetLowSDA()   {sda.set_mode(GPIO_MODE_OUT);}
 
 
 
 
 
-template <unsigned char port_name, unsigned char sda_pin, unsigned char scl_pin, unsigned char bus_speed = 5> class TI2C  : public I2C_Interface
+template <unsigned char port_name, unsigned char sda_pin, unsigned char scl_pin, unsigned int bus_speed = 5> class TI2C  : public I2C_Interface
 {
   private:
-    Gpio<port_name, sda_pin, GPIO_MODE_OUT>     sda;
-    Gpio<port_name, scl_pin, GPIO_MODE_OUT_OD>  scl;
+    Gpio<port_name, sda_pin, GPIO_MODE_IN_FLOATING>     sda;
+    Gpio<port_name, scl_pin, GPIO_MODE_IN_FLOATING>     scl;
 
   public:
     TI2C()
@@ -35,7 +31,7 @@ template <unsigned char port_name, unsigned char sda_pin, unsigned char scl_pin,
 
     virtual ~TI2C()
     {
- 
+
     }
 
 
@@ -45,7 +41,6 @@ template <unsigned char port_name, unsigned char sda_pin, unsigned char scl_pin,
 
       sda.init();
       scl.init();
-      
       sda = 0;
       scl = 0;
     }
