@@ -22,10 +22,10 @@ void drivers_init()
     terminal.init();
     i2c.init();
     
-    //ir_sensor.init(); 
+    ir_sensor.init(); 
     adc.init();
-
-    //line_sensor.init(4);
+ 
+    line_sensor.init(4);
 
     gyro.init(i2c, 5);
     
