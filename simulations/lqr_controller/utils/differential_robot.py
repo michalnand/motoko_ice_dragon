@@ -8,7 +8,7 @@ class DifferentialRobot:
         self.dt = dt
 
         #time constant for yaw angle robot rotation (steering)
-        tau_turn    = 6.3
+        tau_turn    = 0.45
 
         #time constant for robot acceleration (forward direction)
         tau_forward = 0.9
@@ -30,8 +30,8 @@ class DifferentialRobot:
         self.mat_a[3][2] = 1.0
 
 
-        self.mat_b[0][0] =  -b_turn*tau_turn
-        self.mat_b[0][1] =   b_turn*tau_turn
+        self.mat_b[0][0] =   b_turn*tau_turn
+        self.mat_b[0][1] =   -b_turn*tau_turn
         
         self.mat_b[2][0] =  b_forward*tau_forward
         self.mat_b[2][1] =  b_forward*tau_forward

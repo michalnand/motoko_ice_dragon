@@ -86,8 +86,8 @@ void MotorControl::set_torque(int32_t left_torque, int32_t right_torque)
 void MotorControl::callback()
 {
     //read rotor angle, dt = 250uS
-    left_encoder.update(250);  
-    right_encoder.update(250);  
+    left_encoder.update(250/2);  
+    right_encoder.update(250/2);  
 
     int32_t left_u;
     int32_t left_phase; 
