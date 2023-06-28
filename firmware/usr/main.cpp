@@ -40,7 +40,10 @@ int main(void)
   //right_motor_pwm_test();
 
   //encoder_sensor_test();
+  
   motor_driver_test();
+
+  //mcu_usage();
 
   while (1)
   {

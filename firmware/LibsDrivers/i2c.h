@@ -7,16 +7,6 @@
 #define NO_I2C_ACK 0
 #define OK_I2C_ACK 1
 
-
-#define SetHighSCL()  {scl.set_mode(GPIO_MODE_IN_FLOATING);}
-#define SetLowSCL()   {scl.set_mode(GPIO_MODE_OUT);}
-#define SetHighSDA()  {sda.set_mode(GPIO_MODE_IN_FLOATING);}
-#define SetLowSDA()   {sda.set_mode(GPIO_MODE_OUT);}
-
-
-
-
-
 template <unsigned char port_name, unsigned char sda_pin, unsigned char scl_pin, unsigned int bus_speed = 5> class TI2C  : public I2C_Interface
 {
   private:
@@ -37,14 +27,25 @@ template <unsigned char port_name, unsigned char sda_pin, unsigned char scl_pin,
 
     void init()
     {
-      bus_speed_ = bus_speed;
-
       sda.init();
       scl.init();
       sda = 0;
       scl = 0;
     }
 
+
+    /*
+    inline void SetHighSCL()  {scl.set_mode(GPIO_MODE_IN_FLOATING);}
+    inline void SetLowSCL()   {scl.set_mode(GPIO_MODE_OUT);}
+    inline void SetHighSDA()  {sda.set_mode(GPIO_MODE_IN_FLOATING);}
+    inline void SetLowSDA()   {sda.set_mode(GPIO_MODE_OUT);}
+    */
+
+    inline void SetHighSCL()  {scl.pasive();}
+    inline void SetLowSCL()   {scl.active();}
+    inline void SetHighSDA()  {sda.pasive();}
+    inline void SetLowSDA()   {sda.active();}
+ 
     void start()
     {
       SetHighSCL();
@@ -102,7 +103,6 @@ template <unsigned char port_name, unsigned char sda_pin, unsigned char scl_pin,
 
         SetLowSCL();
         delay();
-
         SetHighSDA();
         delay();
 
@@ -162,6 +162,15 @@ template <unsigned char port_name, unsigned char sda_pin, unsigned char scl_pin,
         delay();
 
         return (c);
+    }
+
+    void delay()
+    {
+      volatile uint32_t loops = bus_speed;
+      while (loops--)
+      {
+
+      }
     }
 
 };

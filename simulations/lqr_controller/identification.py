@@ -77,7 +77,7 @@ if __name__ == "__main__":
     
     models, loss = LibsControl.identification(u, x, dt, steps_count=20, augmentations = [])
 
-    model = models[7]
+    model = models[-1]
 
     ab      = model.T
     order   = x.shape[1]

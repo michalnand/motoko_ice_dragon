@@ -3,19 +3,16 @@
 
 class I2C_Interface
 {
-    protected:
-        unsigned int bus_speed_;
-
     public:
       I2C_Interface();
       virtual ~I2C_Interface();
 
       virtual void start() { }
       virtual void stop() { }
-      virtual void init() { bus_speed_ = 20;}
+      virtual void init() {  }
       virtual unsigned char write(unsigned char b) { (void)b; return 0;};
       virtual unsigned char read(unsigned char ack = 0) { (void)ack; return 0;};
-
+ 
 
     public:
         void write_reg(unsigned char dev_adr, unsigned char reg_adr, unsigned char value);
@@ -27,8 +24,6 @@ class I2C_Interface
         void delay();
 
         unsigned char check(unsigned char dev_adr);
-
-
 };
 
 

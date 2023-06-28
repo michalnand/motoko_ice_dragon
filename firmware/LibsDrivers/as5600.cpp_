@@ -83,7 +83,6 @@ int32_t AS5600::read_angle()
 
 void AS5600::update(int32_t dt_us)
 {
-    //int16_t value = i2c->read_reg_16bit(I2C_ADDRESS, RAW_ANGLE_H_ADR)&0x0fff;
     int16_t value = i2c->read_reg_16bit(I2C_ADDRESS, ANGLE_H_ADR)&0x0fff;
 
     this->angle = value; 

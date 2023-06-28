@@ -40,3 +40,10 @@ void Timer::delay_ms(uint32_t time_ms)
         __asm("wfi");
     }
 }
+
+uint32_t Timer::get_time()
+{
+    volatile uint32_t result = g_time;
+
+    return result;
+}

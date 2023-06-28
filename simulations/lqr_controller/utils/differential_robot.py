@@ -8,10 +8,10 @@ class DifferentialRobot:
         self.dt = dt
 
         #time constant for yaw angle robot rotation (steering)
-        tau_turn    = 0.45
+        tau_turn    = 1.0/0.3
 
         #time constant for robot acceleration (forward direction)
-        tau_forward = 0.9
+        tau_forward = 1.0/0.5
 
         #amplification, ratio between measured value amplitude : controll variable amplitude
         b_turn      = 1.5
@@ -26,8 +26,8 @@ class DifferentialRobot:
 
         self.mat_a[0][0] =  -tau_turn
         self.mat_a[1][0] =  1.0
-        self.mat_a[2][2] = -tau_forward
-        self.mat_a[3][2] = 1.0
+        self.mat_a[2][2] =  -tau_forward
+        self.mat_a[3][2] =  1.0
 
 
         self.mat_b[0][0] =   b_turn*tau_turn

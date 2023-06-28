@@ -42,12 +42,16 @@ void MotorControl::init()
 
     hold();
 
+    /*
     left_i2c.init();
     right_i2c.init();
 
     left_encoder.init(&left_i2c);
     right_encoder.init(&right_i2c); 
+    */
 
+    left_encoder.init();
+    right_encoder.init();
 
     //init timer 2 interrupt for callback calling, 4kHz
     
@@ -59,7 +63,7 @@ void MotorControl::init()
 
     TIM_TimeBaseStructure.TIM_Prescaler         = 0;
     TIM_TimeBaseStructure.TIM_CounterMode       = TIM_CounterMode_Up;
-    TIM_TimeBaseStructure.TIM_Period            = (216*250);
+    TIM_TimeBaseStructure.TIM_Period            = (216/2)*500;
     TIM_TimeBaseStructure.TIM_ClockDivision     = 0; 
     TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;   
 
@@ -85,9 +89,9 @@ void MotorControl::set_torque(int32_t left_torque, int32_t right_torque)
 
 void MotorControl::callback()
 {
-    //read rotor angle, dt = 250uS
-    left_encoder.update(250/2);  
-    right_encoder.update(250/2);  
+    //read rotor angle, dt = 500uS
+    left_encoder.update(500);  
+    right_encoder.update(500);   
 
     int32_t left_u;
     int32_t left_phase; 
@@ -136,7 +140,7 @@ void MotorControl::hold()
     timer.delay_ms(200);
 }
      
-
+ 
 
 void MotorControl::set_torque_from_rotation(int32_t torque, int32_t phase, uint32_t rotor_angle, int motor_id)
 {

@@ -2,7 +2,7 @@
 #define _MOTOR_CONTROL_H_
  
 #include <pwm.h>
-#include <as5600.h>
+#include <as5600_t.h>
 
 
 #define MOTOR_CONTROL_MAX       ((int32_t)1024)
@@ -10,9 +10,6 @@
 #define MOTOR_POLES             ((int32_t)14)
 #define MOTOR_KV                ((int32_t)250)
 #define MOTOR_CURRENT_MAX       ((int32_t)5)
-
-//maximal motor torque x 4096
-#define MOTOR_TORQUE_MAX        ((4096*MOTOR_CURRENT_MAX)/MOTOR_KV)
 
 
 
@@ -34,16 +31,13 @@ class MotorControl
         int32_t left_torque;
         int32_t right_torque; 
 
-        TI2C<TGPIOD, 14, 15, 5> left_i2c;
-        TI2C<TGPIOE, 0,   1, 5> right_i2c;
-
-
         PWMLeft     left_pwm;
         PWMRight    right_pwm;
 
     public:
-        AS5600      left_encoder;
-        AS5600      right_encoder;
+        AS5600T<TGPIOD, 14, 15, 2> left_encoder;
+        AS5600T<TGPIOE,  0,  1, 2> right_encoder;
+
 };
 
 #endif

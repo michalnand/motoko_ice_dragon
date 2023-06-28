@@ -15,4 +15,7 @@ void right_motor_pwm_test();
 
 void motor_driver_test();
 
+
+void mcu_usage();
+
 #endif

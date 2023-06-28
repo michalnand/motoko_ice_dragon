@@ -1,15 +1,16 @@
 
 
-#define assert_param(expr) ((void)0)
+//#define assert_param(expr) ((void)0)
 
 void assert_failed(uint8_t* file, uint32_t line)
 {
-/* Infinite loop /
-/ Use GDB to find out why we're here */
-while (1);
+   (void)file;
+   (void)line;
+   while (1);
 }
 
 
+/*
 void memcpy(void *dest, void *src, int n)
 {
    char *csrc = (char *)src;
@@ -20,3 +21,4 @@ void memcpy(void *dest, void *src, int n)
     cdest[i] = csrc[i];
    }
 }
+*/

@@ -34,7 +34,7 @@ def get_required(targets, current_target_idx, robot_x, robot_y, robot_theta):
 
 if __name__ == "__main__":
 
-    dt    = 1.0/256.0
+    dt    = 1.0/250.0
     model = DifferentialRobot(dt)
 
   

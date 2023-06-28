@@ -52,7 +52,7 @@ void gyro_sensor_test()
 
       terminal << "measurements/s : " << 10*(measurement_id_now - measurement_id_prev) << "\n";
       terminal << "gyro reading   : " << gyro.get_angular_rate() << " " << gyro.get_angle() << "\n";
-      terminal << "\n";
+      terminal << "\n\n";
   }
 } 
   
@@ -465,3 +465,31 @@ void motor_driver_test()
       motor_control.set_torque(speed, -speed);      
   }
 }
+
+
+void mcu_usage()
+{
+  Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;
+
+  uint32_t counter_no_load = 14391346;
+
+  while(1)
+  {
+    uint32_t time_start = timer.get_time();
+    uint32_t time_stop  = time_start + 1000;
+    uint32_t counter = 0;
+
+    led = 1;
+    while (timer.get_time() < time_stop)
+    {
+      counter++;
+    }
+    led = 0;
+
+    uint32_t cpu_usage = 100 - (100*counter)/counter_no_load;
+
+    terminal << "cpu_usage = " << cpu_usage << " [%]\n";
+  }
+}
+
+

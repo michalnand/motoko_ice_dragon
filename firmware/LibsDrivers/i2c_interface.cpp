@@ -67,8 +67,8 @@ unsigned int I2C_Interface::read_reg_16bit(unsigned char dev_adr, unsigned char 
   start();
   write(dev_adr);  // slave address, write command
   write(reg_adr);  // send reg address
-
   start();
+  
   write(dev_adr|0x01); // slave address, read command
   result = ((unsigned int)read(1))<<8;   // read data
   result|= ((unsigned int)read(0));
@@ -92,11 +92,6 @@ void I2C_Interface::read_reg_multi(unsigned char dev_adr, unsigned char reg_adr,
   stop();
 }
 
-void I2C_Interface::delay()
-{
-  for (unsigned int loops = 0; loops < bus_speed_; loops++)
-    __asm("nop");
-}
 
 
 unsigned char I2C_Interface::check(unsigned char dev_adr)
@@ -106,4 +101,4 @@ unsigned char I2C_Interface::check(unsigned char dev_adr)
   stop();  
 
   return ack_res;
-}
+} 
