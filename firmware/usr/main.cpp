@@ -11,6 +11,9 @@
 #define KEY_PIN         3
 
 
+#include <lqr.h> 
+
+
 
 int main(void) 
 {
@@ -36,7 +39,7 @@ int main(void)
   
 
   sensors_test();
- 
+  
 
   //left_motor_pwm_test();
   //right_motor_pwm_test();
@@ -44,8 +47,16 @@ int main(void)
   //motor_driver_test();
 
   
+  LQR<2, 4, 16> lqr;
+
+  lqr.init(nullptr, nullptr, 1024, 4.0);
+  
+  lqr.step();
 
   mcu_usage();
+
+ 
+  
 
   while (1)
   {
