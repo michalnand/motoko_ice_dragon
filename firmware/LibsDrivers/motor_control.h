@@ -40,6 +40,8 @@ class MotorControl
         AS5600T<TGPIOD, 14, 15, 2> left_encoder;
         AS5600T<TGPIOE,  0,  1, 2> right_encoder;
 
+        int32_t distance, velocity;
+
 };
 
 #endif

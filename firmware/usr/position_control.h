@@ -10,12 +10,13 @@ class PositionControl
 {
     public:
         void init();
-        void set(float dtheta, float dx);
+        void set_required(float dtheta, float dx);
         void set_state(uint32_t idx, float x);
 
         void callback();
 
     private:
+        bool line_following_mode;
         LQR<2, 4> lqr;
 };
 

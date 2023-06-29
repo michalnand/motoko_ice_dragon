@@ -28,6 +28,8 @@ struct sLineSensorResult
 
     float center_line_position, left_line_position, right_line_position;
     float average;
+
+    float angular_rate, angle; //TODO compute this
 };
 
 

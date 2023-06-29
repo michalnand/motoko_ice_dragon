@@ -38,6 +38,9 @@ void MotorControl::init()
 {
     g_motor_control_ptr = this;
 
+    distance = 0;
+    velocity = 0;
+
     left_pwm.init();
     right_pwm.init();
 
@@ -116,12 +119,11 @@ void MotorControl::callback()
         right_phase = SINE_TABLE_SIZE/4; 
     }
 
-
-   
-    
-
     set_torque_from_rotation(left_u,   left_phase,  left_encoder.angle,   0);
     set_torque_from_rotation(right_u,  right_phase, right_encoder.angle,  1);
+
+    distance = (left_encoder.position + right_encoder.position)/2;
+    velocity = (left_encoder.angular_velocity + right_encoder.angular_velocity)/2;
 }
 
 

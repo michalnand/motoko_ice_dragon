@@ -23,6 +23,7 @@ class Gyro
         int32_t sensitivity;
         int32_t offset_z;
 
+    public:
         int32_t angular_rate_z;
         int32_t angle_z;      
 
