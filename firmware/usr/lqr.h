@@ -113,6 +113,14 @@ class LQR
                 this->ki[j] = other.ki[j];
             }
 
+            this->antiwindup = other.antiwindup;
+            this->dt         = other.dt;
+
+            copy_state(other);
+        }
+
+        void copy_state(LQR<inputs_count, system_order, parallel_count> &other)
+        {
             for (unsigned int j = 0; j < system_order; j++)
             {
                 xr[j] = other.xr[j];
@@ -132,9 +140,6 @@ class LQR
             {
                 u[j] =other.u[j];
             }
-
-            this->antiwindup = other.antiwindup;
-            this->dt         = other.dt;
         }
 
     private:

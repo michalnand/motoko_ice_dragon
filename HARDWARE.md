@@ -33,4 +33,8 @@
 
 # front chassis
 
-![3d_print](3d_print/chassis.png)
+![3d_print](3d_print/chassis.png) 
+
+# magnet centering jig
+
+![3d_print](3d_print/magnet_jig.png) 

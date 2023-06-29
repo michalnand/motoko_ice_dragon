@@ -15,7 +15,10 @@
 
 ![animation](doc/images/robot_mlqr.gif)
 
- 
+# software architecture
+![block_diagram](doc/diagrams/sw_architecture.png)
+
+
 # LQR controller
 
 ![lqr_structure](doc/diagrams/control-lqri_synth.png)

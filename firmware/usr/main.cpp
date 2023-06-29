@@ -36,8 +36,6 @@ int main(void)
   //line_sensor_test();
   //gyro_sensor_test();
   //encoder_sensor_test();
-  
-
   sensors_test();
   
 
@@ -46,16 +44,9 @@ int main(void)
   //encoder_sensor_test();
   //motor_driver_test();
 
-  
-  LQR<2, 4, 16> lqr;
-
-  lqr.init(nullptr, nullptr, 1024, 4.0);
-  
-  lqr.step();
-
   mcu_usage();
 
- 
+  
   
 
   while (1)
