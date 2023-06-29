@@ -20,7 +20,7 @@
 extern  Timer                       timer;
 extern  Terminal                    terminal;
 extern  ADC_driver                  adc;
-extern  TI2C<TGPIOD, 1, 2, 255>      i2c;
+extern  TI2C<TGPIOD, 1, 2, 5>       i2c;
 
 extern  IRSensor     ir_sensor;
 extern  LineSensor   line_sensor;

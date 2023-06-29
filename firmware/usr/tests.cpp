@@ -17,9 +17,9 @@ void ir_sensor_test()
       led = 0; 
       timer.delay_ms(50);
 
-      uint32_t measurement_id_prev = adc.measurement_id;
+      uint32_t measurement_id_prev = ir_sensor.measurement_id;
       timer.delay_ms(100);
-      uint32_t measurement_id_now = adc.measurement_id;
+      uint32_t measurement_id_now = ir_sensor.measurement_id;
 
       terminal << "measurements/s : " << 10*(measurement_id_now - measurement_id_prev) << "\n";
       terminal << "ir readings    : ";
@@ -28,10 +28,34 @@ void ir_sensor_test()
       {
         terminal << ir_sensor.get()[i] << " ";
       }
-      terminal << "\n";
+      terminal << "\n\n\n";
   }
 }
 
+
+
+void line_sensor_test()
+{
+    Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;        //user led
+    
+    while(1)
+    {
+      led = 1; 
+      timer.delay_ms(50);
+
+      led = 0; 
+      timer.delay_ms(50);
+ 
+      uint32_t measurement_id_prev = line_sensor.result.measurement_id;
+      timer.delay_ms(100);
+      uint32_t measurement_id_now  = line_sensor.result.measurement_id;
+
+      terminal << "measurements/s : " << 10*(measurement_id_now - measurement_id_prev) << "\n";
+      line_sensor.print();
+
+      terminal << "\n\n\n";
+  }
+}
 
 
 void gyro_sensor_test()
@@ -46,10 +70,13 @@ void gyro_sensor_test()
       led = 0; 
       timer.delay_ms(50);
 
+      
       uint32_t measurement_id_prev = gyro.measurement_id;
-      timer.delay_ms(100);
+      timer.delay_ms(100); 
+      //gyro.callback();
       uint32_t measurement_id_now  = gyro.measurement_id;
 
+      terminal << "measurements   : " << gyro.measurement_id << "\n";
       terminal << "measurements/s : " << 10*(measurement_id_now - measurement_id_prev) << "\n";
       terminal << "gyro reading   : " << gyro.get_angular_rate() << " " << gyro.get_angle() << "\n";
       terminal << "\n\n";
@@ -57,68 +84,6 @@ void gyro_sensor_test()
 } 
   
 
-void line_sensor_test()
-{
-    Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;        //user led
-    
-    while(1)
-    {
-      led = 1; 
-      timer.delay_ms(50);
-
-      led = 0; 
-      timer.delay_ms(50);
-
-      uint32_t measurement_id_prev = line_sensor.result.measurement_id;
-      timer.delay_ms(100);
-      uint32_t measurement_id_now  = line_sensor.result.measurement_id;
-
-      terminal << "measurements/s : " << 10*(measurement_id_now - measurement_id_prev) << "\n";
-      line_sensor.print();
-  }
-}
-
-
-/*
-void encoder_sensor_test()
-{
-    Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;        //user led
-    
-    TI2C<TGPIOD, 14, 15, 4> left_i2c;
-    TI2C<TGPIOE, 0,   1, 4> right_i2c;
-
-
-    left_i2c.init();  
-    right_i2c.init();
- 
- 
-    AS5600      left_encoder; 
-    AS5600      right_encoder;
-
-    int left_init_res  = left_encoder.init(&left_i2c);
-    int right_init_res = right_encoder.init(&right_i2c);
-
-    terminal << "encoder test\n\n";
-    terminal << "init_res = " << left_init_res << " " << right_init_res << "\n";
-
-    while(1) 
-    {
-      led = 1; 
-      timer.delay_ms(50);
-
-      led = 0; 
-      timer.delay_ms(50);
-
-      
-      left_encoder.update(100000);  
-      right_encoder.update(100000);   
-
-      terminal << "encoder_l = " << left_encoder.angle << " " << left_encoder.position << " " << left_encoder.angular_velocity << "\n";
-      terminal << "encoder_r = " << right_encoder.angle << " " << right_encoder.position << " " << right_encoder.angular_velocity << "\n";
-      terminal << "\n\n";
-  }
-}
-*/
 
 
 
@@ -141,6 +106,66 @@ void encoder_sensor_test()
       terminal << "encoder_l = " << motor_control.left_encoder.angle  << " " << motor_control.left_encoder.position  << " " << motor_control.left_encoder.angular_velocity << "\n";
       terminal << "encoder_r = " << motor_control.right_encoder.angle << " " << motor_control.right_encoder.position << " " << motor_control.right_encoder.angular_velocity << "\n";
       terminal << "\n\n";
+  }
+}
+
+
+
+void sensors_test()
+{
+  Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;
+
+  uint32_t counter_no_load = 14391346/5;
+
+  while(1)
+  {
+    uint32_t time_start = timer.get_time();
+    uint32_t time_stop  = time_start + 200;
+    uint32_t counter = 0;
+
+    led = 1;
+    while (timer.get_time() < time_stop)
+    {
+      counter++;
+    }
+    led = 0;
+
+    uint32_t cpu_usage = 100 - (100*counter)/counter_no_load;
+
+    terminal << "cpu_usage = " << cpu_usage << " [%]\n\n";
+
+    uint32_t ir_measurement_id_prev   = ir_sensor.measurement_id;
+    uint32_t line_measurement_id_prev = line_sensor.result.measurement_id;
+    uint32_t gyro_measurement_id_prev = gyro.measurement_id;
+    
+    timer.delay_ms(100);
+    
+    uint32_t ir_measurement_id_now    = ir_sensor.measurement_id;
+    uint32_t line_measurement_id_now  = line_sensor.result.measurement_id;
+    uint32_t gyro_measurement_id_now  = gyro.measurement_id;
+
+
+    terminal << "ir_sensor : \n";
+    terminal << "measurements/s : " << 10*(ir_measurement_id_now - ir_measurement_id_prev) << "\n";
+    ir_sensor.print();
+
+    
+    terminal << "line_sensor : \n";
+    terminal << "measurements/s : " << 10*(line_measurement_id_now - line_measurement_id_prev) << "\n";
+    line_sensor.print();
+
+
+    terminal << "gyro :\n";
+    terminal << "measurements/s : " << 10*(gyro_measurement_id_now - gyro_measurement_id_prev) << "\n";
+    terminal << "reading        : " << gyro.get_angular_rate() << " " << gyro.get_angle() << "\n";
+    terminal << "\n\n\n";
+
+    terminal << "encoder\n";
+    terminal << "left : " << motor_control.left_encoder.angle  << " " << motor_control.left_encoder.position  << " " << motor_control.left_encoder.angular_velocity << "\n";
+    terminal << "righ : " << motor_control.right_encoder.angle << " " << motor_control.right_encoder.position << " " << motor_control.right_encoder.angular_velocity << "\n";
+    terminal << "\n\n\n";
+
+    terminal << "\n\n\n\n";
   }
 }
 

@@ -11,4 +11,10 @@
 
 void SetSysClock(uint32_t mode = SysClok216_8HSE);
 
+
+inline uint32_t timer_period(uint32_t dt_us)
+{
+    return ((SystemCoreClock/1000)*dt_us)/1000 + 1;
+}
+
 #endif

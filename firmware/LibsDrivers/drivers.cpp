@@ -3,7 +3,7 @@
 Timer                       timer;
 Terminal                    terminal;
 ADC_driver                  adc;
-TI2C<TGPIOD, 1, 2, 255>     i2c;
+TI2C<TGPIOD, 1, 2, 5>       i2c;
  
 IRSensor     ir_sensor;
 LineSensor   line_sensor;
@@ -25,7 +25,7 @@ void drivers_init()
     ir_sensor.init(); 
     adc.init();
  
-    line_sensor.init(4);
+    line_sensor.init();
 
     gyro.init(i2c, 5);
     

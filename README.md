@@ -2,7 +2,8 @@
 
 ![logo](doc/images/ice_dragon_logo.jpg)
 
-![3d_print](doc/images/robot/robot_0_b.jpg)
+![3d_print](doc/images/robot/robot_4.jpg)
+![3d_print](doc/images/robot/robot_0.jpg)
 
 
 ![animation](doc/images/robot_lqr.gif)

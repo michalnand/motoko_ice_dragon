@@ -140,8 +140,13 @@ uint16_t* ADC_driver::get()
     return (uint16_t*)adc_result;
 }
  
-
+ 
 void ADC_driver::callback()
 {
     ir_sensor.callback();
+
+    if ((measurement_id%8) == 0)
+    {
+        line_sensor.callback();
+    }
 } 

@@ -30,20 +30,22 @@ int main(void)
   pwm.set(10, 20, 30);
   */
   //ir_sensor_test();
-  //gyro_sensor_test();
   //line_sensor_test();
-
- 
+  //gyro_sensor_test();
   //encoder_sensor_test();
+  
+
+  sensors_test();
+ 
 
   //left_motor_pwm_test();
   //right_motor_pwm_test();
-
   //encoder_sensor_test();
-  
-  motor_driver_test();
+  //motor_driver_test();
 
-  //mcu_usage();
+  
+
+  mcu_usage();
 
   while (1)
   {

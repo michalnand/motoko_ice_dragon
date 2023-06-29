@@ -3,21 +3,6 @@
 
 LineSensor *g_line_sensor_ptr;
 
-#ifdef __cplusplus
-extern "C" {
-#endif 
-
-
-void TIM5_IRQHandler(void)
-{ 
-    g_line_sensor_ptr->callback();
-    TIM_ClearITPendingBit(TIM5, TIM_IT_CC1);  
-} 
- 
-#ifdef __cplusplus
-}
-#endif
-
 LineSensor::LineSensor()
 {
 
@@ -28,7 +13,7 @@ LineSensor::~LineSensor()
 
 }
 
-void LineSensor::init(int dt)
+void LineSensor::init()
 {
     g_line_sensor_ptr = this;
 
@@ -66,56 +51,6 @@ void LineSensor::init(int dt)
     result.right_line_position  = result.center_line_position;
 
     result.average = 0.0;
-
-    /*
-    //init timer 7, for dt time step
-    TIM_TimeBaseInitTypeDef     TIM_TimeBaseStructure;
-    NVIC_InitTypeDef            NVIC_InitStructure;
-
-    
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM7, ENABLE);
- 
-    TIM_TimeBaseStructure.TIM_Prescaler         = 0;
-    TIM_TimeBaseStructure.TIM_CounterMode       = TIM_CounterMode_Up;
-    TIM_TimeBaseStructure.TIM_Period            = (216*1000*dt);
-    TIM_TimeBaseStructure.TIM_ClockDivision     = 0; 
-    TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;    
-
-    TIM_TimeBaseInit(TIM7, &TIM_TimeBaseStructure);
-    TIM_ITConfig(TIM7, TIM_IT_CC1, ENABLE);
-    TIM_Cmd(TIM7, ENABLE); 
-
-     
-    NVIC_InitStructure.NVIC_IRQChannel = TIM7_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority    = 3;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority           = 0;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
-    */
-
-
-    TIM_TimeBaseInitTypeDef     TIM_TimeBaseStructure;
-    NVIC_InitTypeDef            NVIC_InitStructure;
-
-    
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5, ENABLE);
-
-    TIM_TimeBaseStructure.TIM_Prescaler         = 0;
-    TIM_TimeBaseStructure.TIM_CounterMode       = TIM_CounterMode_Up;
-    TIM_TimeBaseStructure.TIM_Period            = (216*1000*dt);
-    TIM_TimeBaseStructure.TIM_ClockDivision     = 0; 
-    TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;   
-
-    TIM_TimeBaseInit(TIM5, &TIM_TimeBaseStructure);
-    TIM_ITConfig(TIM5, TIM_IT_CC1, ENABLE);
-    TIM_Cmd(TIM5, ENABLE); 
-
-    
-    NVIC_InitStructure.NVIC_IRQChannel = TIM5_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority    = 3;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority           = 0;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    NVIC_Init(&NVIC_InitStructure); 
 }
 
 
@@ -133,9 +68,13 @@ void LineSensor::callback()
 {
     for (unsigned int i = 0; i < adc_result.size(); i++)
     { 
-        adc_result[i] = 1000 - ((adc.get()[i] - adc_calibration_q[i])*1000)/adc_calibration_k[i];
-        if (adc_result[i] < 0)
-            adc_result[i] = 0;
+        int v = 1000 - ((adc.get()[i] - adc_calibration_q[i])*1000)/adc_calibration_k[i];
+        if (v < 0)
+        {
+            v = 0;
+        }
+
+        adc_result[i] = v;
     }
     
     line_filter();
@@ -170,7 +109,7 @@ void LineSensor::line_filter()
 {
     result.measurement_id++;
     result.line_lost_type = LINE_LOST_CENTER;
-
+    
     //compute average of all sensors
     int average = 0;
     for (unsigned int i = 0; i < adc_result.size(); i++)

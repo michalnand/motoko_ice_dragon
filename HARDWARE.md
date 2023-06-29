@@ -2,11 +2,20 @@
 
 # complete robot
 
-![3d_print](doc/images/robot/robot_0_b.jpg)
+
+![3d_print](doc/images/robot/robot_3.jpg)
+![3d_print](doc/images/robot/robot_4.jpg)
+
 ![3d_print](doc/images/robot/robot_1.jpg)
 ![3d_print](doc/images/robot/robot_2.jpg)
 ![3d_print](doc/images/robot/board_0.jpg)
 ![3d_print](doc/images/robot/board_1.jpg)
+
+# board
+
+![board](hardware/images/schem.png)
+
+![board](hardware/images/board_all.png)
 
 # motors
 

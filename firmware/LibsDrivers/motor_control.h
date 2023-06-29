@@ -5,12 +5,14 @@
 #include <as5600_t.h>
 
 
+//set_torque min and max range
 #define MOTOR_CONTROL_MAX       ((int32_t)1024)
 
-#define MOTOR_POLES             ((int32_t)14)
-#define MOTOR_KV                ((int32_t)250)
-#define MOTOR_CURRENT_MAX       ((int32_t)5)
+//dt step in microseconds, 2kHz, 500uS
+#define MOTOR_CONTROL_DT    ((uint32_t)500)
 
+
+#define MOTOR_POLES             ((int32_t)14)
 
 
 class MotorControl

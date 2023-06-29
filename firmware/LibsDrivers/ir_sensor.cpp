@@ -4,12 +4,7 @@
 
 
 
-/*
-    IR left         :   PB1     ADC1, ADC2, IN9
-    IR front left   :   PC5     ADC1, ADC2, IN15
-    IR front right  :   PC4     ADC1, ADC2, IN14
-    IR right        :   PB0     ADC1, ADC2, IN8
-*/
+
 
 
 //cubic polynomial calibration coefficients
@@ -42,11 +37,15 @@ void IRSensor::init()
     state           = 0;
 
     filter_coeef    = 0.1;
+
+    measurement_id  = 0;
 }
 
 
 void IRSensor::callback()
 {
+    measurement_id++;
+
     if (state == 0)
     {
         for (unsigned int i = 0; i < IR_SENSORS_COUNT; i++)
@@ -104,4 +103,15 @@ float IRSensor::calibration(float *callibration, float x)
     y+= callibration[3]*x*x*x;
     
     return y;
+}
+
+
+void IRSensor::print()
+{
+    terminal << "ir sensor\n";
+    for (unsigned int i = 0; i < IR_SENSORS_COUNT; i++)
+    {
+        terminal << ir_sensor.get()[i] << " ";
+    }
+    terminal << "\n\n\n";
 }

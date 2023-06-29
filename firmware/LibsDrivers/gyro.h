@@ -3,7 +3,7 @@
 
 
 #include <i2c_interface.h>
-
+ 
 
 class Gyro
 {
@@ -11,7 +11,7 @@ class Gyro
         int init(I2C_Interface &i2c_interface, int dt);
 
         void callback();
-        int  read();
+        int32_t  read();
 
         int32_t get_angular_rate();
         int32_t get_angle();

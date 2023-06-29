@@ -67,7 +67,7 @@ class LineSensor
         LineSensor();
         virtual ~LineSensor();
 
-        void init(int dt);
+        void init();
 
         void on();
         void off();
