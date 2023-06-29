@@ -19,7 +19,7 @@
 ![block_diagram](doc/diagrams/sw_architecture.png)
 
 
-# LQR controller
+# LQR controller 
 
 ![lqr_structure](doc/diagrams/control-lqri_synth.png)
 
