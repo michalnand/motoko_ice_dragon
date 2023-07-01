@@ -123,12 +123,12 @@ class AS5600T
                 position = this->position - this->prev_value + value;
             }
 
-            this->position =  position; 
-        
+            int32_t tmp = ((this->position - this->position_prev)*1000000)/dt_us;
             
-            this->prev_value = value;
-
-            this->angular_velocity = ((this->position - this->position_prev)*1000000)/dt_us; 
+            //complementary LP filter
+            this->angular_velocity = (15*this->angular_velocity + 1*tmp)/16; 
+            
+            this->prev_value       = value;
         }
 
 

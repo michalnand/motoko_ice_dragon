@@ -14,7 +14,7 @@
 #define min3(x, y, z) (min2(min2(x, y), z))
 
 
-
+ 
 //timer 2 interrupt handler, running commutation process, 4kHz
 MotorControl *g_motor_control_ptr;
 
@@ -37,9 +37,6 @@ void TIM2_IRQHandler(void)
 void MotorControl::init()
 {
     g_motor_control_ptr = this;
-
-    distance = 0;
-    velocity = 0;
 
     left_pwm.init();
     right_pwm.init();
@@ -110,20 +107,17 @@ void MotorControl::callback()
     if (this->right_torque < 0) 
     {
         right_u     = -this->right_torque;
-        right_phase = -SINE_TABLE_SIZE/4; 
+        right_phase = SINE_TABLE_SIZE/4; 
         
     }
     else
     {
         right_u     = this->right_torque;
-        right_phase = SINE_TABLE_SIZE/4; 
+        right_phase = -SINE_TABLE_SIZE/4; 
     }
 
     set_torque_from_rotation(left_u,   left_phase,  left_encoder.angle,   0);
     set_torque_from_rotation(right_u,  right_phase, right_encoder.angle,  1);
-
-    distance = (left_encoder.position + right_encoder.position)/2;
-    velocity = (left_encoder.angular_velocity + right_encoder.angular_velocity)/2;
 }
 
 
@@ -134,8 +128,41 @@ void MotorControl::hold()
  
     timer.delay_ms(200);
 }
+
+int32_t MotorControl::get_left_angle()
+{
+    return left_encoder.angle;
+}
      
- 
+float MotorControl::get_left_position()
+{
+    return -left_encoder.position/4096.0;
+}
+
+float MotorControl::get_left_velocity()
+{
+    return -left_encoder.angular_velocity/4096.0;
+}
+
+
+
+
+int32_t MotorControl::get_right_angle()
+{
+    return right_encoder.angle;
+}
+
+float MotorControl::get_right_position()
+{
+    return right_encoder.position/4096.0;
+} 
+
+float MotorControl::get_right_velocity()
+{
+    return right_encoder.angular_velocity/4096.0;
+}
+
+
 
 void MotorControl::set_torque_from_rotation(int32_t torque, int32_t phase, uint32_t rotor_angle, int motor_id)
 {

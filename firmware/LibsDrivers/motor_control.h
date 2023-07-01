@@ -25,6 +25,24 @@ class MotorControl
 
         void hold();
 
+        //return raw angle from encoder, 0..4095
+        int32_t get_left_angle();
+        
+        //wheel position (angle), 1.0 is equal to one full forward rotation, -1.0 for backward
+        float get_left_position();
+        
+        //wheel angular velocity, 1.0 is equal to one full forward rotation per second, -1.0 for backward
+        float get_left_velocity();
+
+        //return raw angle from encoder, 0..4095
+        int32_t get_right_angle();
+
+        //wheel position (angle), 1.0 is equal to one full forward rotation, -1.0 for backward
+        float get_right_position();
+
+        //wheel angular velocity, 1.0 is equal to one full forward rotation per second, -1.0 for backward
+        float get_right_velocity();
+
     private:
         void    set_torque_from_rotation(int32_t torque, int32_t phase, uint32_t rotor_angle, int motor_id);
         int32_t clamp(int32_t value, int32_t min, int32_t max);
@@ -36,12 +54,9 @@ class MotorControl
         PWMLeft     left_pwm;
         PWMRight    right_pwm;
 
-    public:
+    private:
         AS5600T<TGPIOD, 14, 15, 2> left_encoder;
         AS5600T<TGPIOE,  0,  1, 2> right_encoder;
-
-        int32_t distance, velocity;
-
 };
 
 #endif

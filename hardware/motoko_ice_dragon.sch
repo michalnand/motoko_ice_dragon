@@ -26393,38 +26393,6 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <label x="153.67" y="236.22" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="L_SCL" class="0">
-<segment>
-<pinref part="L_ENCODER" gate="1" pin="3"/>
-<wire x1="185.42" y1="210.82" x2="198.12" y2="210.82" width="0.1524" layer="91"/>
-<label x="201.93" y="210.82" size="1.778" layer="95"/>
-<pinref part="R37" gate="G$1" pin="2"/>
-<wire x1="198.12" y1="210.82" x2="199.39" y2="210.82" width="0.1524" layer="91"/>
-<wire x1="198.12" y1="203.2" x2="198.12" y2="210.82" width="0.1524" layer="91"/>
-<junction x="198.12" y="210.82"/>
-</segment>
-<segment>
-<pinref part="U2" gate="B" pin="PD14"/>
-<wire x1="110.49" y1="223.52" x2="105.41" y2="223.52" width="0.1524" layer="91"/>
-<label x="104.14" y="223.52" size="1.778" layer="95" rot="R180"/>
-</segment>
-</net>
-<net name="L_SDA" class="0">
-<segment>
-<pinref part="L_ENCODER" gate="1" pin="2"/>
-<wire x1="185.42" y1="208.28" x2="194.31" y2="208.28" width="0.1524" layer="91"/>
-<label x="201.93" y="208.28" size="1.778" layer="95"/>
-<pinref part="R4" gate="G$1" pin="2"/>
-<wire x1="194.31" y1="208.28" x2="199.39" y2="208.28" width="0.1524" layer="91"/>
-<wire x1="194.31" y1="203.2" x2="194.31" y2="208.28" width="0.1524" layer="91"/>
-<junction x="194.31" y="208.28"/>
-</segment>
-<segment>
-<pinref part="U2" gate="B" pin="PD15"/>
-<wire x1="110.49" y1="220.98" x2="105.41" y2="220.98" width="0.1524" layer="91"/>
-<label x="104.14" y="220.98" size="1.778" layer="95" rot="R180"/>
-</segment>
-</net>
 <net name="R_SCL" class="0">
 <segment>
 <pinref part="U2" gate="B" pin="PE1"/>
@@ -26619,6 +26587,38 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <wire x1="256.54" y1="153.67" x2="252.73" y2="153.67" width="0.1524" layer="91"/>
 <junction x="252.73" y="153.67"/>
 <pinref part="L1" gate="G$1" pin="1"/>
+</segment>
+</net>
+<net name="L_SDA" class="0">
+<segment>
+<pinref part="U2" gate="B" pin="PD14"/>
+<wire x1="110.49" y1="223.52" x2="105.41" y2="223.52" width="0.1524" layer="91"/>
+<label x="104.14" y="223.52" size="1.778" layer="95" rot="R180"/>
+</segment>
+<segment>
+<pinref part="L_ENCODER" gate="1" pin="3"/>
+<wire x1="185.42" y1="210.82" x2="198.12" y2="210.82" width="0.1524" layer="91"/>
+<label x="201.93" y="210.82" size="1.778" layer="95"/>
+<pinref part="R37" gate="G$1" pin="2"/>
+<wire x1="198.12" y1="210.82" x2="199.39" y2="210.82" width="0.1524" layer="91"/>
+<wire x1="198.12" y1="203.2" x2="198.12" y2="210.82" width="0.1524" layer="91"/>
+<junction x="198.12" y="210.82"/>
+</segment>
+</net>
+<net name="L_SCL" class="0">
+<segment>
+<pinref part="U2" gate="B" pin="PD15"/>
+<wire x1="110.49" y1="220.98" x2="105.41" y2="220.98" width="0.1524" layer="91"/>
+<label x="104.14" y="220.98" size="1.778" layer="95" rot="R180"/>
+</segment>
+<segment>
+<pinref part="L_ENCODER" gate="1" pin="2"/>
+<wire x1="185.42" y1="208.28" x2="194.31" y2="208.28" width="0.1524" layer="91"/>
+<label x="201.93" y="208.28" size="1.778" layer="95"/>
+<pinref part="R4" gate="G$1" pin="2"/>
+<wire x1="194.31" y1="208.28" x2="199.39" y2="208.28" width="0.1524" layer="91"/>
+<wire x1="194.31" y1="203.2" x2="194.31" y2="208.28" width="0.1524" layer="91"/>
+<junction x="194.31" y="208.28"/>
 </segment>
 </net>
 </nets>

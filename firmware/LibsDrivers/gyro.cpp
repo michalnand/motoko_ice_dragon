@@ -74,51 +74,52 @@ int Gyro::init(I2C_Interface &i2c_interface, int dt)
 
     timer.delay_ms(50);
 
-    i2c->write_reg(LSM6DS33_ADDRESS, LSM6DS33_CTRL1_XL, 0x00);
-    i2c->write_reg(LSM6DS33_ADDRESS, LSM6DS33_CTRL2_G,  0x00);
+    //i2c->write_reg(LSM6DS33_ADDRESS, LSM6DS33_CTRL1_XL, 0x00);
+    //i2c->write_reg(LSM6DS33_ADDRESS, LSM6DS33_CTRL2_G,  0x00);
 
     if (i2c->read_reg(LSM6DS33_ADDRESS, LSM6DS33_WHO_AM_I) != LSM6DS33_WHO_AM_I_33_VALUE)    
     {
         terminal << "gyro init ERROR \n";
         return -1;
-    }
+    } 
 
     //accelerometer config
     //ACC 200Hz filter bandwidth
     //+-2g scale
-    //416Hz output data rate
-    i2c->write_reg(LSM6DS33_ADDRESS, LSM6DS33_CTRL1_XL, (1<<6)|(1<<5)|(1<<0));
+    //1000Hz output data rate
+    i2c->write_reg(LSM6DS33_ADDRESS, LSM6DS33_CTRL1_XL, (1<<7)|(1<<0));
 
     //gyroscope config
-    //+-1000dps range
+    //+-500dps range
     //416Hz output data rate
-    i2c->write_reg(LSM6DS33_ADDRESS, LSM6DS33_CTRL2_G, (1<<6)|(1<<5)|(1<<3) );
-
+    //i2c->write_reg(LSM6DS33_ADDRESS, LSM6DS33_CTRL2_G, (1<<6)|(1<<5)|(1<<2) );
+     
+    //gyroscope config
+    //+-500dps range
+    //1.66kHz output data rate
+    i2c->write_reg(LSM6DS33_ADDRESS, LSM6DS33_CTRL2_G, (1<<7)|(1<<2) );
+ 
     //auto increment register counter
     i2c->write_reg(LSM6DS33_ADDRESS, LSM6DS33_CTRL3_C,  (1<<2));
 
-    
     timer.delay_ms(50);
 
+   
     //meassure gyro offset
-    unsigned int calibration_iterations = 32;
+    int32_t calibration_iterations = 100;
 
     offset_z = 0;
-    for (unsigned int i = 0; i < calibration_iterations; i++)
+    for (int32_t i = 0; i < calibration_iterations; i++)
     {
-        offset_z+= read();
-        timer.delay_ms(50); 
+        offset_z+= read(); 
+        timer.delay_ms(2); 
     } 
 
-    offset_z       = offset_z/calibration_iterations;
-    offset_z       = -95;
-
+    offset_z  = offset_z/calibration_iterations;
 
     angular_rate_z = 0;
     angle_z        = 0;
 
-
-    
     //init timer 5 interrupt for callback calling
     TIM_TimeBaseInitTypeDef     TIM_TimeBaseStructure;
     NVIC_InitTypeDef            NVIC_InitStructure;
@@ -138,7 +139,7 @@ int Gyro::init(I2C_Interface &i2c_interface, int dt)
 
     
     NVIC_InitStructure.NVIC_IRQChannel = TIM5_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority    = 8;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority    = 3;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority           = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure); 
@@ -152,8 +153,14 @@ int Gyro::init(I2C_Interface &i2c_interface, int dt)
 void Gyro::callback()
 {
     int32_t raw    = read() - offset_z; 
-    angular_rate_z = raw; //(LSM6DS33_G_FS_500_MDPS*raw)/1000;
-    angle_z        = angle_z + angular_rate_z;
+
+    //gyro in +-500dps range
+    float tmp = (raw*500)/32768;
+     
+    //angular_rate = 1 means one rotation/s
+    angular_rate_z = tmp/360.0; 
+    angle_z        = angle_z + (dt*0.001)*angular_rate_z;
+
     measurement_id+= 1;
 }
 
@@ -176,12 +183,12 @@ int32_t Gyro::read()
     return z;
 }
 
-int32_t Gyro::get_angular_rate()
+float Gyro::get_angular_rate()
 {
     return angular_rate_z;
 }
 
-int32_t Gyro::get_angle()
+float Gyro::get_angle()
 {
     return angle_z;
 }

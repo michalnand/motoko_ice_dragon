@@ -103,9 +103,11 @@ void encoder_sensor_test()
       timer.delay_ms(50);
 
       
-      terminal << "encoder_l = " << motor_control.left_encoder.angle  << " " << motor_control.left_encoder.position  << " " << motor_control.left_encoder.angular_velocity << "\n";
-      terminal << "encoder_r = " << motor_control.right_encoder.angle << " " << motor_control.right_encoder.position << " " << motor_control.right_encoder.angular_velocity << "\n";
-      terminal << "\n\n";
+      terminal << "encoder\n";
+      terminal << "left   : " << motor_control.get_left_angle()  << " " << motor_control.get_left_position()  << " " << motor_control.get_left_velocity() << "\n";
+      terminal << "right  : " << motor_control.get_right_angle()  << " " << motor_control.get_right_position()  << " " << motor_control.get_right_velocity() << "\n";
+      terminal << "\n\n\n";
+
   }
 }
 
@@ -161,8 +163,8 @@ void sensors_test()
     terminal << "\n\n\n";
 
     terminal << "encoder\n";
-    terminal << "left : " << motor_control.left_encoder.angle  << " " << motor_control.left_encoder.position  << " " << motor_control.left_encoder.angular_velocity << "\n";
-    terminal << "righ : " << motor_control.right_encoder.angle << " " << motor_control.right_encoder.position << " " << motor_control.right_encoder.angular_velocity << "\n";
+    terminal << "left   : " << motor_control.get_left_angle()  << " " << motor_control.get_left_position()  << " " << motor_control.get_left_velocity() << "\n";
+    terminal << "right  : " << motor_control.get_right_angle()  << " " << motor_control.get_right_position()  << " " << motor_control.get_right_velocity() << "\n";
     terminal << "\n\n\n";
 
     terminal << "\n\n\n\n";
@@ -445,6 +447,24 @@ void motor_driver_test()
     int speed = 0;
     unsigned int state = 0;
 
+    /*
+    motor_control.set_torque(-0.3*MOTOR_CONTROL_MAX, -0.3*MOTOR_CONTROL_MAX);
+
+    while(1)  
+    {
+      led = 1; 
+      timer.delay_ms(50);
+
+      led = 0; 
+      timer.delay_ms(250);
+
+
+      terminal << "encoder\n";
+      terminal << "left   : " << motor_control.get_left_angle()  << " " << motor_control.get_left_position()  << " " << motor_control.get_left_velocity() << "\n";
+      terminal << "right  : " << motor_control.get_right_angle()  << " " << motor_control.get_right_position()  << " " << motor_control.get_right_velocity() << "\n";
+      terminal << "\n\n\n";
+    }
+    */
 
     while(1)  
     {

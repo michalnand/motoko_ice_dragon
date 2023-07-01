@@ -13,8 +13,12 @@ class Gyro
         void callback();
         int32_t  read();
 
-        int32_t get_angular_rate();
-        int32_t get_angle();
+        //1.0 is equal to 1 full 360degrees rotation / s
+        float get_angular_rate();
+
+        //1.0  is equal  to 1 full circle in counter clockwise direction
+        //-1.0 is equal to 1 full circle in clockwise direction
+        float get_angle();
 
     private:
         I2C_Interface *i2c;
@@ -24,8 +28,8 @@ class Gyro
         int32_t offset_z;
 
     public:
-        int32_t angular_rate_z;
-        int32_t angle_z;      
+        float angular_rate_z;
+        float angle_z;      
 
     public:
         uint32_t measurement_id;  

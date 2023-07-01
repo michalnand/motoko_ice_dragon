@@ -4,6 +4,14 @@ import matplotlib.pyplot as plt
 
 from utils.differential_robot import *
 
+def load_from_file(file_name):
+    v = numpy.loadtxt(file_name)
+
+    u = numpy.expand_dims(v[:, 1], axis=1)
+    x = v[:, 2:]
+
+    return u, x
+    
 
 def servo_oscilations(model, u_turn_max, u_forward_max, theta_max, distance_max, steps):
     u_log           = []
@@ -61,6 +69,8 @@ def servo_oscilations(model, u_turn_max, u_forward_max, theta_max, distance_max,
 
 if __name__ == "__main__":
 
+
+    '''
     dt    = 1.0/250.0
     robot = DifferentialRobot(dt)
 
@@ -73,7 +83,14 @@ if __name__ == "__main__":
     distance_max = 1.6
 
     u, x =  servo_oscilations(robot, u_turn_max, u_forward_max, theta_max, distance_max, steps)
+    '''
 
+
+    dt = 1.0/250.0
+
+    n = 1
+    
+    u, x = load_from_file("data/turn_identification_" + str(n) + ".txt")
     
     models, loss = LibsControl.identification(u, x, dt, steps_count=20, augmentations = [])
 
@@ -84,22 +101,55 @@ if __name__ == "__main__":
     a_hat = ab[:, 0:order]
     b_hat = ab[:, order:]
     
-    print("ground truth")
-    print(numpy.round(robot.mat_a, 3))
-    print(numpy.round(robot.mat_b, 3))
-    print("\n\n")
+    x_pred  = []
+    x_hat   = numpy.expand_dims(x[0], axis=1)
+    ds      = LibsControl.DynamicalSystem(a_hat, b_hat, dt = dt)
 
-    print("model")
+    for i in range(x.shape[0]):
+        x_pred.append(x_hat)
+        u_tmp    = numpy.expand_dims(u[i, :], axis=1)
+        x_hat, _ = ds.forward(x_hat, u_tmp)    
+
+
+    x_pred = numpy.array(x_pred)
+    
+
+    t_result = dt*numpy.arange(x.shape[0])
+
+
+    print("model for data ", n)
     print(numpy.round(a_hat, 3))
     print(numpy.round(b_hat, 3))
+    print("\n\n")
 
-    print(loss)
+    #plt.clf()
 
-    '''
-    plt.plot(u_log[:, 0], label="u0")
-    plt.plot(u_log[:, 1], label="u1")
-    plt.plot(theta_log, label="theta")
-    plt.plot(distance_log, label="distance")
-    plt.legend()
+
+    fig, axs = plt.subplots(3, 1, figsize=(8, 6))
+
+
+    axs[0].plot(t_result, u[:, 0], label="input u", color="purple")
+    axs[0].set_xlabel("time [s]")
+    axs[0].set_ylabel("motor control")
+    axs[0].grid()
+
+    axs[1].plot(t_result, x[:, 0],      label="measurement", color="red")
+    axs[1].plot(t_result, x_pred[:, 0], label="model", color="deepskyblue")
+    axs[1].set_xlabel("time [s]")
+    axs[1].set_ylabel("angular velocity")
+    axs[1].legend()
+    axs[1].grid()
+
+    axs[2].plot(t_result, x[:, 1],      label="measurement", color="red")
+    axs[2].plot(t_result, x_pred[:, 1], label="model", color="deepskyblue")
+    axs[2].set_xlabel("time [s]")
+    axs[2].set_ylabel("angle")
+    axs[2].legend()
+    axs[2].grid()
+
+    
+    plt.tight_layout()
     plt.show()
-    '''
+    #plt.savefig(file_name, dpi = 300)
+
+

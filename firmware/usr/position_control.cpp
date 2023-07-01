@@ -44,7 +44,7 @@ void PositionControl::init()
     TIM_Cmd(TIM7, ENABLE);  
 
     NVIC_InitStructure.NVIC_IRQChannel = TIM7_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority    = 3;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority    = 4;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority           = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
@@ -79,8 +79,8 @@ void PositionControl::callback()
     }
 
     //robot x position
-    lqr.x[2] = motor_control.velocity;
-    lqr.x[3] = motor_control.distance;
+    //lqr.x[2] = motor_control.velocity;
+    //lqr.x[3] = motor_control.distance;
 
     lqr.step();
 

@@ -11,7 +11,7 @@
 #define KEY_PIN         3
 
 
-#include <lqr.h> 
+#include <identification.h> 
 
 
 
@@ -27,16 +27,12 @@ int main(void)
 
   Gpio<KEY_GPIO, KEY_PIN, GPIO_MODE_IN_PULLUP> key;  //user button
 
-  /*
-  PWMLeft pwm;
-  pwm.init();
-  pwm.set(10, 20, 30);
-  */
+
   //ir_sensor_test();
   //line_sensor_test();
   //gyro_sensor_test();
   //encoder_sensor_test();
-  sensors_test();
+  //sensors_test();
   
 
   //left_motor_pwm_test();
@@ -44,9 +40,9 @@ int main(void)
   //encoder_sensor_test();
   //motor_driver_test();
 
-  mcu_usage();
-
-  
+  //mcu_usage();
+ 
+  turn_dynamics_identification();
   
 
   while (1)

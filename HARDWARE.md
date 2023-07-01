@@ -3,13 +3,16 @@
 # complete robot
 
 
-![3d_print](doc/images/robot/robot_3.jpg)
-![3d_print](doc/images/robot/robot_4.jpg)
+![board](doc/images/robot/robot_3.jpg)
+![board](doc/images/robot/robot_4.jpg)
 
-![3d_print](doc/images/robot/robot_1.jpg)
-![3d_print](doc/images/robot/robot_2.jpg)
-![3d_print](doc/images/robot/board_0.jpg)
-![3d_print](doc/images/robot/board_1.jpg)
+![board](hardware/images/connectors_desc.png)
+
+
+![board](doc/images/robot/robot_1.jpg)
+![board](doc/images/robot/robot_2.jpg)
+![board](doc/images/robot/board_0.jpg)
+![board](doc/images/robot/board_1.jpg)
 
 # board
 

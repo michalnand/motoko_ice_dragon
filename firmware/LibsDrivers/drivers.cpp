@@ -27,7 +27,7 @@ void drivers_init()
  
     line_sensor.init();
 
-    gyro.init(i2c, 5);
+    gyro.init(i2c, 4); 
     
     timer.delay_ms(100);
 
