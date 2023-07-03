@@ -1,5 +1,6 @@
 #include <tests.h>
 #include <drivers.h>
+#include <fmath.h>
 
 #define LED_GPIO        TGPIOE
 #define LED_PIN         2
@@ -536,5 +537,32 @@ void mcu_usage()
     terminal << "cpu_usage = " << cpu_usage << " [%]\n";
   }
 }
+
+
+
+
+
+void sensors_matching()
+{
+  Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;
+
+  float sensors_brace    = 69.5;
+  float sensors_distance = 68.88;
+  while(1)
+  {
+    led = 1;
+    
+    float line_position = line_sensor.result.center_line_position;
+    float line_angle    = fatan(line_position*(sensors_brace/2.0) / sensors_distance)/PI;
+    float gyro_angle    = gyro.get_angle();
+
+    terminal << line_position << " " << line_angle << " " << gyro_angle << "\n";
+
+    led = 0;
+
+    timer.delay_ms(100);
+  }
+}
+
 
 

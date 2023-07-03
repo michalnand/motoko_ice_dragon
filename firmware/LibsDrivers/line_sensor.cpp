@@ -1,5 +1,6 @@
 #include <line_sensor.h>
 #include <drivers.h>
+#include <fmath.h>
 
 LineSensor *g_line_sensor_ptr;
 
@@ -50,7 +51,18 @@ void LineSensor::init()
     result.left_line_position   = result.center_line_position;
     result.right_line_position  = result.center_line_position;
 
+    time_prev= timer.get_time();
+    time_now = time_prev;
+
+    result.angle_prev   = 0;
+    result.angle        = 0;
+    result.angular_rate = 0;
+        
+
     result.average = 0.0;
+
+
+
 }
 
 
@@ -131,7 +143,23 @@ void LineSensor::line_filter()
         if (adc_result[i] > LINE_SENSOR_THRESHOLD)
             on_line_count++;
 
+    //compute line position
+    float k = 1.0/((LINE_SENSOR_COUNT/2)*LINE_SENSOR_STEP);
+    result.center_line_position = k*integrate(center_line_idx);
 
+    float sensors_brace    = 69.5;
+    float sensors_distance = 68.88;
+
+    time_prev= time_now;
+    time_now = timer.get_time();
+
+    result.angle_prev   = result.angle;
+    result.angle        = fatan(result.center_line_position*(sensors_brace/2.0) / sensors_distance)/PI;
+
+    float tmp           = ((result.angle - result.angle_prev)*1000)/(time_now - time_prev);
+    result.angular_rate = (7*result.angular_rate + 1*tmp)/8;
+        
+    /*
     if (average > 400)
     {
         result.line_type        = LINE_TYPE_SPOT;
@@ -159,6 +187,7 @@ void LineSensor::line_filter()
         else
             result.line_lost_type = LINE_LOST_CENTER;
     }
+    */
 }
 
 

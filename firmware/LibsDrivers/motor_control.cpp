@@ -76,8 +76,8 @@ void MotorControl::init()
 
 void MotorControl::set_torque(int32_t left_torque, int32_t right_torque)
 {
-    this->left_torque  = left_torque;
-    this->right_torque = right_torque;
+    this->left_torque  = clamp(left_torque,  -MOTOR_CONTROL_MAX, MOTOR_CONTROL_MAX);
+    this->right_torque = clamp(right_torque, -MOTOR_CONTROL_MAX, MOTOR_CONTROL_MAX);
 }
  
 

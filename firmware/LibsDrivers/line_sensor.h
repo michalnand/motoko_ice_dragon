@@ -29,7 +29,7 @@ struct sLineSensorResult
     float center_line_position, left_line_position, right_line_position;
     float average;
 
-    float angular_rate, angle; //TODO compute this
+    float angular_rate, angle, angle_prev; //TODO compute this
 };
 
 
@@ -41,6 +41,9 @@ class LineSensor
       Gpio<TGPIOC, 15, GPIO_MODE_OUT> sensor_led;        //sensor white led
 
       int threshold;
+
+      uint32_t  time_prev, time_now;
+
 
    public:
         Array<int, LINE_SENSOR_COUNT> adc_result;

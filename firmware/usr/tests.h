@@ -19,6 +19,7 @@ void motor_driver_test();
 
 void mcu_usage();
 
+void sensors_matching();
 
 
 

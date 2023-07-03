@@ -66,41 +66,57 @@ class LQR
 
                 error_sum[i] = error_sum[i] + e*dt;
             }
-
+ 
             //apply controll law
             //u = -k@x + ki@error_sum
+
+            /*
             for (unsigned int j = 0; j < inputs_count; j++)
             {
                 float u_sum = 0.0;
                 for (unsigned int i = 0; i < system_order; i++)
                 {
-                    u_sum+= -k[i + j*system_order + ofs]*x[i] + ki[i * j*system_order + ofs]*error_sum[i];
-                }
-
+                    u_sum+= -k[i + j*system_order + ofs]*x[i];
+                    u_sum+= ki[i * j*system_order + ofs]*error_sum[i];
+                }  
+ 
                 u[j] = u_sum;
             }
+            */
+            
+            float u_sum = 0.0;
+            u_sum+= -k[0]*x[0];
+            u_sum+= -k[1]*x[1];
+            u_sum+= ki[0]*error_sum[0];
+            u_sum+= ki[1]*error_sum[1];
+            u_tmp[0] = u_sum;
 
+            for (unsigned int i = 0; i < inputs_count; i++)
+            {
+                u[i] = u_tmp[i];
+                if (u[i] > antiwindup)
+                {
+                    u[i] = antiwindup;
+                }
+
+                if (u[i] < -antiwindup)
+                {
+                    u[i] = -antiwindup;
+                }
+            }
 
             //antiwindup
             //raising error_sum is no more effecting u,
             //since u is out of range 
             for (unsigned int i = 0; i < inputs_count; i++)
             {
-                if (u[i] > antiwindup)
-                {
-                    u[i] = antiwindup;
-                    u[i]-= error_sum[i];
-                }
-                
-                if (u[i] < -antiwindup)
-                {
-                    u[i] = -antiwindup;
-                    u[i]-= error_sum[i];
-                }
+                float e = u[i] - u_tmp[i];
+                error_sum[1]+= e*dt;
             }
+
         }
 
-
+        /*
         void copy(LQR<inputs_count, system_order, parallel_count> &other)
         {
             for (unsigned int j = 0; j < parallel_count*inputs_count*system_order; j++)
@@ -141,15 +157,16 @@ class LQR
                 u[j] =other.u[j];
             }
         }
+        */
 
-    private:
+    public:
         float k[parallel_count*inputs_count*system_order];
         float ki[parallel_count*inputs_count*system_order];
 
         float dt;
         float antiwindup;
 
-    private:
+    public:
         float error_sum[system_order];
 
     public:
@@ -160,6 +177,7 @@ class LQR
         float x[system_order];
         
         //controller output
+        float u_tmp[inputs_count];
         float u[inputs_count];
 };
 

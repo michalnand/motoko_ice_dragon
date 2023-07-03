@@ -24,14 +24,15 @@ class DifferentialRobot:
         self.mat_c = numpy.zeros((4, 4)) 
 
 
-        self.mat_a[0][0] =  -tau_turn
+        self.mat_a[0][0] =  -9.831
+        self.mat_a[0][1] =  -1.397
         self.mat_a[1][0] =  1.0
         self.mat_a[2][2] =  -tau_forward
         self.mat_a[3][2] =  1.0
 
 
-        self.mat_b[0][0] =   b_turn*tau_turn
-        self.mat_b[0][1] =   -b_turn*tau_turn
+        self.mat_b[0][0] =   98.806
+        self.mat_b[0][1] =   -98.806
         
         self.mat_b[2][0] =  b_forward*tau_forward
         self.mat_b[2][1] =  b_forward*tau_forward

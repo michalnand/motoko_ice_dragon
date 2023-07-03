@@ -1,25 +1,71 @@
 #include <identification.h>
 #include <drivers.h>
-
+#include <fmath.h>
+#include <lqr.h>
 
 #define LED_GPIO        TGPIOE
 #define LED_PIN         2
 
-#define SAMPLES_COUNT   ((uint32_t)1000)
+
+#define SAMPLES_COUNT   ((uint32_t)4000)
+
+
+void line_stabilise()
+{
+    Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;
+
+    LQR<1, 2> lqr; 
+ 
+    int dt = 4;
+
+    //float k[2]  = {0.2, 2.0};
+    //float ki[2] = {0.0, 0.0};
+    
+    //float k[2]  = {0.17224, 3.57063};
+    //float ki[2] = {0.0,  30.0};
+
+    float k[2]  = {0.15,  1.0};
+    float ki[2] = {0.0,  10.0};
+
+    float speed = 0.1;
+    
+    lqr.init(k, ki, 1.0, dt/1000.0);
+
+    
+    while (1)
+    {
+        led = 1;
+        float angular_rate  = line_sensor.result.angular_rate;
+        float angle         = line_sensor.result.angle;  
+        
+        lqr.x[0]  = angular_rate;
+        lqr.x[1]  = angle;
+
+        lqr.xr[0] = 0.0;
+        lqr.xr[1] = 0.0;
+
+        lqr.step();
+
+        float u = lqr.u[0];
+        
+        //terminal << "lqr = " <<  lqr.error_sum[1]*lqr.ki[1]  << " " <<  u << "\n";
+
+        motor_control.set_torque((speed+u)*MOTOR_CONTROL_MAX, (speed-u)*MOTOR_CONTROL_MAX);
+        led = 0;
+
+        timer.delay_ms(dt);
+    }
+
+}
+
 
 void turn_dynamics_identification()
 {
     Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;
 
-    float u_amplitude = 0.15;  //input amplitude
-    float x_amplitude = 0.05;  //output amplitude
-    
-    //4ms sampling period
-    uint32_t dt    = 4;
-
-
-    float u = u_amplitude; 
-
+    terminal << "\n\n\n";
+    terminal << "starting identification\n";
+    terminal << "\n\n\n";
 
     float result_log[SAMPLES_COUNT][3];
     
@@ -30,35 +76,76 @@ void turn_dynamics_identification()
        result_log[n][2] = 0; 
     }
 
-    terminal << "\n\n\n";
-    terminal << "starting identification\n";
-    terminal << "\n\n\n";
-
     timer.delay_ms(500);
 
-    for (unsigned int n = 0; n < SAMPLES_COUNT; n++)
+    led = 1;
+
+    //move robot forward to line
+    motor_control.set_torque(0.15*MOTOR_CONTROL_MAX, 0.15*MOTOR_CONTROL_MAX);
+    timer.delay_ms(200);
+    motor_control.set_torque(0, 0);
+    timer.delay_ms(200);
+
+    //align robot to center
+    for (unsigned int i = 0; i < 200; i++)
     {
-        led = 1;
-        motor_control.set_torque(-u*MOTOR_CONTROL_MAX, u*MOTOR_CONTROL_MAX);
+        float angle = line_sensor.result.angle;
+        float e = 0.0 - angle;
+        float forward = 0.05;
+        float turn    = 2.0*e; 
+        
+        motor_control.set_torque((forward + turn)*MOTOR_CONTROL_MAX, (forward - turn)*MOTOR_CONTROL_MAX);
+        timer.delay_ms(4);
+    }
 
-        float angular_rate  = gyro.get_angular_rate();
-        float angle         = gyro.get_angle();
+    motor_control.set_torque(0, 0);
 
-        result_log[n][0] = u;
+    led = 0;
+    timer.delay_ms(200);
+
+    
+    uint32_t state      = 0;
+    uint32_t time_next  = 0;
+
+    float turn_max      = 0.12;
+    float angle_max     = 0.05;
+
+    float turn          = turn_max;
+
+    for (unsigned int n = 0; n < SAMPLES_COUNT; n++)
+    {   
+        float angle = line_sensor.result.angle;
+        float angular_rate = line_sensor.result.angular_rate;
+
+        if (state == 0 && angle > angle_max)
+        {
+            turn  = 0;
+            time_next = timer.get_time() + 250;
+            state = 1;
+        } 
+        else if (state == 1 && timer.get_time() > time_next)
+        {
+            turn  = -turn_max;
+            state = 2;
+        }
+        else if (state == 2 && angle < -angle_max)
+        {
+            turn  = 0;
+            time_next = timer.get_time() + 250;
+            state = 3;
+        }
+        else if (state == 3 && timer.get_time() > time_next)
+        {
+            turn  = turn_max;
+            state = 0;
+        }
+    
+        motor_control.set_torque((turn)*MOTOR_CONTROL_MAX, (-turn)*MOTOR_CONTROL_MAX);
+        timer.delay_ms(4);
+
+        result_log[n][0] = turn;
         result_log[n][1] = angular_rate;
-        result_log[n][2] = angle;
-
-        if (angle > x_amplitude)
-        {
-            u = -u_amplitude;
-        }
-        else if (angle < -x_amplitude)
-        {
-            u = u_amplitude;
-        }
-        led = 0;
-
-        timer.delay_ms(dt);
+        result_log[n][2] = angle; 
     }
 
     motor_control.set_torque(0, 0);
@@ -70,5 +157,5 @@ void turn_dynamics_identification()
         terminal << n << " " << result_log[n][0] << " " << result_log[n][1] << " "<< result_log[n][2] << "\n";
     }
     terminal << "\n\n\n";
-
+    
 }

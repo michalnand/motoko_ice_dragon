@@ -2,13 +2,20 @@ import LibsControl
 import numpy
 import matplotlib.pyplot as plt
 
-from utils.differential_robot import *
+
+
 
 def load_from_file(file_name):
     v = numpy.loadtxt(file_name)
 
+
+
     u = numpy.expand_dims(v[:, 1], axis=1)
+    #x = numpy.expand_dims(v[:, 2], axis=1)
     x = v[:, 2:]
+
+    #TODO denoising
+    #u = LibsControl.denoising(u, alpha = 0.001, steps = 100)
 
     return u, x
     
@@ -88,7 +95,7 @@ if __name__ == "__main__":
 
     dt = 1.0/250.0
 
-    n = 1
+    n = 0
     
     u, x = load_from_file("data/turn_identification_" + str(n) + ".txt")
     
@@ -100,6 +107,7 @@ if __name__ == "__main__":
     order   = x.shape[1]
     a_hat = ab[:, 0:order]
     b_hat = ab[:, order:]
+
     
     x_pred  = []
     x_hat   = numpy.expand_dims(x[0], axis=1)
@@ -122,7 +130,10 @@ if __name__ == "__main__":
     print(numpy.round(b_hat, 3))
     print("\n\n")
 
-    #plt.clf()
+    poles = numpy.linalg.eigvals(a_hat) + 0j
+    print("poles")
+    print(poles)
+    print("\n\n")
 
 
     fig, axs = plt.subplots(3, 1, figsize=(8, 6))
@@ -138,14 +149,16 @@ if __name__ == "__main__":
     axs[1].set_xlabel("time [s]")
     axs[1].set_ylabel("angular velocity")
     axs[1].legend()
-    axs[1].grid()
+    axs[1].grid()   
 
+    
     axs[2].plot(t_result, x[:, 1],      label="measurement", color="red")
     axs[2].plot(t_result, x_pred[:, 1], label="model", color="deepskyblue")
     axs[2].set_xlabel("time [s]")
     axs[2].set_ylabel("angle")
     axs[2].legend()
     axs[2].grid()
+    
 
     
     plt.tight_layout()
