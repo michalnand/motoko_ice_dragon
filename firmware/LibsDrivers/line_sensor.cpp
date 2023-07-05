@@ -16,22 +16,33 @@ LineSensor::~LineSensor()
 
 void LineSensor::init()
 {
+    terminal << "line_sensor init start\n";
+
     g_line_sensor_ptr = this;
 
-    off();
-    timer.delay_ms(100);
-
+    sensor_led = 0;
+    timer.delay_ms(200);
     for (unsigned int i = 0; i < adc_result.size(); i++)
-        adc_calibration_q[i] = adc.get()[i];
+        adc_calibration_off[i] = adc.get()[i];
     
-    on(); 
-    timer.delay_ms(100); 
 
-    for (unsigned int i = 0; i < adc_calibration_k.size(); i++)
-        adc_calibration_k[i] =  adc.get()[i] - adc_calibration_q[i];
+    sensor_led = 1;
+    timer.delay_ms(200); 
+
+    for (unsigned int i = 0; i < adc_calibration_on.size(); i++)
+        adc_calibration_on[i] =  adc.get()[i];
+
+
+    for (unsigned int i = 0; i < adc_result_off.size(); i++)
+        adc_result_off[i] = 0;
+
+    for (unsigned int i = 0; i < adc_result_on.size(); i++)
+        adc_result_on[i] = 0;
 
     for (unsigned int i = 0; i < adc_result.size(); i++)
         adc_result[i] = 0;
+
+
 
     weights[0] = -4*LINE_SENSOR_STEP;
     weights[1] = -3*LINE_SENSOR_STEP; 
@@ -42,54 +53,54 @@ void LineSensor::init()
     weights[6] =  3*LINE_SENSOR_STEP;
     weights[7] =  4*LINE_SENSOR_STEP;
 
-    result.line_lost_type   = LINE_LOST_NONE;
-    result.line_type        = LINE_TYPE_SINGLE;
-    result.on_line_count    = 0;
-    result.measurement_id   = 0;
-
-    result.center_line_position = 0.0;
-    result.left_line_position   = result.center_line_position;
-    result.right_line_position  = result.center_line_position;
 
     time_prev= timer.get_time();
     time_now = time_prev;
 
-    result.angle_prev   = 0;
-    result.angle        = 0;
-    result.angular_rate = 0;
-        
+    measurement_id = 0;
+    line_lost_type = LINE_LOST_NONE;
+    on_line_count  = 0;
+    line_position  = 0.0;
+    angle          = 0.0;
+    angular_rate   = 0.0;
 
-    result.average = 0.0;
+    for (unsigned int i = 0; i < 4; i++)
+    {
+        angle_prev[i] = 0.0;
+    }
 
-
-
+    terminal << "line_sensor init [DONE]\n";
 }
 
-
-void LineSensor::on()
-{
-    sensor_led = 1;
-}
-
-void LineSensor::off()
-{
-    sensor_led = 0;
-}
 
 void LineSensor::callback()
 {
-    for (unsigned int i = 0; i < adc_result.size(); i++)
-    { 
-        int v = 1000 - ((adc.get()[i] - adc_calibration_q[i])*1000)/adc_calibration_k[i];
-        if (v < 0)
+    uint32_t state = adc.measurement_id%8;
+
+    if (state == 0)
+    {
+        for (unsigned int i = 0; i < adc_result.size(); i++)
         {
-            v = 0;
+            adc_result_off[i] = adc.get()[i];
         }
 
-        adc_result[i] = v;
+        sensor_led = 1;
     }
-    
-    line_filter();
+  
+    if (state == 2)
+    {  
+        for (unsigned int i = 0; i < adc_result.size(); i++)
+        {
+            adc_result_on[i] = adc.get()[i];
+        }
+
+        sensor_led = 0;
+    }
+
+    if (state == 7)
+    {
+        process();
+    }
 }
 
 void LineSensor::print()
@@ -104,32 +115,33 @@ void LineSensor::print()
 
     terminal << "\n";
 
-    terminal << "measurement_id = " << result.measurement_id << "\n";
-    terminal << "lost type = " << result.line_lost_type << "\n";
-    terminal << "type    = " << result.line_type << "\n";
-    terminal << "count   = " << result.on_line_count << "\n";
-    terminal << "average = " << result.average << "\n";
-    terminal << "center  = " << result.center_line_position << "\n";
-    terminal << "left    = " << result.left_line_position << "\n";
-    terminal << "right   = " << result.right_line_position << "\n";
-
+    terminal << "measurement_id =   " << measurement_id << "\n";
+    terminal << "line_lost_type =   " << line_lost_type << "\n";
+    terminal << "on_line_count  =   " << on_line_count << "\n";
+    terminal << "line_position  =   " << line_position << "\n";
+    terminal << "angle          =   " << angle << "\n";
+    terminal << "angular_rate   =   " << angular_rate << "\n";
+  
     terminal << "\n\n\n";
 }
 
 
-void LineSensor::line_filter()
-{
-    result.measurement_id++;
-    result.line_lost_type = LINE_LOST_CENTER;
-    
+void LineSensor::process()
+{    
+    for (unsigned int i = 0; i < adc_result.size(); i++)
+    {
+        int diff  = adc_result_off[i] - adc_result_on[i];
+        float r       = 1.0 - (float)diff/(float)adc_result_off[i];
+        adc_result[i] = 1000.0*r;    
+    }
+
     //compute average of all sensors
     int average = 0;
     for (unsigned int i = 0; i < adc_result.size(); i++)
         average+= adc_result[i];
     average = average/adc_result.size();
-
-    result.average = average;
-
+ 
+ 
     //find maximum sensor value
     unsigned int center_line_idx = 0;
     for (unsigned int i = 0; i < adc_result.size(); i++)
@@ -138,56 +150,54 @@ void LineSensor::line_filter()
             center_line_idx = i;
         }
 
-    unsigned int on_line_count = 0;
-    for (unsigned int i = 0; i < adc_result.size(); i++)
-        if (adc_result[i] > LINE_SENSOR_THRESHOLD)
-            on_line_count++;
 
-    //compute line position
-    float k = 1.0/((LINE_SENSOR_COUNT/2)*LINE_SENSOR_STEP);
-    result.center_line_position = k*integrate(center_line_idx);
-
-    float sensors_brace    = 69.5;
-    float sensors_distance = 68.88;
-
-    time_prev= time_now;
-    time_now = timer.get_time();
-
-    result.angle_prev   = result.angle;
-    result.angle        = fatan(result.center_line_position*(sensors_brace/2.0) / sensors_distance)/PI;
-
-    float tmp           = ((result.angle - result.angle_prev)*1000)/(time_now - time_prev);
-    result.angular_rate = (7*result.angular_rate + 1*tmp)/8;
-        
-    /*
-    if (average > 400)
-    {
-        result.line_type        = LINE_TYPE_SPOT;
-        result.on_line_count    = on_line_count;
-        result.line_lost_type   = LINE_LOST_NONE;
-    }
-    else
+    //update line position only if machine still on line
     if (adc_result[center_line_idx] > LINE_SENSOR_THRESHOLD)
     {
+        //compute line position arround strongest sensors
         float k = 1.0/((LINE_SENSOR_COUNT/2)*LINE_SENSOR_STEP);
-        result.line_type = LINE_TYPE_SINGLE;
-        result.center_line_position = k*integrate(center_line_idx);
-        result.left_line_position   = k*integrate(center_line_idx + 1);
-        result.right_line_position  = k*integrate(center_line_idx - 1);
-        result.on_line_count = on_line_count;
-        result.line_lost_type = LINE_LOST_NONE;
+
+        //parabolic integration, raw line position from -1, to 1
+        line_position = k*integrate(center_line_idx);
+
+        //compute to robot angle
+        angle           = fatan(line_position * (SENSORS_BRACE/2.0) / SENSORS_DISTANCE)/PI;
+
+        //from past angles compute angular rate
+        time_prev   = time_now;
+        time_now    = timer.get_time();
+
+        //1st order 1st difference
+        float dt    = (float)(time_now - time_prev)/1000.0;
+        float tmp   = first_difference_1(angle, angle_prev, dt);
+        
+
+        //low pass filter for angular rate, smooth the value
+        angular_rate    = (7.0*angular_rate + 1.0*tmp)/8.0;
+
+        line_lost_type  = LINE_LOST_NONE;
     }
     else
+    //line lost, fill value of lost type
     {
-        if (result.center_line_position < -0.75)
-            result.line_lost_type = LINE_LOST_RIGHT;
+        if (line_position < -0.75)
+            line_lost_type = LINE_LOST_RIGHT;
         else
-        if (result.center_line_position > 0.75)
-            result.line_lost_type = LINE_LOST_LEFT;
+        if (line_position > 0.75)
+            line_lost_type = LINE_LOST_LEFT;
         else
-            result.line_lost_type = LINE_LOST_CENTER;
+            line_lost_type = LINE_LOST_CENTER;
+
+        /*
+        //clear angular rate, to avoid robot kick when returns back on line
+        for (unsigned int i = 0; i < 4; i++)
+        {
+            angle_prev[i] = 0.0;
+        }
+        */
     }
-    */
+
+    measurement_id++;
 }
 
 

@@ -28,6 +28,19 @@ int main(void)
   Gpio<KEY_GPIO, KEY_PIN, GPIO_MODE_IN_PULLUP> key;  //user button
 
 
+  while (key != 0)
+  {
+    led = 1; 
+    timer.delay_ms(50);
+
+    led = 0; 
+    timer.delay_ms(100);
+  }
+
+  led = 1; 
+  timer.delay_ms(1000);
+
+
   //ir_sensor_test();
   //line_sensor_test();
   //gyro_sensor_test();
@@ -46,6 +59,7 @@ int main(void)
   //sensors_matching();
   
   //turn_dynamics_identification();
+
 
   line_stabilise();
 

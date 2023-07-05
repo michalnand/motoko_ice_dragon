@@ -27,10 +27,10 @@ void ADC_IRQHandler(void)
         g_adc_ptr->callback();
         g_adc_ptr->measurement_id++;
     }
-
+ 
 
     //trigger next masurement
-    //ADC_RegularChannelConfig(ADC1, adc_channels[adc_current_idx], 1, ADC_SampleTime_15Cycles);
+    //ADC_RegularChannelConfig(ADC1, g_adc_ptr->adc_channels[g_adc_ptr->adc_current_idx], 1, ADC_SampleTime_15Cycles);
     //ADC_RegularChannelConfig(ADC1, g_adc_ptr->adc_channels[g_adc_ptr->adc_current_idx], 1, ADC_SampleTime_112Cycles); 
     ADC_RegularChannelConfig(ADC1, g_adc_ptr->adc_channels[g_adc_ptr->adc_current_idx], 1, ADC_SampleTime_480Cycles); 
 
@@ -144,9 +144,5 @@ uint16_t* ADC_driver::get()
 void ADC_driver::callback()
 {
     ir_sensor.callback();
-
-    if ((measurement_id%8) == 0)
-    {
-        line_sensor.callback();
-    }
+    line_sensor.callback();
 } 

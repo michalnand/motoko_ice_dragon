@@ -61,6 +61,8 @@ void TIM5_IRQHandler(void)
 
 int Gyro::init(I2C_Interface &i2c_interface, int dt)
 {
+    terminal << "gyro_sensor init start\n";
+
     g_gyro_ptr              = this;
 
     this->i2c               = &i2c_interface;
@@ -79,7 +81,7 @@ int Gyro::init(I2C_Interface &i2c_interface, int dt)
 
     if (i2c->read_reg(LSM6DS33_ADDRESS, LSM6DS33_WHO_AM_I) != LSM6DS33_WHO_AM_I_33_VALUE)    
     {
-        terminal << "gyro init ERROR \n";
+        terminal << "gyro init [ERROR]\n";
         return -1;
     } 
 
@@ -145,7 +147,7 @@ int Gyro::init(I2C_Interface &i2c_interface, int dt)
     NVIC_Init(&NVIC_InitStructure); 
 
 
-    terminal << "gyro init DONE \n";
+    terminal << "gyro_sensor init [DONE]\n";
     return 0;
 }
 

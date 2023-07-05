@@ -68,11 +68,11 @@ void PositionControl::callback()
     //line following mode
     if (line_following_mode == true)
     {
-        lqr.x[0] = line_sensor.result.angular_rate;
-        lqr.x[1] = line_sensor.result.angle;
+        lqr.x[0] = line_sensor.angular_rate;
+        lqr.x[1] = line_sensor.angle;
     }
     //generic robot position control
-    else
+    else 
     {
         lqr.x[0] = gyro.angular_rate_z;
         lqr.x[1] = gyro.angle_z;

@@ -19,6 +19,8 @@ const float ir_calibration[] =
 
 void IRSensor::init()
 {
+    terminal << "ir_sensor init start\n";
+
     for (unsigned int i = 0; i < IR_SENSORS_COUNT; i++)
     {
         //filters[i].init();
@@ -39,6 +41,8 @@ void IRSensor::init()
     filter_coeef    = 0.1;
 
     measurement_id  = 0;
+
+    terminal << "ir_sensor init [DONE]\n";
 }
 
 

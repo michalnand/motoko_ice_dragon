@@ -219,3 +219,36 @@ float fatan2(float x, float y)
 
     return result;
 }
+
+
+//compute difference from two consecutive values
+float first_difference_1(float x_now, float *x, float dt)
+{
+    float y;
+    
+    x[1] = x[0];
+    x[0] = x_now;
+
+    y = (1.0)*x[0];
+    y+= (-1.0)*x[1];
+   
+    return y/dt;
+}
+
+//compute difference from four consecutive values
+float first_difference_4(float x_now, float *x, float dt)
+{
+    float y;
+    
+    x[3] = x[2];
+    x[2] = x[1];
+    x[1] = x[0];
+    x[0] = x_now;
+
+    y = (11.0/6.0)*x[0];
+    y+= (-3.0)*x[1];
+    y+= (3.0/2.0)*x[2];
+    y+= (-1.0/3.0)*x[3];
+
+    return y/dt;
+}

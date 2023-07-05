@@ -89,13 +89,12 @@ if __name__ == "__main__":
     x_noised[:, 0]+= 0.5*numpy.random.randn(x_result.shape[0])
     x_noised[:, 1]+= 0.5*numpy.random.randn(x_result.shape[0])
     x_noised[:, 1]+= 2.0*numpy.arange(x_noised.shape[0])/x_noised.shape[0]
-
-
+    
     #identification
     x_denoised = LibsControl.fft_denoising(x_noised, [100.0, 300.0])
     models, loss    = LibsControl.identification(u_result, x_denoised, dt)
 
-    model   = models[2]
+    model   = models[-1]
     ab      = model.T
 
     order   = x_result.shape[1]
@@ -124,6 +123,7 @@ if __name__ == "__main__":
 
 
     ds_hat = LibsControl.dynamical_system.DynamicalSystem(mat_a_hat, mat_b_hat, dt = dt)
+
     x_hat_result = plant_response(ds_hat, u_result)
 
    

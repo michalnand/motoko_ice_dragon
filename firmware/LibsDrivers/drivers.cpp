@@ -15,14 +15,14 @@ MotorControl motor_control;
 void drivers_init()
 {
     SetSysClock(SysClok216_8HSE);
-
+ 
     timer.init();
     timer.delay_ms(100);
 
     terminal.init();
     i2c.init();
     
-    ir_sensor.init(); 
+    //ir_sensor.init(); 
     adc.init();
  
     line_sensor.init();

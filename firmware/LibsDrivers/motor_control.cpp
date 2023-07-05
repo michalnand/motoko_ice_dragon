@@ -36,6 +36,8 @@ void TIM2_IRQHandler(void)
 
 void MotorControl::init()
 {
+    terminal << "motor_controll init start\n";
+
     g_motor_control_ptr = this;
 
     left_pwm.init();
@@ -72,6 +74,8 @@ void MotorControl::init()
     NVIC_Init(&NVIC_InitStructure);
 
     set_torque(0, 0);
+
+    terminal << "motor_controll init [DONE]\n";
 }
 
 void MotorControl::set_torque(int32_t left_torque, int32_t right_torque)

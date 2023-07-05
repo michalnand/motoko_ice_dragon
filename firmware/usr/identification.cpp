@@ -24,19 +24,20 @@ void line_stabilise()
     //float k[2]  = {0.17224, 3.57063};
     //float ki[2] = {0.0,  30.0};
 
-    float k[2]  = {0.15,  1.0};
-    float ki[2] = {0.0,  10.0};
+    float k[2]  = {1.8,   0.8};
+    float ki[2] = {0.0,   0.0};
 
-    float speed = 0.1;
+    float speed = 0.0; 
     
     lqr.init(k, ki, 1.0, dt/1000.0);
 
-    
+    uint32_t  on_line_time = timer.get_time();
+
     while (1)
     {
         led = 1;
-        float angular_rate  = line_sensor.result.angular_rate;
-        float angle         = line_sensor.result.angle;  
+        float angular_rate  = line_sensor.angular_rate;
+        float angle         = line_sensor.angle;  
         
         lqr.x[0]  = angular_rate;
         lqr.x[1]  = angle;
@@ -50,7 +51,29 @@ void line_stabilise()
         
         //terminal << "lqr = " <<  lqr.error_sum[1]*lqr.ki[1]  << " " <<  u << "\n";
 
-        motor_control.set_torque((speed+u)*MOTOR_CONTROL_MAX, (speed-u)*MOTOR_CONTROL_MAX);
+        if (line_sensor.line_lost_type == LINE_LOST_NONE)
+        {
+            on_line_time = timer.get_time();
+            if (speed < 1.0)
+            {
+                speed = speed + 0.01;
+            } 
+        }
+        else
+        {
+            speed = 0.15;
+        }
+        
+        
+        if (timer.get_time() > on_line_time + 100)
+        {
+            motor_control.set_torque(0, 0);
+        }
+        else
+        {
+            motor_control.set_torque((speed+u)*MOTOR_CONTROL_MAX, (speed-u)*MOTOR_CONTROL_MAX);
+        }
+
         led = 0;
 
         timer.delay_ms(dt);
@@ -89,7 +112,7 @@ void turn_dynamics_identification()
     //align robot to center
     for (unsigned int i = 0; i < 200; i++)
     {
-        float angle = line_sensor.result.angle;
+        float angle = line_sensor.angle;
         float e = 0.0 - angle;
         float forward = 0.05;
         float turn    = 2.0*e; 
@@ -114,8 +137,8 @@ void turn_dynamics_identification()
 
     for (unsigned int n = 0; n < SAMPLES_COUNT; n++)
     {   
-        float angle = line_sensor.result.angle;
-        float angular_rate = line_sensor.result.angular_rate;
+        float angle = line_sensor.angle;
+        float angular_rate = line_sensor.angular_rate;
 
         if (state == 0 && angle > angle_max)
         {

@@ -55,6 +55,14 @@ void Usart::init(unsigned int baudrate, USART_TypeDef *usart)
       usart->CR1 |= USART_CR1_UE;    //usart enable
     }
 
+    for (unsigned int i = 0; i < 32; i++)
+    {
+      put_char('#');
+    }
+
+    put_char('\n');
+    put_char('\n');
+    put_char('\n');
 } 
 
 

@@ -47,12 +47,12 @@ void line_sensor_test()
       led = 0; 
       timer.delay_ms(50);
  
-      uint32_t measurement_id_prev = line_sensor.result.measurement_id;
-      timer.delay_ms(100);
-      uint32_t measurement_id_now  = line_sensor.result.measurement_id;
+      uint32_t measurement_id_prev = line_sensor.measurement_id;
+      timer.delay_ms(500);
+      uint32_t measurement_id_now  = line_sensor.measurement_id;
 
-      terminal << "measurements/s : " << 10*(measurement_id_now - measurement_id_prev) << "\n";
-      line_sensor.print();
+      terminal << "measurements/s : " << 2*(measurement_id_now - measurement_id_prev) << "\n";
+      line_sensor.print(); 
 
       terminal << "\n\n\n";
   }
@@ -138,13 +138,13 @@ void sensors_test()
     terminal << "cpu_usage = " << cpu_usage << " [%]\n\n";
 
     uint32_t ir_measurement_id_prev   = ir_sensor.measurement_id;
-    uint32_t line_measurement_id_prev = line_sensor.result.measurement_id;
+    uint32_t line_measurement_id_prev = line_sensor.measurement_id;
     uint32_t gyro_measurement_id_prev = gyro.measurement_id;
     
     timer.delay_ms(100);
-    
+     
     uint32_t ir_measurement_id_now    = ir_sensor.measurement_id;
-    uint32_t line_measurement_id_now  = line_sensor.result.measurement_id;
+    uint32_t line_measurement_id_now  = line_sensor.measurement_id;
     uint32_t gyro_measurement_id_now  = gyro.measurement_id;
 
 
@@ -552,7 +552,7 @@ void sensors_matching()
   {
     led = 1;
     
-    float line_position = line_sensor.result.center_line_position;
+    float line_position = line_sensor.line_position;
     float line_angle    = fatan(line_position*(sensors_brace/2.0) / sensors_distance)/PI;
     float gyro_angle    = gyro.get_angle();
 
