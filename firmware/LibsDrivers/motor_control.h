@@ -9,7 +9,8 @@
 #define MOTOR_CONTROL_MAX       ((int32_t)1024)
 
 //dt step in microseconds, 2kHz, 500uS
-#define MOTOR_CONTROL_DT    ((uint32_t)500)
+//#define MOTOR_CONTROL_DT    ((uint32_t)500)
+#define MOTOR_CONTROL_DT    ((uint32_t)250)
 
 
 #define MOTOR_POLES             ((int32_t)14)
@@ -55,7 +56,7 @@ class MotorControl
         PWMRight    right_pwm;
 
     private:
-        AS5600T<TGPIOD, 14, 15, 2> left_encoder;
+        AS5600T<TGPIOD, 15, 14, 2> left_encoder;
         AS5600T<TGPIOE,  0,  1, 2> right_encoder;
 };
 

@@ -1,6 +1,8 @@
 #ifndef _TESTS_H_
 #define _TESTS_H_
 
+void timer_test();
+
 void ir_sensor_test();
 void gyro_sensor_test();
 void line_sensor_test();
@@ -16,6 +18,8 @@ void sensors_test();
 
 void motor_driver_test();
 
+
+void gyro_stabilise();
 
 void mcu_usage();
 

@@ -21,27 +21,19 @@ void LineSensor::init()
     g_line_sensor_ptr = this;
 
     sensor_led = 0;
-    timer.delay_ms(200);
+    timer.delay_ms(100);
+
     for (unsigned int i = 0; i < adc_result.size(); i++)
-        adc_calibration_off[i] = adc.get()[i];
+        adc_calibration_q[i] = adc.get()[i];
     
-
     sensor_led = 1;
-    timer.delay_ms(200); 
+    timer.delay_ms(100); 
 
-    for (unsigned int i = 0; i < adc_calibration_on.size(); i++)
-        adc_calibration_on[i] =  adc.get()[i];
-
-
-    for (unsigned int i = 0; i < adc_result_off.size(); i++)
-        adc_result_off[i] = 0;
-
-    for (unsigned int i = 0; i < adc_result_on.size(); i++)
-        adc_result_on[i] = 0;
+    for (unsigned int i = 0; i < adc_calibration_k.size(); i++)
+        adc_calibration_k[i] =  adc.get()[i] - adc_calibration_q[i];
 
     for (unsigned int i = 0; i < adc_result.size(); i++)
         adc_result[i] = 0;
-
 
 
     weights[0] = -4*LINE_SENSOR_STEP;
@@ -80,25 +72,16 @@ void LineSensor::callback()
     if (state == 0)
     {
         for (unsigned int i = 0; i < adc_result.size(); i++)
-        {
-            adc_result_off[i] = adc.get()[i];
+        { 
+            int v = 1000 - ((adc.get()[i] - adc_calibration_q[i])*1000)/adc_calibration_k[i];
+            if (v < 0)
+            {
+                v = 0;
+            }
+
+            adc_result[i] = v;
         }
-
-        sensor_led = 1;
-    }
-  
-    if (state == 2)
-    {  
-        for (unsigned int i = 0; i < adc_result.size(); i++)
-        {
-            adc_result_on[i] = adc.get()[i];
-        }
-
-        sensor_led = 0;
-    }
-
-    if (state == 7)
-    {
+    
         process();
     }
 }
@@ -128,13 +111,6 @@ void LineSensor::print()
 
 void LineSensor::process()
 {    
-    for (unsigned int i = 0; i < adc_result.size(); i++)
-    {
-        int diff  = adc_result_off[i] - adc_result_on[i];
-        float r       = 1.0 - (float)diff/(float)adc_result_off[i];
-        adc_result[i] = 1000.0*r;    
-    }
-
     //compute average of all sensors
     int average = 0;
     for (unsigned int i = 0; i < adc_result.size(); i++)

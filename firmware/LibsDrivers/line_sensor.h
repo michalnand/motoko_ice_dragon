@@ -39,16 +39,13 @@ class LineSensor
 
 
    public:
-        Array<int, LINE_SENSOR_COUNT> adc_result_off;
-        Array<int, LINE_SENSOR_COUNT> adc_result_on;
         Array<int, LINE_SENSOR_COUNT> adc_result;
 
     private:
         //sensors normalisation, calibration constants
         Array<int, LINE_SENSOR_COUNT> weights;
-        Array<int, LINE_SENSOR_COUNT> adc_calibration_off;
-        Array<int, LINE_SENSOR_COUNT> adc_calibration_on;
-
+        Array<int, LINE_SENSOR_COUNT> adc_calibration_q;
+        Array<int, LINE_SENSOR_COUNT> adc_calibration_k;
 
     private:
         //line sensors

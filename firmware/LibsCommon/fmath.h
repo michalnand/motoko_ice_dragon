@@ -51,4 +51,8 @@ float first_difference_1(float x_now, float *x, float dt);
 //compute difference from four consecutive values
 float first_difference_4(float x_now, float *x, float dt);
 
+//use simpson rule for integration
+//float *x holds 3 last values
+float integrate_step(float x_now, float *x);
+
 #endif

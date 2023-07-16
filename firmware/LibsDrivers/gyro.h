@@ -8,27 +8,28 @@
 class Gyro
 {
     public:
-        int init(I2C_Interface &i2c_interface, int dt);
+        int init(I2C_Interface &i2c_interface);
 
         void callback();
         int32_t  read();
 
-        //1.0 is equal to 1 full 360degrees rotation / s
-        float get_angular_rate();
-
-        //1.0  is equal  to 1 full circle in counter clockwise direction
-        //-1.0 is equal to 1 full circle in clockwise direction
-        float get_angle();
+        void reset_angle();
 
     private:
         I2C_Interface *i2c;
-        int dt;
+        int odr;
 
         int32_t sensitivity;
         int32_t offset_z;
 
+        float angular_rate_z_old[3];
+
     public:
+        //1.0 is equal to 1 full 360degrees rotation / s
         float angular_rate_z;
+
+        //1.0  is equal  to 1 full circle in counter clockwise direction
+        //-1.0 is equal to 1 full circle in clockwise direction
         float angle_z;      
 
     public:

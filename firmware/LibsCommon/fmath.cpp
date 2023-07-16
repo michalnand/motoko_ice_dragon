@@ -252,3 +252,14 @@ float first_difference_4(float x_now, float *x, float dt)
 
     return y/dt;
 }
+
+float integrate_step(float x_now, float *x)
+{    
+    x[2] = x[1];
+    x[1] = x[0];
+    x[0] = x_now;
+
+    float y = (1.0*x[2] + 4.0*x[1] + 1.0*x[0])/6.0;
+
+    return y;
+}

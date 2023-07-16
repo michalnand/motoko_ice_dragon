@@ -14,6 +14,8 @@ class Timer
     public:
         uint32_t get_time();
         void delay_ms(uint32_t time_ms);
+
+        void reset();
 };
 
 #endif

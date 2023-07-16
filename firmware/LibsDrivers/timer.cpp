@@ -30,6 +30,8 @@ void Timer::init(uint32_t frequency)
     //interrupt every 1ms 
     SysTick_Config(SystemCoreClock/frequency);
     __enable_irq();
+
+    this->delay_ms(100);
 }
 
 void Timer::delay_ms(uint32_t time_ms)
@@ -46,4 +48,11 @@ uint32_t Timer::get_time()
     volatile uint32_t result = g_time;
 
     return result;
+}
+
+void Timer::reset()
+{
+    __disable_irq();
+    g_time = 0;
+    __enable_irq();
 }

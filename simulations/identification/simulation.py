@@ -91,7 +91,7 @@ if __name__ == "__main__":
     x_noised[:, 1]+= 2.0*numpy.arange(x_noised.shape[0])/x_noised.shape[0]
     
     #identification
-    x_denoised = LibsControl.fft_denoising(x_noised, [100.0, 300.0])
+    x_denoised, fft_result = LibsControl.fft_denoising(x_noised, [100.0, 300.0])
     models, loss    = LibsControl.identification(u_result, x_denoised, dt)
 
     model   = models[-1]
@@ -134,22 +134,35 @@ if __name__ == "__main__":
     axs[0].set_ylabel("motor control")
     axs[0].grid()
 
-    axs[1].plot(t_result, x_noised[:, 0],   color="red", alpha=0.5)
-    axs[1].plot(t_result, x_result[:, 0],   label="gt", color="red", lw=3.0)
+    axs[1].plot(t_result, x_noised[:, 0],   label="observed", color="red", alpha=0.5)
+    axs[1].plot(t_result, x_result[:, 0],   label="gt", color="red", lw=2.5)
     axs[1].plot(t_result, x_hat_result[:, 0],     label="model", color="deepskyblue", lw=2.0)
     axs[1].set_xlabel("time [s]")
     axs[1].set_ylabel("angular velocity")
     axs[1].legend()
     axs[1].grid()   
 
-    axs[2].plot(t_result, x_noised[:, 1],   color="red", alpha=0.5)
-    axs[2].plot(t_result, x_result[:, 1],   label="gt", color="red", lw=3.0)
+    axs[2].plot(t_result, x_noised[:, 1],   label="observed", color="red", alpha=0.5)
+    axs[2].plot(t_result, x_result[:, 1],   label="gt", color="red", lw=2.5)
     axs[2].plot(t_result, x_hat_result[:, 1],     label="model", color="deepskyblue", lw=2.0)
     axs[2].set_xlabel("time [s]")
     axs[2].set_ylabel("angle")
     axs[2].legend()
     axs[2].grid()
 
+    '''
+    axs[3].plot(fft_result[0:200, 0],  color="red", alpha=0.5)
+    axs[3].set_xlabel("frequency")
+    axs[3].set_ylabel("angular velocity")
+    axs[3].legend()
+    axs[3].grid() 
+
+    axs[4].plot(fft_result[0:200, 1],  color="red", alpha=0.5)
+    axs[4].set_xlabel("frequency")
+    axs[4].set_ylabel("angle")
+    axs[4].legend()
+    axs[4].grid() 
+    '''
 
     plt.tight_layout()
     plt.show()
