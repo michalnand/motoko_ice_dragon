@@ -3,14 +3,17 @@
  
 #include <pwm.h>
 #include <as5600_t.h>
-
+#include <lqr_velocity.h>
 
 //set_torque min and max range
-#define MOTOR_CONTROL_MAX       ((int32_t)1024)
+#define MOTOR_CONTROL_MAX       ((int32_t)1024) 
 
 //dt step in microseconds, 2kHz, 500uS
-//#define MOTOR_CONTROL_DT    ((uint32_t)500)
-#define MOTOR_CONTROL_DT    ((uint32_t)250)
+#define MOTOR_CONTROL_DT    ((uint32_t)500)
+//#define MOTOR_CONTROL_DT    ((uint32_t)250)
+
+//dt step in microseconds, 500Hz, 2000uS
+#define MOTOR_LQR_DT            ((uint32_t)2000)
 
 
 #define MOTOR_POLES             ((int32_t)14)
@@ -20,9 +23,11 @@ class MotorControl
 {
     public:
         void init();
-        void set_torque(int32_t left_torque, int32_t right_torque);
 
-        void callback(); 
+        void set_torque(float left_torque, float right_torque);
+        void set_velocity(float left_velocity, float right_velocity);
+
+        void callback_torque(); 
 
         void hold();
 
@@ -50,14 +55,23 @@ class MotorControl
 
     private: 
         int32_t left_torque;
-        int32_t right_torque; 
+        int32_t right_torque;
+
+        float left_req_velocity;
+        float right_req_velocity;
 
         PWMLeft     left_pwm;
         PWMRight    right_pwm;
 
+
+        uint32_t steps;
+
     private:
         AS5600T<TGPIOD, 15, 14, 2> left_encoder;
         AS5600T<TGPIOE,  0,  1, 2> right_encoder;
+
+        LQRVelocity left_lqr;
+        LQRVelocity right_lqr;
 };
 
 #endif

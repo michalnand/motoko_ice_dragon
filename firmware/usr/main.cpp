@@ -17,7 +17,6 @@
 #define KEY_PIN           4
 
  
-#include <identification.h> 
 #include <lqr.h> 
 
   
@@ -36,7 +35,7 @@ int main(void)
   
 
   Gpio<KEY_GPIO, KEY_PIN, GPIO_MODE_IN_PULLUP> key;   //user button
-
+ 
   for (unsigned int i = 0; i < 5; i++)
   {
     led_2 = 1; 
@@ -80,7 +79,9 @@ int main(void)
   //left_motor_pwm_test();
   //right_motor_pwm_test();
   //encoder_sensor_test();
-  
+
+
+  //motor_identification();
   //motor_driver_test();
 
   //mcu_usage();

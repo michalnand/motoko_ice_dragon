@@ -7,7 +7,7 @@ void PWMLeft::init()
     //PWMA      : PC9, TIM3_CH4
     //PWMB      : PC8, TIM3_CH3
     //PWMC      : PC7, TIM3_CH2
-    //enable    : PA8
+    //enable    : PA8 
 
     GPIO_InitTypeDef GPIO_InitStruct;
 

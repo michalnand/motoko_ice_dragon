@@ -17,7 +17,7 @@ void right_motor_pwm_test();
 void sensors_test();
 
 void motor_driver_test();
-
+void motor_identification();
 
 void gyro_stabilise();
 

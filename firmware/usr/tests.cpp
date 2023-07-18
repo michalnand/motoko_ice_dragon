@@ -130,7 +130,7 @@ void encoder_sensor_test()
     Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;        //user led
 
     
-    motor_control.set_torque(MOTOR_CONTROL_MAX/4, 0);
+    motor_control.set_velocity(1, 0);
 
     while(1)  
     {
@@ -476,78 +476,83 @@ void right_motor_pwm_test()
 
 
 
+void motor_identification()
+{
+  motor_control.set_torque(MOTOR_CONTROL_MAX, 0); 
+  timer.delay_ms(800);
+
+  //motor free run speed, in RPM
+  float motor_max_speed   = 0;
+
+  for (unsigned int i = 0; i < 100; i++)
+  {
+    motor_max_speed+=  motor_control.get_left_velocity()*60.0/(2.0*PI);
+    timer.delay_ms(2);
+  } 
+
+  motor_max_speed   = motor_max_speed/100;
+
+  motor_control.set_torque(0, 0); 
+  timer.delay_ms(800);
+
+  terminal << "motor_max_speed   " << motor_max_speed << " rpm\n";
+
+
+  int32_t time_start = timer.get_time();
+  motor_control.set_torque(MOTOR_CONTROL_MAX, 0); 
+
+  while (motor_control.get_left_velocity()*(60.0/(2.0*PI)) < 0.632*motor_max_speed)
+  {
+    __asm("nop");
+  }
+
+  int32_t time_stop = timer.get_time();
+
+  motor_control.set_torque(0, 0); 
+  timer.delay_ms(100);
+
+  int32_t dt = time_stop - time_start; 
+
+  terminal << "time_constant   " << dt   << " ms\n";
+  terminal << "\n\n";
+}
 
 void motor_driver_test()
 {
     Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;        //user led
 
-    
-    int speed = 0;
-    unsigned int state = 0;
+    //required RPM velocity
+    const float required[] = {0, 1000, 0, -1000};
 
-    /*
-    motor_control.set_torque(-0.3*MOTOR_CONTROL_MAX, -0.3*MOTOR_CONTROL_MAX);
-
-    while(1)  
+    while (1) 
     {
-      led = 1; 
-      timer.delay_ms(50);
+      uint32_t time = timer.get_time();
+      uint32_t required_idx = (time/4000)%4;
 
-      led = 0; 
-      timer.delay_ms(250);
-
-
-      terminal << "encoder\n";
-      terminal << "left   : " << motor_control.get_left_angle()  << " " << motor_control.get_left_position()  << " " << motor_control.get_left_velocity() << "\n";
-      terminal << "right  : " << motor_control.get_right_angle()  << " " << motor_control.get_right_position()  << " " << motor_control.get_right_velocity() << "\n";
-      terminal << "\n\n\n";
-    }
-    */
-
-    while(1)  
-    {
-      led = 1; 
-      timer.delay_ms(10);
-
-      led = 0; 
-      timer.delay_ms(10);
-
-      if (state == 0)
-      {
-        speed+= 5;
-        if (speed >= MOTOR_CONTROL_MAX)
-        {
-          timer.delay_ms(1000);
-          state = 1;
-        }
-      }
-      else if (state == 1)
-      {
-        speed-= 5;
+      //convert rpm to rad/s
+      float req = required[required_idx]*2.0*PI/60.0;
         
-        if (speed <= 5)
-        {
-          state = 2;
-          motor_control.set_torque(0, 0);
-        }
+      motor_control.set_velocity(req, req);
+
+
+      if ((time/50)%10 == 0)
+      { 
+        led = 1; 
+
+        terminal << "req   = " << req*60.0/(2.0*PI) << "\n";
+        terminal << "left  = " <<  motor_control.get_left_velocity()*60.0/(2.0*PI) << "\n";
+        terminal << "right = " <<  motor_control.get_right_velocity()*60.0/(2.0*PI) << "\n";
+        terminal << "\n\n";
+        
       }
       else
       {
-        for (unsigned int i = 0; i < 5; i++)
-        {
-          motor_control.set_torque(MOTOR_CONTROL_MAX, -MOTOR_CONTROL_MAX); 
-          timer.delay_ms(1000);
-          motor_control.set_torque(0, 0); 
-          timer.delay_ms(300);
-        }
-
-        state = 0;
+        led = 0;
       }
+    }
 
-
-      motor_control.set_torque(speed, -speed);      
-  }
 }
+
 
 
 void gyro_stabilise()
@@ -556,20 +561,16 @@ void gyro_stabilise()
 
   Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;
 
-  float angle_sum = 0.0;
-  
+  led = 1;
+
   while(1)
   {
-    float angle        = gyro.angle_z;
-    float angular_rate = gyro.angular_rate_z;
+    float angle  = gyro.angle_z;
+    float u      = 50.0*angle;
 
-    angle_sum+= angle*(4.0/1000.0);
+    motor_control.set_velocity(u, -u); 
 
-    float u = 1.0*angle + 0.1*angle_sum; 
-
-    motor_control.set_torque(MOTOR_CONTROL_MAX*u, -MOTOR_CONTROL_MAX*u); 
-
-    timer.delay_ms(4);
+    timer.delay_ms(5);
   }
 }
 

@@ -2,12 +2,13 @@
 
 #include <motor_control.h>
 #include <gonio.h>
+#include <fmath.h>
  
 //helping stuff
 #define SQRT3       ((int32_t)1773)      // sqrt(3)     = 1773/1024
 #define SQRT3INV    ((int32_t)591)       // 1/sqrt(3)   = 591/1024
 
-#define max2(x,y) (((x) >= (y)) ? (x) : (y))
+#define max2(x,y) (((x) >= (y)) ? (x) : (y)) 
 #define min2(x,y) (((x) <= (y)) ? (x) : (y))
 
 #define max3(x, y, z) (max2(max2(x, y), z))
@@ -24,14 +25,13 @@ extern "C" {
 
 void TIM2_IRQHandler(void)
 { 
-    g_motor_control_ptr->callback();
+    g_motor_control_ptr->callback_torque();
     TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);  
 } 
  
 #ifdef __cplusplus
 }
 #endif
-
 
 
 void MotorControl::init()
@@ -43,11 +43,31 @@ void MotorControl::init()
     left_pwm.init();
     right_pwm.init();
 
-    hold();
-
+    hold(); 
 
     left_encoder.init();
     right_encoder.init();
+
+    set_torque(0, 0);
+    set_velocity(0, 0);
+
+
+    //LQR controller init
+    //float k0            = (float)0.07667589;
+    //float ki            = (float)31.6227766;
+
+    float k0            = (float)0.02077239;
+    float ki            = (float)3.16227766;
+
+ 
+    float antiwindup    = (float)1.0;
+    float dt            = ((float)MOTOR_CONTROL_DT)/1000000.0;
+ 
+
+    left_lqr.init( k0,  ki, antiwindup, dt);
+    right_lqr.init(k0,  ki, antiwindup, dt);
+
+    steps = 0;
 
     //init timer 2 interrupt for callback calling, 2kHz
     
@@ -59,7 +79,7 @@ void MotorControl::init()
 
     TIM_TimeBaseStructure.TIM_Prescaler         = 0;
     TIM_TimeBaseStructure.TIM_CounterMode       = TIM_CounterMode_Up;
-    TIM_TimeBaseStructure.TIM_Period            = timer_period(MOTOR_CONTROL_DT); //(SystemCoreClock/2)*500;
+    TIM_TimeBaseStructure.TIM_Period            = timer_period(MOTOR_CONTROL_DT);
     TIM_TimeBaseStructure.TIM_ClockDivision     = 0; 
     TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;   
 
@@ -73,58 +93,73 @@ void MotorControl::init()
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 
-    set_torque(0, 0);
-
+    
     terminal << "motor_controll init [DONE]\n";
 }
 
-void MotorControl::set_torque(int32_t left_torque, int32_t right_torque)
+void MotorControl::set_torque(float left_torque, float right_torque)
 {
-    this->left_torque  = clamp(left_torque,  -MOTOR_CONTROL_MAX, MOTOR_CONTROL_MAX);
-    this->right_torque = clamp(right_torque, -MOTOR_CONTROL_MAX, MOTOR_CONTROL_MAX);
+    this->left_torque  = left_torque;
+    this->right_torque = right_torque;
+}
+
+
+void MotorControl::set_velocity(float left_velocity, float right_velocity)
+{
+    this->left_req_velocity  = left_velocity;
+    this->right_req_velocity = right_velocity;
 }
  
 
-void MotorControl::callback()
+void MotorControl::callback_torque()
 {
     left_encoder.update(MOTOR_CONTROL_DT);  
     right_encoder.update(MOTOR_CONTROL_DT);   
 
+
+    this->left_torque  = MOTOR_CONTROL_MAX*left_lqr.step(left_req_velocity,     get_left_velocity());
+    this->right_torque = MOTOR_CONTROL_MAX*right_lqr.step(right_req_velocity,   get_right_velocity());
+
+    this->left_torque  = clamp(this->left_torque,  -MOTOR_CONTROL_MAX, MOTOR_CONTROL_MAX);
+    this->right_torque = clamp(this->right_torque, -MOTOR_CONTROL_MAX, MOTOR_CONTROL_MAX);
+
     int32_t left_u;
     int32_t left_phase; 
     
-    if (this->left_torque < 0) 
+    if (left_torque < 0) 
     {
-        left_u     = -this->left_torque;
+        left_u     = -left_torque;
         left_phase = -SINE_TABLE_SIZE/4; 
         
     }
     else
     {
-        left_u     = this->left_torque;
+        left_u     = left_torque;
         left_phase = SINE_TABLE_SIZE/4; 
     }
 
     int32_t right_u;
     int32_t right_phase; 
 
-    if (this->right_torque < 0) 
+    if (right_torque < 0) 
     {
-        right_u     = -this->right_torque;
+        right_u     = -right_torque;
         right_phase = SINE_TABLE_SIZE/4; 
         
     }
     else
     {
-        right_u     = this->right_torque;
+        right_u     = right_torque;
         right_phase = -SINE_TABLE_SIZE/4; 
     }
 
     set_torque_from_rotation(left_u,   left_phase,  left_encoder.angle,   0);
     set_torque_from_rotation(right_u,  right_phase, right_encoder.angle,  1);
+
+    this->steps++;
 }
 
-
+ 
 void MotorControl::hold()
 {
     set_torque_from_rotation(500,  0,   0,  0);
@@ -140,12 +175,12 @@ int32_t MotorControl::get_left_angle()
      
 float MotorControl::get_left_position()
 {
-    return -left_encoder.position/4096.0;
+    return -left_encoder.position*2.0*PI/4096.0;
 }
 
 float MotorControl::get_left_velocity()
 {
-    return -left_encoder.angular_velocity/4096.0;
+    return -left_encoder.angular_velocity*2.0*PI/4096.0;
 }
 
 
@@ -158,12 +193,12 @@ int32_t MotorControl::get_right_angle()
 
 float MotorControl::get_right_position()
 {
-    return right_encoder.position/4096.0;
+    return right_encoder.position*2.0*PI/4096.0;
 } 
 
 float MotorControl::get_right_velocity()
 {
-    return right_encoder.angular_velocity/4096.0;
+    return right_encoder.angular_velocity*2.0*PI/4096.0;
 }
 
 

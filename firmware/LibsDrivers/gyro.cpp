@@ -71,6 +71,12 @@
 #define     G_HM_MODE           ((unsigned char)0x80)
 
 Gyro *g_gyro_ptr;
+ 
+
+
+
+
+
 
 
 #ifdef __cplusplus
@@ -86,6 +92,7 @@ void TIM5_IRQHandler(void)
 #ifdef __cplusplus
 }
 #endif
+
 
 
 int Gyro::init(I2C_Interface &i2c_interface)
@@ -132,19 +139,18 @@ int Gyro::init(I2C_Interface &i2c_interface)
     offset_z        = offset_z/calibration_iterations;
 
     angular_rate_z  = 0;
-    angle_z         = 0;
+    angle_z         = 0; 
 
     for (int32_t i = 0; i < 3; i++)
     {
         angular_rate_z_old[i] = 0.0;
     }
- 
-    //run timer, for background measuring
-    //init timer 5 interrupt for callback calling, in dt interval
+    
     TIM_TimeBaseInitTypeDef     TIM_TimeBaseStructure;
     NVIC_InitTypeDef            NVIC_InitStructure;
 
-    
+    //init timer 5 interrupt for callback calling, 500Hz
+
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5, ENABLE);
 
     TIM_TimeBaseStructure.TIM_Prescaler         = 0;
@@ -157,12 +163,13 @@ int Gyro::init(I2C_Interface &i2c_interface)
     TIM_ITConfig(TIM5, TIM_IT_CC1, ENABLE);
     TIM_Cmd(TIM5, ENABLE); 
 
-    
+     
     NVIC_InitStructure.NVIC_IRQChannel = TIM5_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority    = 3;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority    = 4;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority           = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure); 
+    
 
     terminal << "gyro_sensor init [DONE]\n";
     return 0;
@@ -174,10 +181,10 @@ void Gyro::callback()
     int32_t raw = read() - offset_z; 
 
     //convert raw reading into dps
-    //convert dps to natural units, 1 is equal to one rotation/s
-    angular_rate_z =  (GYRO_CALIB*raw*GYRO_DPS)/(32768.0*360.0);
-  
-    //integrate angle
+    //convert dps to radians
+    angular_rate_z =  (GYRO_CALIB*raw*GYRO_DPS*2.0*PI)/(32768.0*360.0);
+   
+    //integrate angle  
     //angle_z = angle_z + angular_rate_z*(1.0/(float)odr);
  
     angle_z = angle_z + integrate_step(angular_rate_z, angular_rate_z_old)*(1.0/(float)odr);

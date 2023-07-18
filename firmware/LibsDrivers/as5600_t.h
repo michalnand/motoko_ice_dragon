@@ -124,6 +124,11 @@ class AS5600T
             }
 
             int32_t tmp = ((this->position - this->position_prev)*1000000)/dt_us;
+
+            if ((tmp >= -4) && (tmp <= 4))
+            {
+                tmp = 0;  
+            }
             
             //complementary LP filter
             this->angular_velocity = (15*this->angular_velocity + 1*tmp)/16; 
