@@ -17,14 +17,14 @@ void right_motor_pwm_test();
 void sensors_test();
 
 void motor_driver_test();
-void motor_identification();
 
-void gyro_stabilise();
 
 void mcu_usage();
 
 void sensors_matching();
 
+void gyro_turn_test();
 
+void line_follow_test();
 
 #endif

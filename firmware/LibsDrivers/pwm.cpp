@@ -49,16 +49,6 @@ void PWMLeft::init()
     
 
 
-    //stop motor    
-    this->set(0, 0, 0);
-
-    //set enable to high, for all phases
-    Gpio<TGPIOA, 8, GPIO_MODE_OUT> enable;
-    enable = 1;
-}
-
-void PWMLeft::set(uint32_t a_pwm, uint32_t b_pwm, uint32_t c_pwm)
-{
     //PWM output settings
     TIM_OCInitTypeDef TIM_OCStruct;
     
@@ -69,19 +59,34 @@ void PWMLeft::set(uint32_t a_pwm, uint32_t b_pwm, uint32_t c_pwm)
     TIM_OCStruct.TIM_OCPolarity     = TIM_OCPolarity_Low;
 
     //HSA pwm, PC9, TIM3_CH4
-    TIM_OCStruct.TIM_Pulse = a_pwm;
+    TIM_OCStruct.TIM_Pulse = 0;
     TIM_OC4Init(TIM3, &TIM_OCStruct);
     TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable);
 
     //HSB pwm, PC8, TIM3_CH3
-    TIM_OCStruct.TIM_Pulse = b_pwm;
+    TIM_OCStruct.TIM_Pulse = 0;
     TIM_OC3Init(TIM3, &TIM_OCStruct);
     TIM_OC3PreloadConfig(TIM3, TIM_OCPreload_Enable);
 
     //HSC pwm, PC7, TIM3_CH2
-    TIM_OCStruct.TIM_Pulse = c_pwm;
+    TIM_OCStruct.TIM_Pulse = 0;
     TIM_OC2Init(TIM3, &TIM_OCStruct);
     TIM_OC2PreloadConfig(TIM3, TIM_OCPreload_Enable);
+
+
+    //stop motor    
+    this->set(0, 0, 0);
+
+    //set enable to high, for all phases
+    Gpio<TGPIOA, 8, GPIO_MODE_OUT> enable;
+    enable = 1;
+}
+
+void PWMLeft::set(uint32_t a_pwm, uint32_t b_pwm, uint32_t c_pwm)
+{
+    TIM3->CCR4 = a_pwm;
+    TIM3->CCR3 = b_pwm;
+    TIM3->CCR2 = c_pwm;
 }
 
 
@@ -138,16 +143,6 @@ void PWMRight::init()
     
 
 
-    //stop motor    
-    this->set(0, 0, 0);
-
-    //set enable to high, for all phases
-    Gpio<TGPIOB, 9, GPIO_MODE_OUT> enable;
-    enable = 1;
-}
-
-void PWMRight::set(uint32_t a_pwm, uint32_t b_pwm, uint32_t c_pwm)
-{
     //PWM output settings
     TIM_OCInitTypeDef TIM_OCStruct;
     
@@ -158,17 +153,31 @@ void PWMRight::set(uint32_t a_pwm, uint32_t b_pwm, uint32_t c_pwm)
     TIM_OCStruct.TIM_OCPolarity     = TIM_OCPolarity_Low;
 
     //HSA pwm, PC9, TIM4_CH4
-    TIM_OCStruct.TIM_Pulse = a_pwm;
+    TIM_OCStruct.TIM_Pulse = 0;
     TIM_OC3Init(TIM4, &TIM_OCStruct);
     TIM_OC3PreloadConfig(TIM4, TIM_OCPreload_Enable);
 
     //HSB pwm, PC8, TIM4_CH3
-    TIM_OCStruct.TIM_Pulse = b_pwm;
+    TIM_OCStruct.TIM_Pulse = 0;
     TIM_OC2Init(TIM4, &TIM_OCStruct);
     TIM_OC2PreloadConfig(TIM4, TIM_OCPreload_Enable);
 
     //HSC pwm, PC7, TIM4_CH2
-    TIM_OCStruct.TIM_Pulse = c_pwm;
+    TIM_OCStruct.TIM_Pulse = 0;
     TIM_OC1Init(TIM4, &TIM_OCStruct);
     TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable);
+
+    //stop motor    
+    this->set(0, 0, 0);
+
+    //set enable to high, for all phases
+    Gpio<TGPIOB, 9, GPIO_MODE_OUT> enable;
+    enable = 1;
+}
+
+void PWMRight::set(uint32_t a_pwm, uint32_t b_pwm, uint32_t c_pwm)
+{
+    TIM4->CCR3 = a_pwm;
+    TIM4->CCR2 = b_pwm;
+    TIM4->CCR1 = c_pwm;
 }

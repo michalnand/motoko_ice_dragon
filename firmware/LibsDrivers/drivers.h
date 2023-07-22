@@ -24,7 +24,7 @@ extern  TI2C<TGPIOD, 1, 2, 5>       i2c;
 
 extern  IRSensor     ir_sensor;
 extern  LineSensor   line_sensor;
-extern  Gyro         gyro;
+extern  Gyro         gyro_sensor;
 
 extern  MotorControl motor_control;
 

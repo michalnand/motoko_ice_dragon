@@ -52,20 +52,20 @@ void MotorControl::init()
     set_velocity(0, 0);
 
 
-    //LQR controller init
-    //float k0            = (float)0.07667589;
-    //float ki            = (float)31.6227766;
-
-    float k0            = (float)0.02077239;
-    float ki            = (float)3.16227766;
-
- 
     float antiwindup    = (float)1.0;
     float dt            = ((float)MOTOR_CONTROL_DT)/1000000.0;
- 
 
-    left_lqr.init( k0,  ki, antiwindup, dt);
-    right_lqr.init(k0,  ki, antiwindup, dt);
+    
+    //LQR controller init
+    float k0            = (float)0.017782;
+    float ki            = (float)3.16227766;
+   
+
+
+    left_controller.init( k0,  ki, antiwindup, dt);
+    right_controller.init(k0,  ki, antiwindup, dt);
+    
+
 
     steps = 0;
 
@@ -116,14 +116,15 @@ void MotorControl::callback_torque()
     left_encoder.update(MOTOR_CONTROL_DT);  
     right_encoder.update(MOTOR_CONTROL_DT);   
 
+    
+    int32_t left_torque  = MOTOR_CONTROL_MAX*left_controller.step(left_req_velocity,     get_left_velocity());
+    int32_t right_torque = MOTOR_CONTROL_MAX*right_controller.step(right_req_velocity,   get_right_velocity());
+ 
+    this->left_torque  = clamp(left_torque,  -MOTOR_CONTROL_MAX, MOTOR_CONTROL_MAX);
+    this->right_torque = clamp(right_torque, -MOTOR_CONTROL_MAX, MOTOR_CONTROL_MAX);
+    
 
-    this->left_torque  = MOTOR_CONTROL_MAX*left_lqr.step(left_req_velocity,     get_left_velocity());
-    this->right_torque = MOTOR_CONTROL_MAX*right_lqr.step(right_req_velocity,   get_right_velocity());
-
-    this->left_torque  = clamp(this->left_torque,  -MOTOR_CONTROL_MAX, MOTOR_CONTROL_MAX);
-    this->right_torque = clamp(this->right_torque, -MOTOR_CONTROL_MAX, MOTOR_CONTROL_MAX);
-
-    int32_t left_u;
+    int32_t left_u; 
     int32_t left_phase; 
     
     if (left_torque < 0) 
@@ -233,12 +234,11 @@ void MotorControl::set_torque_from_rotation(int32_t torque, int32_t phase, uint3
     int32_t a_pwm = ((a - com_val)*SQRT3INV)/1024 + MOTOR_CONTROL_MAX/2;
     int32_t b_pwm = ((b - com_val)*SQRT3INV)/1024 + MOTOR_CONTROL_MAX/2;
     int32_t c_pwm = ((c - com_val)*SQRT3INV)/1024 + MOTOR_CONTROL_MAX/2;
-    
+   
      
-    a_pwm = clamp((a_pwm*PWM_PERIOD)/MOTOR_CONTROL_MAX, 0, PWM_PERIOD);
-    b_pwm = clamp((b_pwm*PWM_PERIOD)/MOTOR_CONTROL_MAX, 0, PWM_PERIOD);
-    c_pwm = clamp((c_pwm*PWM_PERIOD)/MOTOR_CONTROL_MAX, 0, PWM_PERIOD);
-
+    a_pwm = clamp((a_pwm*PWM_PERIOD)/MOTOR_CONTROL_MAX, 0, PWM_PERIOD-1);
+    b_pwm = clamp((b_pwm*PWM_PERIOD)/MOTOR_CONTROL_MAX, 0, PWM_PERIOD-1);
+    c_pwm = clamp((c_pwm*PWM_PERIOD)/MOTOR_CONTROL_MAX, 0, PWM_PERIOD-1);
 
     if (motor_id == 0)
     {

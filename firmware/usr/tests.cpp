@@ -1,6 +1,7 @@
 #include <tests.h>
 #include <drivers.h>
 #include <fmath.h>
+#include <lqr_servo.h>
 
 #define LED_GPIO        TGPIOE
 #define LED_PIN         3
@@ -21,13 +22,13 @@ void timer_test()
       led = 0; 
       
 
-      uint32_t gyro_m_prev = gyro.measurement_id;
+      uint32_t gyro_m_prev = gyro_sensor.measurement_id;
       uint32_t ir_m_prev   = ir_sensor.measurement_id;
       uint32_t line_m_prev = line_sensor.measurement_id;
       
       timer.delay_ms(1000);
       
-      uint32_t gyro_m_now  = gyro.measurement_id;
+      uint32_t gyro_m_now  = gyro_sensor.measurement_id;
       uint32_t ir_m_now    = ir_sensor.measurement_id;
       uint32_t line_m_now  = line_sensor.measurement_id;
 
@@ -109,14 +110,14 @@ void gyro_sensor_test()
       timer.delay_ms(50);
 
       
-      uint32_t measurement_id_prev = gyro.measurement_id;
+      uint32_t measurement_id_prev = gyro_sensor.measurement_id;
       timer.delay_ms(100); 
       //gyro.callback();
-      uint32_t measurement_id_now  = gyro.measurement_id;
+      uint32_t measurement_id_now  = gyro_sensor.measurement_id;
 
-      terminal << "measurements   : " << gyro.measurement_id << "\n";
+      terminal << "measurements   : " << gyro_sensor.measurement_id << "\n";
       terminal << "measurements/s : " << 10*(measurement_id_now - measurement_id_prev) << "\n";
-      terminal << "gyro reading   : " << gyro.angular_rate_z << " " << gyro.angle_z << "\n";
+      terminal << "gyro reading   : " << gyro_sensor.angular_rate << " " << gyro_sensor.angle << "\n";
       terminal << "\n\n";
   }
 } 
@@ -130,20 +131,18 @@ void encoder_sensor_test()
     Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;        //user led
 
     
-    motor_control.set_velocity(1, 0);
-
     while(1)  
     {
       led = 1; 
       timer.delay_ms(50);
 
       led = 0; 
-      timer.delay_ms(50);
+      timer.delay_ms(450);
 
       
       terminal << "encoder\n";
-      terminal << "left   : " << motor_control.get_left_angle()  << " " << motor_control.get_left_position()  << " " << motor_control.get_left_velocity() << "\n";
-      terminal << "right  : " << motor_control.get_right_angle()  << " " << motor_control.get_right_position()  << " " << motor_control.get_right_velocity() << "\n";
+      terminal << "left   : " << motor_control.get_left_angle()   << " " << motor_control.get_left_position()*180.0/PI   << " " << motor_control.get_left_velocity()*60.0/(2.0*PI) << "\n";
+      terminal << "right  : " << motor_control.get_right_angle()  << " " << motor_control.get_right_position()*180.0/PI  << " " << motor_control.get_right_velocity()*60.0/(2.0*PI) << "\n";
       terminal << "\n\n\n";
 
   }
@@ -176,13 +175,13 @@ void sensors_test()
 
     uint32_t ir_measurement_id_prev   = ir_sensor.measurement_id;
     uint32_t line_measurement_id_prev = line_sensor.measurement_id;
-    uint32_t gyro_measurement_id_prev = gyro.measurement_id;
+    uint32_t gyro_measurement_id_prev = gyro_sensor.measurement_id;
     
     timer.delay_ms(100);
      
     uint32_t ir_measurement_id_now    = ir_sensor.measurement_id;
     uint32_t line_measurement_id_now  = line_sensor.measurement_id;
-    uint32_t gyro_measurement_id_now  = gyro.measurement_id;
+    uint32_t gyro_measurement_id_now  = gyro_sensor.measurement_id;
 
 
     terminal << "ir_sensor : \n";
@@ -197,7 +196,7 @@ void sensors_test()
 
     terminal << "gyro :\n";
     terminal << "measurements/s : " << 10*(gyro_measurement_id_now - gyro_measurement_id_prev) << "\n";
-    terminal << "reading        : " << gyro.angular_rate_z << " " << gyro.angle_z << "\n";
+    terminal << "reading        : " << gyro_sensor.angular_rate << " " << gyro_sensor.angle << "\n";
     terminal << "\n\n\n";
 
     terminal << "encoder\n";
@@ -476,58 +475,19 @@ void right_motor_pwm_test()
 
 
 
-void motor_identification()
-{
-  motor_control.set_torque(MOTOR_CONTROL_MAX, 0); 
-  timer.delay_ms(800);
 
-  //motor free run speed, in RPM
-  float motor_max_speed   = 0;
-
-  for (unsigned int i = 0; i < 100; i++)
-  {
-    motor_max_speed+=  motor_control.get_left_velocity()*60.0/(2.0*PI);
-    timer.delay_ms(2);
-  } 
-
-  motor_max_speed   = motor_max_speed/100;
-
-  motor_control.set_torque(0, 0); 
-  timer.delay_ms(800);
-
-  terminal << "motor_max_speed   " << motor_max_speed << " rpm\n";
-
-
-  int32_t time_start = timer.get_time();
-  motor_control.set_torque(MOTOR_CONTROL_MAX, 0); 
-
-  while (motor_control.get_left_velocity()*(60.0/(2.0*PI)) < 0.632*motor_max_speed)
-  {
-    __asm("nop");
-  }
-
-  int32_t time_stop = timer.get_time();
-
-  motor_control.set_torque(0, 0); 
-  timer.delay_ms(100);
-
-  int32_t dt = time_stop - time_start; 
-
-  terminal << "time_constant   " << dt   << " ms\n";
-  terminal << "\n\n";
-}
 
 void motor_driver_test()
 {
     Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;        //user led
 
     //required RPM velocity
-    const float required[] = {0, 1000, 0, -1000};
+    const float required[] = {0, 200, 1000, 0, -200, -1000};
 
     while (1) 
     {
       uint32_t time = timer.get_time();
-      uint32_t required_idx = (time/4000)%4;
+      uint32_t required_idx = (time/4000)%6;
 
       //convert rpm to rad/s
       float req = required[required_idx]*2.0*PI/60.0;
@@ -550,29 +510,9 @@ void motor_driver_test()
         led = 0;
       }
     }
-
 }
 
 
-
-void gyro_stabilise()
-{
-  timer.delay_ms(1000);
-
-  Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;
-
-  led = 1;
-
-  while(1)
-  {
-    float angle  = gyro.angle_z;
-    float u      = 50.0*angle;
-
-    motor_control.set_velocity(u, -u); 
-
-    timer.delay_ms(5);
-  }
-}
 
 void mcu_usage()
 {
@@ -615,7 +555,7 @@ void sensors_matching()
     
     float line_position = line_sensor.line_position;
     float line_angle    = fatan(line_position*(sensors_brace/2.0) / sensors_distance)/PI;
-    float gyro_angle    = gyro.angle_z;
+    float gyro_angle    = gyro_sensor.angle;
 
     terminal << line_position << " " << line_angle << " " << gyro_angle << "\n";
 
@@ -626,4 +566,92 @@ void sensors_matching()
 }
 
 
+
+
+void gyro_turn_test()
+{
+  timer.delay_ms(1000);
+
+  float angles[] = {0, 45, 90, 0, -45, -90};
+
+  Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;
+
+  led = 1;
+
+  uint32_t steps = 0;
+  int32_t dt = 4;
+
+  LQRServo lqr;
+
+  float speed_max = 1500.0*2.0*PI/60.0;
+
+  lqr.init(2.00146, 52.10817, 316.22777, speed_max, dt/1000.0);
+ 
+  
+  while(1)
+  {
+    uint32_t idx = (steps/500)%6; 
+
+    float angle         = gyro_sensor.angle;
+    float angular_rate  = gyro_sensor.angular_rate_filtered;
+
+    float xr = angles[idx]*PI/180.0; 
+     
+ 
+    float u = lqr.step(xr, angle, angular_rate);
+
+    motor_control.set_velocity(-u, u); 
+    timer.delay_ms(dt);
+    
+    steps++;
+  }
+}
+
+
+
+
+void line_follow_test()
+{
+  timer.delay_ms(1000);
+
+  Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;
+
+  led = 1;
+
+  int32_t dt = 4;
+
+  float forward = 0.0;
+
+  LQRServo lqr;
+
+  float turn_speed_max     = 1500.0*2.0*PI/60.0;
+  float forward_speed_max  = 200.0*2.0*PI/60.0;
+  //lqr.init(2.00146, 52.10817, 316.22777, turn_speed_max, dt/1000.0);
+  
+  lqr.init(0.5, 80.0, 316.0, turn_speed_max, dt/1000.0);
+  
+   
+  while(1)
+  {
+
+    float angle         = -line_sensor.angle;
+    float angular_rate  = -line_sensor.angular_rate;
+     
+    float turn       = lqr.step(0.0, angle, angular_rate);
+    
+
+    if (line_sensor.line_lost_type == LINE_LOST_NONE)
+    { 
+      float k = 0.9;
+      forward = k*forward + (1.0 - k)*forward_speed_max;
+    }
+    else 
+    {
+      forward = 0.0;
+    }
+
+    motor_control.set_velocity(-turn + forward, turn + forward); 
+    timer.delay_ms(dt);
+  }
+}
 

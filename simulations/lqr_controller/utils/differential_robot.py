@@ -3,20 +3,9 @@ from .render import *
 
 
 class DifferentialRobot:
-    def __init__(self, dt = 0.001):
+    def __init__(self, tau_forward, k_forward, tau_turn, k_turn, dt = 1.0/250.0):
 
         self.dt = dt
-
-        #time constant for yaw angle robot rotation (steering)
-        tau_turn    = 1.0/0.3
-
-        #time constant for robot acceleration (forward direction)
-        tau_forward = 1.0/0.5
-
-        #amplification, ratio between measured value amplitude : controll variable amplitude
-        b_turn      = 1.5
-        b_forward   = 0.2
-
 
 
         self.mat_a = numpy.zeros((4, 4))
@@ -24,18 +13,17 @@ class DifferentialRobot:
         self.mat_c = numpy.zeros((4, 4)) 
 
 
-        self.mat_a[0][0] =  -9.831
-        self.mat_a[0][1] =  -1.397
+        self.mat_a[0][0] =  -1.0/tau_turn
         self.mat_a[1][0] =  1.0
-        self.mat_a[2][2] =  -tau_forward
+        self.mat_a[2][2] =  -1.0/tau_forward
         self.mat_a[3][2] =  1.0
 
 
-        self.mat_b[0][0] =   98.806
-        self.mat_b[0][1] =   -98.806
+        self.mat_b[0][0] =   -k_turn/tau_turn
+        self.mat_b[0][1] =   k_turn/tau_turn
         
-        self.mat_b[2][0] =  b_forward*tau_forward
-        self.mat_b[2][1] =  b_forward*tau_forward
+        self.mat_b[2][0] =  k_forward/tau_forward
+        self.mat_b[2][1] =  k_forward/tau_forward
 
        
         self.mat_c[0][0] = 1.0

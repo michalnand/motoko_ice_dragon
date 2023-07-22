@@ -31,20 +31,28 @@ def get_required(targets, current_target_idx, robot_x, robot_y, robot_theta):
 if __name__ == "__main__":
 
     dt    = 1.0/250.0
-    model = DifferentialRobot(dt)
+
+    tau_forward = 0.3
+    k_forward   = 1.7
+    tau_turn    = 0.1
+    k_turn      = 0.45
+
+    model = DifferentialRobot(tau_forward, k_forward, tau_turn, k_turn, dt)
 
   
-    steps = 5000
+    steps = 1000
 
     t_result = numpy.arange(steps)*dt
     
     
 
-    q = [0.0, 1.0, 0.0, 10.0]
+    #q = [0.0, 500000.0, 0.0, 50000.0]
+    #q = [0.0, 5000.0, 0.0, 500.0]
+    q = [0.0, 1000.0, 0.0, 10.0]
     q = numpy.diag(q)
 
   
-    r = [0.001, 0.001] 
+    r = [1.0, 1.0] 
     r =  numpy.diag(r)
 
 

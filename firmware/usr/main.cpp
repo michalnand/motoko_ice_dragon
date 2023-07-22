@@ -3,6 +3,8 @@
 #include <tests.h>
 
 #include <pwm.h>
+
+#include <identification.h>
  
 #define LED_1_GPIO        TGPIOE
 #define LED_1_PIN         3
@@ -81,20 +83,26 @@ int main(void)
   //encoder_sensor_test();
 
 
-  //motor_identification();
-  //motor_driver_test();
+   
+  motor_driver_test();
 
   //mcu_usage();
  
   
   //sensors_matching();
   
+  //motor_identification();
   //turn_dynamics_identification();
+  //forward_dynamics_identification();
 
 
   //line_stabilise();
+  //gyro_turn_test(); 
 
-  gyro_stabilise();
+  //line_follow_test();
+
+
+  //motor_control.set_torque(0, 1000);
 
   while (1)
   {

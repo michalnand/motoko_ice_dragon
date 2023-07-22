@@ -138,12 +138,13 @@ int Gyro::init(I2C_Interface &i2c_interface)
 
     offset_z        = offset_z/calibration_iterations;
 
-    angular_rate_z  = 0;
-    angle_z         = 0; 
+    angular_rate            = 0;
+    angular_rate_filtered   = 0;
+    angle                   = 0; 
 
     for (int32_t i = 0; i < 3; i++)
     {
-        angular_rate_z_old[i] = 0.0;
+        angular_rate_old[i] = 0.0;
     }
     
     TIM_TimeBaseInitTypeDef     TIM_TimeBaseStructure;
@@ -182,12 +183,14 @@ void Gyro::callback()
 
     //convert raw reading into dps
     //convert dps to radians
-    angular_rate_z =  (GYRO_CALIB*raw*GYRO_DPS*2.0*PI)/(32768.0*360.0);
+    angular_rate =  (GYRO_CALIB*raw*GYRO_DPS*2.0*PI)/(32768.0*360.0);
+
+    angular_rate_filtered = (7.0*angular_rate_filtered + angular_rate)/8.0;
    
     //integrate angle  
-    //angle_z = angle_z + angular_rate_z*(1.0/(float)odr);
+    //angle = angle + angular_rate*(1.0/(float)odr);
  
-    angle_z = angle_z + integrate_step(angular_rate_z, angular_rate_z_old)*(1.0/(float)odr);
+    angle = angle + integrate_step(angular_rate, angular_rate_old)*(1.0/(float)odr);
 
     measurement_id+= 1;
 }
@@ -214,6 +217,6 @@ int32_t Gyro::read()
 void Gyro::reset_angle()
 {
     __disable_irq();
-    angle_z = 0;
+    angle = 0;
     __enable_irq();
 }

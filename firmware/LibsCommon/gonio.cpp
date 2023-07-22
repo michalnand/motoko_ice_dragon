@@ -133,13 +133,13 @@ const int16_t sine_table[SINE_TABLE_SIZE] = {
 };
 
 
-int16_t sin_tab(uint16_t angle)
+int16_t sin_tab(uint32_t angle)
 {
-    unsigned int idx = (angle%SINE_TABLE_SIZE);
+    uint32_t idx = (angle%SINE_TABLE_SIZE);
     return sine_table[idx] - SINE_TABLE_MAX;
-}
+}  
 
-int16_t cos_tab(uint16_t angle)
+int16_t cos_tab(uint32_t angle)
 {
     return sin_tab(angle + SINE_TABLE_SIZE/4);
 }

@@ -23,8 +23,8 @@ void LQRVelocity::init(float k0, float ki, float antiwindup, float dt)
 }
 
         
-//x  actual velocity
-//dx actual velocity
+//xr  required velocity
+//x   actual velocity
 float LQRVelocity::step(float xr, float x)
 {
     //integral action
@@ -36,7 +36,7 @@ float LQRVelocity::step(float xr, float x)
     //LQR controller with integral action
     //u = -k@x + ki@error_sum
     float u_new = -this->k0*x + this->integral_action;
-
+ 
     //antiwindup with conditional integration
     float u = _clip(u_new, -this->antiwindup, this->antiwindup);
 

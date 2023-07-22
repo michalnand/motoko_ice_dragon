@@ -65,16 +65,12 @@ class AS5600T
 
             //power on
             //hysteresis 1 LSB
-            //slow filter only, 2x 
-            //i2c_write_reg(I2C_ADDRESS, CONF_L_ADR, (1<<2));
-            //i2c_write_reg(I2C_ADDRESS, CONF_H_ADR, (1<<0)|(1<<1));
-
-           
-            //power on
-            //hysteresis 1 LSB 
-            //slow filter only, 8x 
+            //slow filter only 
             i2c_write_reg(I2C_ADDRESS, CONF_L_ADR, (1<<2));
-            i2c_write_reg(I2C_ADDRESS, CONF_H_ADR, (1<<0)); 
+            i2c_write_reg(I2C_ADDRESS, CONF_H_ADR, (1<<0)|(1<<1));
+
+            //i2c_write_reg(I2C_ADDRESS, CONF_L_ADR, (1<<3)|(1<<2));
+            //i2c_write_reg(I2C_ADDRESS, CONF_H_ADR, 0);
             
  
             this->position          = 0;
@@ -108,9 +104,9 @@ class AS5600T
         {
             int16_t value = i2c_read_reg_16bit(I2C_ADDRESS, ANGLE_H_ADR)&0x0fff;
 
-            this->angle = value;
-         
-            this->position_prev = this->position; 
+            this->angle = value; 
+        
+            this->position_prev = this->position;
         
             //  whole rotation CW?
             //  less than half a circle
@@ -132,9 +128,9 @@ class AS5600T
 
 
             int32_t tmp = ((this->position - this->position_prev)*1000000)/dt_us;
-            
+
             //complementary LP filter
-            this->angular_velocity = (7*this->angular_velocity + 1*tmp)/8;  
+            this->angular_velocity = (7*this->angular_velocity + 1*tmp)/8;   
              
             this->prev_value       = value;
         }

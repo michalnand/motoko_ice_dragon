@@ -7,7 +7,7 @@ TI2C<TGPIOD, 1, 2, 5>      i2c;
  
 IRSensor     ir_sensor;
 LineSensor   line_sensor;
-Gyro         gyro;   
+Gyro         gyro_sensor;   
 
  
 MotorControl motor_control;
@@ -23,7 +23,7 @@ void drivers_init()
     //ir_sensor.init(); 
     //adc.init();
     //line_sensor.init();
-    gyro.init(i2c);   
+    gyro_sensor.init(i2c);   
     
     motor_control.init();
 }

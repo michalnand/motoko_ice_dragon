@@ -11,7 +11,7 @@
 //SINE_TABLE_MAX corresponds to 1 value
 //-SINE_TABLE_MAX corresponds to -1 value
 
-int16_t sin_tab(uint16_t angle);
-int16_t cos_tab(uint16_t angle);
-
+int16_t sin_tab(uint32_t angle);
+int16_t cos_tab(uint32_t angle);
+ 
 #endif
