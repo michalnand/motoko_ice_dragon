@@ -35,7 +35,13 @@ def get_required(targets, current_target_idx, robot_x, robot_y, robot_theta):
 if __name__ == "__main__":
 
     dt    = 1.0/250.0
-    model = DifferentialRobot(dt)
+
+    tau_forward = 0.3
+    k_forward   = 1.7
+    tau_turn    = 0.1
+    k_turn      = 0.45
+
+    model = DifferentialRobot(tau_forward, k_forward, tau_turn, k_turn, dt)
 
   
     steps = 5000
@@ -55,14 +61,14 @@ if __name__ == "__main__":
     qb = numpy.diag(qb)
     '''
 
-    qa = [0.0, 4.0, 0.0, 10.0]
+    qa = [0.0, 2000.0, 0.0, 10.0]
     qa = numpy.diag(qa)
 
-    qb = [0.0, 1.0, 0.0, 20.0]
+    qb = [0.0, 200.0, 0.0, 20.0]
     qb = numpy.diag(qb)
 
 
-    r = [0.001, 0.001] 
+    r = [1.0, 1.0] 
     r =  numpy.diag(r)
 
     ds   = LibsControl.DynamicalSystem(model.mat_a, model.mat_b, model.mat_c, dt=dt)

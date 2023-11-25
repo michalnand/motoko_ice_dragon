@@ -4,7 +4,7 @@ LibsDriversPATH = ./LibsDrivers
 
 AppPATH 		= ./usr
 
-GCCPREFIX	=/Applications/ARM/bin/arm-none-eabi-
+GCCPREFIX	=arm-none-eabi-
 OUTPUT	 	=bin/build
 
 TARGET 		= -mcpu=cortex-m7 -mthumb -mfloat-abi=softfp -fsingle-precision-constant -DSTM32F746xx
