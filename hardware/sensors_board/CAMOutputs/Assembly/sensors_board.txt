@@ -1,0 +1,8 @@
+Partlist exported from /Users/michal/projects/motoko_ice_dragon/sensors_board/sensors_board.sch at 03/02/2024 19:56
+
+Qty Value      Device     Package    Parts      Description                                             MF    MPN        OC_FARNELL OC_NEWARK POPULARITY PROD_ID  SPICEPREFIX
+3              R-EU_M0805 M0805      R1, R2, R3 RESISTOR, European symbol                                                                     45                  R          
+1   100n       C-EUC0805  C0805      C2         CAPACITOR, European symbol                                                                    88                  C          
+1   10uF       C-EUC0805  C0805      C3         CAPACITOR, European symbol                                                                    88                  C          
+1   52745-0490 52745-0490 52745-0490 X4         FFC/FPC-to-Board  0.50mm (.020") SMT Top Contact        MOLEX 52745-0490 unknown    61H4699   0                              
+1   VL53L1XSMD VL53L1XSMD VL53L1X    U1         STMicroelectronics VL53L1X - 400 cm IR Laser ToF Sensor                                                  IC-13960            
