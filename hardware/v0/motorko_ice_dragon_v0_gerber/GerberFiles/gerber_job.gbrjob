@@ -1,7 +1,7 @@
 {
     "Header": {
         "Comment": "All values are metric (mm)",
-        "CreationDate": "2024-02-03T18:20:31Z",
+        "CreationDate": "2024-02-04T09:09:11Z",
         "GenerationSoftware": {
             "Application": "EAGLE",
             "Vendor": "Autodesk",
@@ -13,12 +13,12 @@
         "BoardThickness": 1.57,
         "LayerNumber": 2,
         "Name": {
-            "ProjectId": "motoko_ice_dragon_v2"
+            "ProjectId": "motoko_ice_dragon"
         },
         "Owner": "Michal Nand <michal.nand@gmail.com>",
         "Size": {
-            "X": 100,
-            "Y": 80
+            "X": 93,
+            "Y": 88
         }
     }
 }
