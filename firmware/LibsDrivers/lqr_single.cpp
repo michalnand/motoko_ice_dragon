@@ -1,17 +1,17 @@
-#include "lqr_velocity.h"
+#include "lqr_single.h"
 
 
-LQRVelocity::LQRVelocity()
-{
+LQRSingle::LQRSingle()
+{ 
 
 }
 
-LQRVelocity::~LQRVelocity()
+LQRSingle::~LQRSingle()
 {
 
 } 
 
-void LQRVelocity::init(float k0, float ki, float antiwindup, float dt)
+void LQRSingle::init(float k0, float ki, float antiwindup, float dt)
 {
     this->k0 = k0;
     this->ki = ki;
@@ -25,7 +25,7 @@ void LQRVelocity::init(float k0, float ki, float antiwindup, float dt)
         
 //xr  required velocity
 //x   actual velocity
-float LQRVelocity::step(float xr, float x)
+float LQRSingle::step(float xr, float x)
 {
     //integral action
     //error = xr - x
@@ -49,7 +49,7 @@ float LQRVelocity::step(float xr, float x)
 }
 
 
-float LQRVelocity::_abs(float v)
+float LQRSingle::_abs(float v)
 {
     if (v < 0)
     {
@@ -59,7 +59,7 @@ float LQRVelocity::_abs(float v)
     return v;
 }
 
-float LQRVelocity::_clip(float v, float min_v, float max_v)
+float LQRSingle::_clip(float v, float min_v, float max_v)
 {
     if (v < min_v)
     {

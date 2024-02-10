@@ -1,17 +1,17 @@
-#include "lqg_velocity.h"
+#include "lqg_single.h"
 
 
-LQGVelocity::LQGVelocity()
+LQGSingle::LQGSingle()
 {
-
+ 
 }
 
-LQGVelocity::~LQGVelocity()
+LQGSingle::~LQGSingle()
 {
 
 } 
 
-void LQGVelocity::init(float a, float b, float k0, float ki, float f, float antiwindup, float dt)
+void LQGSingle::init(float a, float b, float k0, float ki, float f, float antiwindup)
 {
     this->a  = a;
     this->b  = b;
@@ -25,19 +25,18 @@ void LQGVelocity::init(float a, float b, float k0, float ki, float f, float anti
 
 
     this->antiwindup = antiwindup;
-    this->dt         = dt;
 }
 
         
 //xr  required velocity
 //x   actual velocity
-float LQGVelocity::step(float xr, float x)
+float LQGSingle::step(float xr, float x)
 {
     //integral action
     //error = xr - x
     //integral_action+= ki@error * dt
-    float integral_action_new = integral_action + ki*(xr - x_hat)*dt;
-
+    float error = xr - x;   
+    float integral_action_new = integral_action + ki*error;
 
 
     //LQR controller with integral action
@@ -47,21 +46,28 @@ float LQGVelocity::step(float xr, float x)
     //antiwindup with conditional integration
     float u = _clip(u_new, -antiwindup, antiwindup);
 
+    integral_action = integral_action_new - (u_new - u);
+    
+    /*
     if (_abs(u_new - u) <= 10e-10)
     {
         integral_action = integral_action_new;
     }   
+    */
+
 
     // kalman observer, prediction and correction
     float e         = x - x_hat;
-    float dx_hat    = a*x_hat + b*u + f*e;           
-    x_hat           = x_hat + dx_hat*dt;
+    x_hat           = a*x_hat + b*u + f*e;
 
     return u;
 }
 
 
-float LQGVelocity::_abs(float v)
+
+
+
+float LQGSingle::_abs(float v)
 {
     if (v < 0)
     {
@@ -71,7 +77,7 @@ float LQGVelocity::_abs(float v)
     return v;
 }
 
-float LQGVelocity::_clip(float v, float min_v, float max_v)
+float LQGSingle::_clip(float v, float min_v, float max_v)
 {
     if (v < min_v)
     {
@@ -83,4 +89,21 @@ float LQGVelocity::_clip(float v, float min_v, float max_v)
     }
 
     return v;
+}
+
+
+int LQGSingle::_sgn(float v)
+{
+    if (v > 0.0)
+    {
+        return 1;
+    }
+    else if (v < 0.0)
+    {
+        return -1;
+    }
+    else 
+    {
+        return 0;
+    }
 }

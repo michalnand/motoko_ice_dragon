@@ -11,43 +11,63 @@
 
 void motor_identification()
 {
-  motor_control.set_torque(MOTOR_CONTROL_MAX, 0); 
-  timer.delay_ms(800);
+    motor_control.set_torque(0, 0); 
+    timer.delay_ms(100); 
 
-  //motor free run speed, in RPM
-  float motor_max_speed   = 0;
+    motor_control.set_torque(MOTOR_CONTROL_MAX, 0); 
+    timer.delay_ms(800);
 
-  for (unsigned int i = 0; i < 100; i++)
-  {
-    motor_max_speed+=  motor_control.get_left_velocity()*60.0/(2.0*PI);
-    timer.delay_ms(2);
-  } 
+    unsigned int steps_max = 400;
 
-  motor_max_speed   = motor_max_speed/100;
+    //motor free run speed, in RPM
+    float motor_max_speed_mean = 0;
+    float motor_max_speed_var  = 0;
 
-  motor_control.set_torque(0, 0); 
-  timer.delay_ms(800);
+    for (unsigned int i = 0; i < steps_max; i++)
+    {
+        float speed = motor_control.get_left_velocity()*60.0/(2.0*PI);
+        motor_max_speed_mean+= speed;
+        timer.delay_ms(2);
+    } 
 
-  terminal << "motor_max_speed   " << motor_max_speed << " rpm\n";
+    motor_max_speed_mean = motor_max_speed_mean/steps_max;
+
+    for (unsigned int i = 0; i < steps_max; i++)
+    {
+        float speed = motor_control.get_left_velocity()*60.0/(2.0*PI);
+        float dif   = speed - motor_max_speed_mean;
+        motor_max_speed_var+= dif*dif;
+        timer.delay_ms(2); 
+    } 
+
+    motor_max_speed_var = motor_max_speed_var/steps_max;
 
 
-  int32_t time_start = timer.get_time();
-  motor_control.set_torque(MOTOR_CONTROL_MAX, 0); 
 
-  while (motor_control.get_left_velocity()*(60.0/(2.0*PI)) < 0.632*motor_max_speed)
-  {
-    __asm("nop");
-  }
+    motor_control.set_torque(0, 0); 
+    timer.delay_ms(800);
 
-  int32_t time_stop = timer.get_time();
+    terminal << "motor_max_speed_mean   " << motor_max_speed_mean << " rpm\n";
+    terminal << "motor_max_speed_var    " << motor_max_speed_var << " rpm^2\n";
 
-  motor_control.set_torque(0, 0); 
-  timer.delay_ms(100);
 
-  int32_t dt = time_stop - time_start; 
+    int32_t time_start = timer.get_time();
+    motor_control.set_torque(MOTOR_CONTROL_MAX, 0); 
 
-  terminal << "time_constant   " << dt   << " ms\n";
-  terminal << "\n\n";
+    while (motor_control.get_left_velocity()*(60.0/(2.0*PI)) < 0.632*motor_max_speed_mean)
+    {
+        __asm("nop");
+    }
+
+    int32_t time_stop = timer.get_time();
+
+    motor_control.set_torque(0, 0); 
+    timer.delay_ms(100);
+
+    int32_t dt = time_stop - time_start; 
+
+    terminal << "time_constant   " << dt   << " ms\n";
+    terminal << "\n\n";
 }
 
 

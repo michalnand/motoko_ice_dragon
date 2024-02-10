@@ -1,18 +1,18 @@
-#ifndef _LQG_VELOCITY_H_
-#define _LQG_VELOCITY_H_
+#ifndef _LQR_SINGLE_H_
+#define _LQR_SINGLE_H_
 
 
 
-class LQGVelocity
+class LQRSingle
 {   
     public:
-        LQGVelocity();
+        LQRSingle();
         
-        virtual ~LQGVelocity();
+        virtual ~LQRSingle();
         
         //k0 : velocity gain
         //ki : integral action gain
-        void init(float a, float b, float k0, float ki, float f, float antiwindup, float dt);
+        void init(float k0, float ki, float antiwindup, float dt);
         
 
         //xr required velocity
@@ -28,13 +28,8 @@ class LQGVelocity
 
 
     public:
-        float a;
-        float b;
         float k0;
         float ki;
-        float f;
-
-        float x_hat;
 
         float integral_action;
         float antiwindup;

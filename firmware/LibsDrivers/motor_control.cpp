@@ -51,20 +51,38 @@ void MotorControl::init()
     set_torque(0, 0);
     set_velocity(0, 0);
 
-
     float antiwindup    = (float)1.0;
-    float dt            = ((float)MOTOR_CONTROL_DT)/1000000.0;
-
     
     //LQR controller init
-    float k0            = (float)0.017782;
-    float ki            = (float)3.16227766;
-   
+    //float k0            = (float)0.017782;
+    //float ki            = (float)3.16227766;
 
+    /*
+    //LQR gain, q = 1.0, r = 2*10**6
+    float k  =  0.02285016;
+    float ki =  0.00071175;
 
-    left_controller.init( k0,  ki, antiwindup, dt);
-    right_controller.init(k0,  ki, antiwindup, dt);
+    //Kalman gain
+    float f  =  0.01311132;
     
+    left_controller.init(k,  ki,  antiwindup, 1);
+    right_controller.init(k,  ki,  antiwindup, 1);
+    */
+
+
+    //discrete dynamics model
+    float a = 0.97530864;
+    float b = 3.61994215;
+
+    //LQR gain, q = 1.0, r = 2*10**6
+    float k  =  0.02285016;
+    float ki =  0.00071175;
+
+    //Kalman gain  
+    float f  = 0.01311132;
+
+    left_controller.init(a, b, k,  ki, f, antiwindup); 
+    right_controller.init(a, b, k,  ki, f, antiwindup); 
 
 
     steps = 0;
