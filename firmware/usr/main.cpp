@@ -19,7 +19,6 @@
 #define KEY_PIN           4
 
  
-#include <lqr.h> 
 
   
 int main(void) 

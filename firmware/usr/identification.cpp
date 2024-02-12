@@ -1,7 +1,6 @@
 #include <identification.h>
 #include <drivers.h>
 #include <fmath.h>
-#include <lqr.h>
 
 #define LED_GPIO        TGPIOE
 #define LED_PIN         2
