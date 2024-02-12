@@ -48,14 +48,6 @@ float LQGSingle::step(float xr, float x)
 
     integral_action = integral_action_new - (u_new - u);
     
-    /*
-    if (_abs(u_new - u) <= 10e-10)
-    {
-        integral_action = integral_action_new;
-    }   
-    */
-
-
     // kalman observer, prediction and correction
     float e         = x - x_hat;
     x_hat           = a*x_hat + b*u + f*e;

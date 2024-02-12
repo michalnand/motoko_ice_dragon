@@ -20,7 +20,7 @@ class LQGSingle
         float step(float xr, float x);
         
 
-
+ 
     private:
         float _abs(float v);
         float _clip(float v, float min_v, float max_v);

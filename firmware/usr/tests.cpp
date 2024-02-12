@@ -482,13 +482,13 @@ void motor_driver_test()
     Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;        //user led
 
     //required RPM velocity
-    //const float required[] = {0, 200, 1000, 2000, 0, -200, -1000, -2000};
-    const float required[] = {0, 1500}; 
+    const float required[] = {0, 200, 1000, 1500, 0, -200, -1000, -1500};
+    //const float required[] = {0, 1500}; 
 
     while (1) 
     {
       uint32_t time = timer.get_time();
-      uint32_t required_idx = (time/4000)%2;
+      uint32_t required_idx = (time/4000)%8;
 
       //convert rpm to rad/s
       float req = required[required_idx]*2.0*PI/60.0;

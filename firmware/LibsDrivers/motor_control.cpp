@@ -53,33 +53,20 @@ void MotorControl::init()
 
     float antiwindup    = (float)1.0;
     
-    //LQR controller init
-    //float k0            = (float)0.017782;
-    //float ki            = (float)3.16227766;
-
-    /*
-    //LQR gain, q = 1.0, r = 2*10**6
-    float k  =  0.02285016;
-    float ki =  0.00071175;
-
-    //Kalman gain
-    float f  =  0.01311132;
-    
-    left_controller.init(k,  ki,  antiwindup, 1);
-    right_controller.init(k,  ki,  antiwindup, 1);
-    */
-
+    //LQR controller init with kalman observer (LQG)
 
     //discrete dynamics model
     float a = 0.97530864;
     float b = 3.61994215;
 
     //LQR gain, q = 1.0, r = 2*10**6
-    float k  =  0.02285016;
-    float ki =  0.00071175;
+    float k  =  0.01831874;
+    float ki =  0.00103262;
 
     //Kalman gain  
-    float f  = 0.01311132;
+    float f  = 0.01262243;
+ 
+    
 
     left_controller.init(a, b, k,  ki, f, antiwindup); 
     right_controller.init(a, b, k,  ki, f, antiwindup); 
