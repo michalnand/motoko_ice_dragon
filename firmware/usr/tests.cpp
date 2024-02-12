@@ -1,7 +1,6 @@
 #include <tests.h>
 #include <drivers.h>
 #include <fmath.h>
-#include <lqr_servo.h>
 #include <shaper.h>
 
 #define LED_GPIO        TGPIOE
@@ -672,7 +671,7 @@ void sensors_matching()
 
 
 
-
+/*
 void gyro_turn_test()
 {
   timer.delay_ms(1000);
@@ -760,3 +759,4 @@ void line_follow_test()
   }
 }
 
+*/

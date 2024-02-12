@@ -1,7 +1,6 @@
 #ifndef _IR_SENSOR_H_
 #define _IR_SENSOR_H_
 
-#include <kalman_filter.h>
 #include <gpio.h>
 
 #define IR_SENSORS_COUNT        ((unsigned int)4)
