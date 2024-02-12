@@ -17,7 +17,8 @@ void right_motor_pwm_test();
 void sensors_test();
 
 void motor_driver_test();
-
+void smooth_motor_driver_test();
+void forward_run_test();
 
 void mcu_usage();
 

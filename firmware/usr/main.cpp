@@ -84,7 +84,11 @@ int main(void)
 
 
   
-  motor_driver_test();
+  //motor_driver_test();
+
+  //smooth_motor_driver_test();
+
+  forward_run_test();
 
   //mcu_usage();
  

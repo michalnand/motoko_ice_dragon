@@ -2,6 +2,7 @@
 #include <drivers.h>
 #include <fmath.h>
 #include <lqr_servo.h>
+#include <shaper.h>
 
 #define LED_GPIO        TGPIOE
 #define LED_PIN         3
@@ -511,6 +512,109 @@ void motor_driver_test()
         led = 0;
       }
     }
+}
+
+
+
+
+void smooth_motor_driver_test()
+{
+    Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;        //user led
+
+    //required RPM velocity
+    const float required[] = {0, 1500}; //, 0, -1500};
+
+    //shaper options
+    float dx_max_list[] = {100.0, 10.0, 2.0, 1.0};
+
+
+    uint32_t n_steps = 1000;
+    uint32_t dt = 4; //4ms
+    uint32_t shaper_id = 0;
+
+    while (1) 
+    {
+      float dx_max = dx_max_list[shaper_id]*dt;
+
+      Shaper shaper; 
+      shaper.init(dx_max, -2.0*dx_max); 
+      
+      terminal << "shaper value = " << dx_max << "\n";
+
+      for (unsigned int n = 0; n < n_steps; n++)
+      {
+        uint32_t required_idx = n/(n_steps/2);
+
+        //convert rpm to rad/s
+        float req = required[required_idx]*2.0*PI/60.0;
+
+        //shape signal
+        float req_shaped = shaper.step(req);
+
+        motor_control.set_velocity(req_shaped, req_shaped);
+
+        
+        timer.delay_ms(dt);
+
+        if ((n/50)%10 == 0)
+        {
+          led = 1;
+        }
+        else
+        {
+          led = 0;
+        }
+      }
+
+
+      shaper_id = (shaper_id + 1)%4;
+    }
+}
+
+
+
+
+void forward_run_test()
+{
+    Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;        //user led
+
+    //required RPM velocity
+    const float required[] = {0, 1500, 0};
+
+    uint32_t n_steps = 1000;  
+    uint32_t dt = 4; //4ms 
+
+    float dx_max = 1.0;  
+
+    Shaper shaper; 
+    shaper.init(dx_max, -2.0*dx_max); 
+    
+
+    for (unsigned int n = 0; n < n_steps; n++)
+    {
+      uint32_t required_idx = n/(n_steps/3);
+
+      //convert rpm to rad/s
+      float req = required[required_idx]*2.0*PI/60.0;
+
+      //shape signal
+      float req_shaped = shaper.step(req);
+
+      motor_control.set_velocity(req_shaped, req_shaped);
+
+      timer.delay_ms(dt);
+
+      if ((n/50)%10 == 0)
+      {
+        led = 1;
+      }
+      else
+      {
+        led = 0;
+      }
+    }
+
+    motor_control.set_velocity(0.0, 0.0);
 }
 
 
