@@ -10,29 +10,22 @@ class LQGSingle
         
         virtual ~LQGSingle();
         
-        //k0 : velocity gain
+        //k  : gain
         //ki : integral action gain
-        void init(float a, float b, float k0, float ki, float f, float antiwindup);
+        void init(float a, float b, float k , float ki, float f, float antiwindup);
         
-
-        //xr required velocity
-        //x  actual velocity
+        //xr required value
+        //x  actual value
         float step(float xr, float x);
-        
-
- 
+    
     private:
-        float _abs(float v);
         float _clip(float v, float min_v, float max_v);
-        int _sgn(float v);
 
        
-
-
     public:
         float a;
         float b;
-        float k0;
+        float k;
         float ki;
         float f;
 

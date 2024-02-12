@@ -424,7 +424,7 @@ void right_motor_pwm_test()
 
   PWMRight pwm;
   pwm.init();
-  pwm.set(0, 0, 0);
+  pwm.set(0, 0, 0); 
 
   uint32_t pwm_value = PWM_PERIOD/2;
   uint32_t speed = 100;

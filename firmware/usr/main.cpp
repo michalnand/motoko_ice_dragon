@@ -9,20 +9,37 @@
 #define LED_1_GPIO        TGPIOE
 #define LED_1_PIN         3
 
-#define LED_2_GPIO        TGPIOE
-#define LED_2_PIN         2
+#define LED_2_GPIO        TGPIOE 
+#define LED_2_PIN         2   
 
-#define LED_3_GPIO        TGPIOD
+#define LED_3_GPIO        TGPIOD 
 #define LED_3_PIN         13
 
 #define KEY_GPIO          TGPIOE
-#define KEY_PIN           4
+#define KEY_PIN           4 
 
+#include <matrix.h> 
+
+#include <lqg.h>
+     
+int main(void)      
+{ 
+  /*
+  Matrix<float, 3, 4> mat_a;
+  Matrix<float, 3, 4> mat_b;
+  Matrix<float, 3, 4> mat_c;
+  Matrix<float, 3, 4> mat_y;
  
+  mat_b = mat_a; 
 
-  
-int main(void) 
-{
+  Matrix<float, 3, 4> mat_d = mat_a*3.0 + mat_b*2.1 - mat_c*5;
+  */  
+
+  LQG<6, 2, 3> lqg;  
+
+  lqg.step(); 
+
+
   drivers_init();
 
   terminal << "\n\n\n";
