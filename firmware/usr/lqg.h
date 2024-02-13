@@ -34,19 +34,19 @@ class LQG
         }
 
         void step()
-        {
+        { 
             // - kalman observer
             // - only y is known, and using knowledge of dynamics, 
             // - the full state x_hat can be reconstructed
-            auto prediction_error = y - c*x_hat;
-            x_hat = a*x_hat + b*u;
+            auto prediction_error = y - c*x_hat;    //system_outputs + 2*system_outputs*system_order
+            x_hat = a*x_hat + b*u;                  //2*system_order*system_order + 2*system_order*system_inputs
 
             // integral action
-            auto error = yr - y;
-            integral_action = integral_action + ki*error;
+            auto error = yr - y;                    //system_outputs
+            integral_action = integral_action + ki*error; //system_inputs + 2*system_inputs*system_outputs
 
             // LQR controll law
-            u = (k*x_hat)*(-1.0) + integral_action;           
+            u = (k*x_hat)*(-1.0) + integral_action; //2*system_inputs*system_order + system_inputs
         }
 
 

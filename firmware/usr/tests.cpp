@@ -429,7 +429,7 @@ void right_motor_pwm_test()
   uint32_t pwm_value = PWM_PERIOD/2;
   uint32_t speed = 100;
 
-
+ 
    
   while(1)
   {
@@ -526,7 +526,7 @@ void smooth_motor_driver_test()
     //shaper options
     float dx_max_list[] = {100.0, 10.0, 2.0, 1.0};
 
-
+ 
     uint32_t n_steps = 1000;
     uint32_t dt = 4; //4ms
     uint32_t shaper_id = 0;

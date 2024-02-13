@@ -8,19 +8,19 @@
  
 #define LED_1_GPIO        TGPIOE
 #define LED_1_PIN         3
-
+ 
 #define LED_2_GPIO        TGPIOE 
 #define LED_2_PIN         2   
 
 #define LED_3_GPIO        TGPIOD 
 #define LED_3_PIN         13
 
-#define KEY_GPIO          TGPIOE
+#define KEY_GPIO          TGPIOE 
 #define KEY_PIN           4 
 
 #include <matrix.h> 
 
-#include <lqg.h>
+#include <lqg.h>     
      
 int main(void)      
 { 
@@ -50,16 +50,16 @@ int main(void)
 
   Gpio<LED_2_GPIO, LED_2_PIN, GPIO_MODE_OUT> led_2;   //bottom led
   Gpio<LED_3_GPIO, LED_3_PIN, GPIO_MODE_OUT> led_3;   //bottom led
-  
+    
 
   Gpio<KEY_GPIO, KEY_PIN, GPIO_MODE_IN_PULLUP> key;   //user button
  
   for (unsigned int i = 0; i < 5; i++)
-  {
-    led_2 = 1; 
+  {     
+    led_2 = 1;  
     led_3 = 1; 
     timer.delay_ms(50);
-
+ 
     led_2 = 0; 
     led_3 = 0; 
     timer.delay_ms(100);
@@ -98,13 +98,13 @@ int main(void)
   //right_motor_pwm_test();
   //encoder_sensor_test();
 
-
+  //motor_identification();
   
-  //motor_driver_test();
+  //motor_driver_test(); 
 
-  //smooth_motor_driver_test();
+  smooth_motor_driver_test();
 
-  forward_run_test();
+  //forward_run_test();
 
   //mcu_usage();
  
