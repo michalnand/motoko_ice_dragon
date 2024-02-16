@@ -83,7 +83,6 @@ int main(void)
 
   //timer_test();
 
-
   //left_motor_connect_test();
   //right_motor_connect_test();
 
@@ -100,9 +99,10 @@ int main(void)
 
   //motor_identification();
   
-  //motor_driver_test(); 
+  //motor_driver_test();  
 
-  smooth_motor_driver_test();
+  //smooth_motor_driver_test();
+  robot_dynamics_identification();
 
   //forward_run_test();
 

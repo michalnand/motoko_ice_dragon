@@ -520,8 +520,12 @@ void smooth_motor_driver_test()
 {
     Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;        //user led
 
+
+    led = 0;
+    timer.delay_ms(500); 
+
     //required RPM velocity
-    const float required[] = {0, 1500}; //, 0, -1500};
+    const float required[] = {1500, 0.0}; //, 0, -1500};
 
     //shaper options
     float dx_max_list[] = {100.0, 10.0, 2.0, 1.0};
@@ -531,13 +535,15 @@ void smooth_motor_driver_test()
     uint32_t dt = 4; //4ms
     uint32_t shaper_id = 0;
 
-    while (1) 
-    {
+    Shaper shaper;  
+    shaper.init(1.0, -1.0); 
+
+    while (1)   
+    { 
       float dx_max = dx_max_list[shaper_id]*dt;
 
-      Shaper shaper; 
-      shaper.init(dx_max, -2.0*dx_max); 
-      
+      shaper.set_limits(dx_max, -4.0*dx_max);
+ 
       terminal << "shaper value = " << dx_max << "\n";
 
       for (unsigned int n = 0; n < n_steps; n++)
@@ -547,15 +553,7 @@ void smooth_motor_driver_test()
         //convert rpm to rad/s
         float req = required[required_idx]*2.0*PI/60.0;
 
-        //shape signal
-        float req_shaped = shaper.step(req);
-
-        motor_control.set_velocity(req_shaped, req_shaped);
-
-        
-        timer.delay_ms(dt);
-
-        if ((n/50)%10 == 0)
+        if (req > 0.0)
         {
           led = 1;
         }
@@ -563,6 +561,13 @@ void smooth_motor_driver_test()
         {
           led = 0;
         }
+
+        //shape signal
+        float req_shaped = shaper.step(req);
+
+        motor_control.set_velocity(req_shaped, req_shaped);
+ 
+        timer.delay_ms(dt);
       }
 
 

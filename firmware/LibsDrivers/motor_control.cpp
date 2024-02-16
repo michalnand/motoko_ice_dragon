@@ -57,18 +57,6 @@ void MotorControl::init()
 
     /*
     //discrete dynamics model
-    float a = 0.97530864;
-    float b = 3.61994215;
-
-    //LQR gain, q = 1.0, r = 1*10**6
-    float k  =  0.01831874;
-    float ki =  0.00103262;
-
-    //Kalman gain  
-    float f  = 0.01262243;
-    */
-
-    //discrete dynamics model
     float a = 0.97429306;
     float b = 3.69305388;
 
@@ -78,6 +66,21 @@ void MotorControl::init()
 
     //Kalman gain  
     float f  = 0.00164791;
+    */
+
+    //discrete dynamics model
+    float a = 0.97402597;
+    float b = 3.89575713;
+
+
+    //LQR gain, q = 1.0, r = 1*10**6
+    float k  =  0.01761271;
+    float ki =  0.00103374;
+
+    //Kalman gain  
+    float f  = 0.00124699;
+
+
 
 
 
@@ -134,13 +137,11 @@ void MotorControl::callback_torque()
     left_encoder.update(MOTOR_CONTROL_DT);  
     right_encoder.update(MOTOR_CONTROL_DT);   
 
-    
     int32_t left_torque  = MOTOR_CONTROL_MAX*left_controller.step(left_req_velocity,     get_left_velocity());
     int32_t right_torque = MOTOR_CONTROL_MAX*right_controller.step(right_req_velocity,   get_right_velocity());
  
     this->left_torque  = clamp(left_torque,  -MOTOR_CONTROL_MAX, MOTOR_CONTROL_MAX);
     this->right_torque = clamp(right_torque, -MOTOR_CONTROL_MAX, MOTOR_CONTROL_MAX);
-    
 
     int32_t left_u; 
     int32_t left_phase; 

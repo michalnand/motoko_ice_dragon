@@ -9,6 +9,8 @@ class Shaper
 {
     public:
         void init(float dx_p, float dx_n);
+        void set_limits(float dx_p, float dx_n);
+
         float step(float x);
         bool is_saturated();
 
