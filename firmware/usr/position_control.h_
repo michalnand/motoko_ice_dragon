@@ -2,7 +2,7 @@
 #define _POSITION_CONTROL_H_
 
 #include <shaper.h>
-#include <lqr.h>
+#include <lqg.h>
 
 class PositionControl
 {   
@@ -17,15 +17,13 @@ class PositionControl
 
     private:
         Shaper shaper_left, shaper_right;  
-        LQR<2, 2> lqr;
+        LQG<4, 2, 2> lqg;
 
     private:
         float wheel_diameter;
         float wheel_brace;
 
         float x, theta;
-
-        uint32_t steps;
 };
 
 #endif

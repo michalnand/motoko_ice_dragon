@@ -6,54 +6,67 @@
 
 
 /*
-n : system order
-m : system inputs count
-k : systen outputs count
+LQG - linear quadratic gaussian control with Kalman observer
+system_order    : system order, num of states
+system_inputs   : num of controllable inputs into plat
+system_outputs  : size of observed variables
 */
 template<uint32_t system_order, uint32_t system_inputs, uint32_t system_outputs>
 class LQG
 {
 
     public:
-        void init()
+        void init(float *a, float *b, float *c, float *k, float *ki, float *f, float antiwindup)
         {   
-            y.init();
-            yr.init();
-            u.init();
+            this->y.init();
+            this->yr.init();
+            this->u.init();
               
-            a.init();
-            b.init();
-            c.init();
+            this->a.from_array(a);
+            this->b.from_array(b);
+            this->c.from_array(c); 
 
-            f.init();
-            k.init();
-            ki.init();
+            this->k.from_array(k);
+            this->ki.from_array(ki);
+            this->f.from_array(f);
 
-            integral_action.init();
-            x_hat.init();
+            this->integral_action.init();
+            this->x_hat.init();
+
+            this->antiwindup = antiwindup;
         }
 
-        void step()
+        void step(bool saturation = false)
         { 
-            // - kalman observer
-            // - only y is known, and using knowledge of dynamics, 
-            // - the full state x_hat can be reconstructed
-            auto prediction_error = y - c*x_hat;    //system_outputs + 2*system_outputs*system_order
-            x_hat = a*x_hat + b*u;                  //2*system_order*system_order + 2*system_order*system_inputs
+            // integral action  
+            auto error = this->yr - this->y;
+            auto integral_action_new = this->integral_action + this->ki*error;
 
-            // integral action
-            auto error = yr - y;                    //system_outputs
-            integral_action = integral_action + ki*error; //system_inputs + 2*system_inputs*system_outputs
+            //LQR controll law 
+            auto u_tmp = this->k*this->x_hat*(-1.0) + integral_action_new;
 
-            // LQR controll law
-            u = (k*x_hat)*(-1.0) + integral_action; //2*system_inputs*system_order + system_inputs
+            //antiwindup with conditional integration
+            this->u = u_tmp.clip(-antiwindup, antiwindup);
+            this->integral_action = integral_action_new - (u - u_tmp);
+            
+
+            // kalman observer
+            // only y is known, and using knowledge of dynamics, 
+            // the full state x_hat can be reconstructed
+            auto prediction_error = this->y - this->c*this->x_hat;
+            this->x_hat = this->a*this->x_hat + this->b*this->u + this->f*prediction_error;
         }
 
 
-    private:
+
+
+    public:
         Matrix<float, system_outputs, 1> y;
         Matrix<float, system_outputs, 1> yr;
         Matrix<float, system_inputs, 1> u;
+
+    private:
+        float antiwindup;
 
         //plant dynamics
         Matrix<float, system_order, system_order> a;

@@ -55,7 +55,7 @@ class Matrix
         //two matrix addition
         Matrix<DType, M, N> operator +(Matrix<DType, M, N> rhs)
         {
-            Matrix<DType, M, N> result;
+            Matrix<DType, M, N> result; 
 
             for (unsigned int i = 0; i < M*N; i++)
             {
@@ -209,6 +209,34 @@ class Matrix
             }
         }
 
+
+        void from_array(DType *v)
+        {
+            for (unsigned int i = 0; i < M*N; i++)
+            {
+                x[i] = v[i];
+            }
+        }
+
+
+        void diag()
+        {
+            unsigned int count;
+            if (M < N)
+            {
+                count = M;
+            }
+            else
+            {
+                count = N;
+            }
+
+            for (unsigned int i = 0; i < count; i++)
+            {
+                x[i + i*N] = 1;
+            }
+        }
+
         void set(unsigned int idx, DType value)
         {
             x[idx] = value;
@@ -242,14 +270,13 @@ class Matrix
 
             for (unsigned int i = 0; i < M*N; i++)
             {
-                auto tmp = x[i];
+                auto tmp = x[i]; 
 
                 if (tmp < min_v)
                 {
                     tmp = min_v;
                 }
-
-                if (tmp > max_v)
+                else if (tmp > max_v)
                 {
                     tmp = max_v;
                 }
@@ -452,6 +479,25 @@ class Matrix
             }
             
             return result;
+        }
+
+
+        bool all_in_range(DType min_value, DType max_value)
+        { 
+            for (unsigned int i = 0; i < N*M; i++) 
+            {
+                if (x[i] < min_value)
+                {
+                    return false;
+                }
+
+                if (x[i] > max_value)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
     private:

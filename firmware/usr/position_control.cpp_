@@ -41,21 +41,46 @@ void PositionControl::init()
 
 
     //input shaper ramps
-    float du_p = 0.5;
-    float du_n = -2.0;
+    float du_p = 1.0;
+    float du_n = -1.0;
 
-    //init LQR 
+    //init LQR with Kalman observer
+
+    float mat_a[] = {
+		0.99998784, -4.165272e-06, 0.40438575, 0.00932306, 
+		-0.0022387686, 1.0002357, 3.2722392, 0.24350357, 
+		-1.217908e-05, -4.165851e-06, 0.40454173, 0.00932245, 
+		-0.0022387677, 0.00023565967, 3.2722385, 0.24350397 };
+
+    float mat_b[] = {
+            5.9936603e-05, 2.6422116e-05, 
+            -0.0015565199, 0.0010904992, 
+            5.9924234e-05, 2.6412128e-05, 
+            -0.0015565191, 0.0010904986 };
+
+    float mat_c[] = {
+            1.0, 0.0, 0.0, 0.0, 
+            0.0, 1.0, 0.0, 0.0 };
 
     float k[] = {
-		687.7318, -29.65278, 
-		694.7266, 29.526167 };
+            31.676172, -6.5725865, -24.707117, -1.9916012, 
+            30.022614, 6.5334544, 73.61637, 3.338386 };
 
     float ki[] = {
-		16.122814, -0.7278881, 
-		16.255505, 0.7219375 };
-        
+            0.07065838, -0.0717278, 
+            0.07107809, 0.071294695 };
+
+    float f[] = {
+            0.6227735, 0.03759783, 
+            0.03759783, 0.9322217, 
+            0.012180835, 0.092096195, 
+            0.09769884, 0.77118033 };
+
+
+
+
     //controller init
-    lqr.init(k, ki, antiwindup);
+    lqg.init(mat_a, mat_b, mat_c, k, ki, f, antiwindup);
 
     //shaper init
     shaper_left.init(du_p, du_n); 
@@ -91,7 +116,7 @@ void PositionControl::init()
     NVIC_Init(&NVIC_InitStructure);
     */
 
-    steps = 0;
+    
     terminal << "position_control init [DONE]\n";
 }
 
@@ -106,37 +131,28 @@ void PositionControl::step(float x, float theta)
 void PositionControl::callback_position()
 {
     //fill required values
-    lqr.xr[0] = this->x;
-    lqr.xr[1] = this->theta;
+    lqg.yr[0] = this->x;
+    lqg.yr[1] = this->theta;
 
     //fill current state
     float right_position = motor_control.get_right_position();
     float left_position  = motor_control.get_left_position();
 
-    float distance = 0.25*(right_position + left_position)*wheel_diameter;
-    float angle    = 0.5*(right_position - left_position)*wheel_diameter / wheel_brace;
+    float distance = 0.5*(right_position + left_position)*wheel_diameter;
+    float angle    = (right_position - left_position)*wheel_diameter / wheel_brace;
 
-    lqr.x[0]  = distance;
-    lqr.x[1]  = angle;
+    lqg.y[0]  = distance;
+    lqg.y[1]  = angle;
 
     //compute controller output
-    lqr.step();
+    bool saturation = shaper_left.is_saturated() || shaper_right.is_saturated();
+    lqg.step(saturation);
 
     //output shaping
-    float vl_shaped = shaper_left.step(lqr.u[0]); 
-    float vr_shaped = shaper_right.step(lqr.u[1]);
+    float vl_shaped = shaper_left.step(lqg.u[0]); 
+    float vr_shaped = shaper_right.step(lqg.u[1]);
 
     // send to wheel velocity controll
     motor_control.set_velocity(vl_shaped, vr_shaped);
-    
-    
-    /*
-        
-    if ((steps%50) == 0)
-    {
-        terminal << lqr.integral_action[0] << " " << lqr.integral_action[1] << " " << lqr.u[0] << " " << lqr.u[1] << "\n";
-    }
-
-    steps++;
-    */
 }
+

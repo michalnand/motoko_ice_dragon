@@ -5,6 +5,9 @@
 #include <pwm.h>
 
 #include <identification.h>
+#include <position_control.h>
+
+#include <fmath.h>
  
 #define LED_1_GPIO        TGPIOE
 #define LED_1_PIN         3
@@ -98,25 +101,11 @@ int main(void)
   //encoder_sensor_test();
 
   //motor_identification();
-  
   //motor_driver_test();  
-
   //smooth_motor_driver_test();
-  robot_dynamics_identification();
+  //robot_dynamics_identification();
 
-  //forward_run_test();
-
-  //mcu_usage();
- 
-  
-  //sensors_matching();
-  
-  //motor_identification();
-  //turn_dynamics_identification();
-  //forward_dynamics_identification();
-
-
-  //line_stabilise();
+  //line_stabilise(); 
   //gyro_turn_test(); 
 
   //line_follow_test();
@@ -124,7 +113,34 @@ int main(void)
 
   //motor_control.set_torque(0, 1000);
 
-  while (1)
+  
+  PositionControl position_control;
+
+  position_control.init();
+
+  float req_dist[]  = {0.0, 0.08, 0.0, 0.08, 0.0, 0.08, 0.0,  0.0, 0.0,  0.0,   0.0, 0.0};
+  float req_angle[] = {0.0, 0.0,  0.0, 0.0,  0.0, 0.0,  0.0,  0.0, 90.0, 0.0, -90.0, 0.0};
+
+  uint32_t steps = 0;
+
+  while (1) 
+  {
+    led_1 = 1;   
+    
+    float dist  = req_dist[(steps/400)%12];
+    float angle = req_angle[(steps/400)%12]*PI/180.0;
+ 
+    position_control.step(dist, angle);
+    position_control.callback_position(); 
+
+    led_1 = 0;  
+
+    steps++;
+    timer.delay_ms(4);
+  }
+  
+
+  while (1) 
   {
     led_1 = 1; 
     timer.delay_ms(100);

@@ -25,7 +25,6 @@ def difference(x):
 
     return dx
 
-
 def state_augmentation(x, wheel_diameter = 34.0*0.001, robot_brace = 80.0*0.001):
 
     n_steps = x.shape[0]
@@ -79,9 +78,14 @@ if __name__ == "__main__":
     #a_est, b_est = LibsControl.recursive_kalman_ls_identification(u_result, x_result, r, q, False)
     a_est, b_est = LibsControl.recursive_ls_identification(u_result, x_result)
     
+    c_est = numpy.zeros((a_est.shape[0]//2, a_est.shape[0]))
+    for n in range(a_est.shape[0]//2):
+        c_est[n][n] = 1.0
+
    
     print("mat_a = \n", a_est, "\n\n")
     print("mat_b = \n", b_est, "\n\n")
+    print("mat_c = \n", c_est, "\n\n")
 
     poles = numpy.linalg.eigvals(a_est) + 0j
 
@@ -163,8 +167,7 @@ if __name__ == "__main__":
     #plot_poles_cl(re_ol, im_ol, re_cl, im_cl, "poles_png")
 
 
-    c_est = numpy.eye(a_est.shape[0])
-
+    
     #process and observation noise covariance
     q_noise = 0.1*numpy.eye(a_est.shape[0]) 
     r_noise = 0.1*numpy.eye(c_est.shape[0]) 
@@ -172,7 +175,7 @@ if __name__ == "__main__":
 
     #create loss weighting matrices (diagonal)
     q = numpy.diag([1.0, 1.0, 0.0, 0.0] )
-    r = numpy.diag( [1.0, 1.0]) 
+    r = numpy.diag( [100.0, 100.0]) 
 
    
 
