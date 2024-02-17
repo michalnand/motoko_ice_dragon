@@ -84,6 +84,7 @@ class AS5600T
 
             //set zero angle
             set_zero();
+            set_zero();
 
             this->read_angle();
             this->update(1000);

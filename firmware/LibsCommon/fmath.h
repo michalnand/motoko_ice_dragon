@@ -27,6 +27,9 @@ struct Vect4d
     DType x, y, z, w;
 };
 
+
+float clip(float value, float min, float max);
+
 unsigned int rand();
 
 float fsqrt(float x);

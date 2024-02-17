@@ -2,6 +2,7 @@
 #include <drivers.h>
 #include <fmath.h>
 #include <shaper.h>
+#include <lqr_single.h>
 
 
 #define LED_GPIO        TGPIOE
@@ -150,42 +151,72 @@ void robot_dynamics_identification()
     terminal << "starting identification\n";
     terminal << "\n\n\n";
 
-    float position_left[]  = {0.0,  90.0, -90.0, 90.0, -90.0, 0.0, 0.0, 90.0,  -90.0, 0.0};
-    float position_right[] = {0.0, -90.0,  90.0, 0.0,  0.0, 90.0, -90.0, 90.0, -90.0, 0.0};
+    //float left_required_positions[]  = {0.0,  1.0, -1.0, 0.0,  0.0, 1.0, -1.0, 0.0};
+    //float right_required_positions[] = {0.0,  0.0,  0.0, 1.0, -1.0, -1.0, 1.0, 0.0};
 
-    float k = 10.0;
+    float left_required_positions[]  = {0.0, 1.0, 0.0, -1.0,   0.0, -1.0, 0.0,  1.0,   0.0, 1.0, 0.0, -1.0,   0.0, 0.0, 0.0,  0.0};
+    float right_required_positions[] = {0.0, 1.0, 0.0, -1.0,   0.0,  1.0, 0.0, -1.0,   0.0, 0.0, 0.0, 0.0,    0.0, 1.0, 0.0, -1.0};
+
+    float speed_max = 1500.0*2.0*PI/60.0;
+
+    float k  = 10.0;  
+    float ki = 0.4;         
+
+
+    LQRSingle left_lqr, right_lqr;
+
+    left_lqr.init(k, ki, speed_max);
+    right_lqr.init(k, ki, speed_max);
 
     Shaper shaper_left, shaper_right;  
 
     shaper_left.init(1.0, -1.0); 
     shaper_right.init(1.0, -1.0); 
 
-
+ 
     unsigned int steps = 0;
 
-    while (1)
-    {   
-        unsigned int idx = (steps/50)%10; 
+    int32_t dt = 4;
+    float curr_dt_fil = 0.0;
 
-        float l_req_position = position_left[idx]*2.0*PI/180.0;
-        float r_req_position = position_right[idx]*2.0*PI/180.0;
+    while (1) 
+    {    
+        int32_t time_start = timer.get_time();
 
-        float l_position = motor_control.get_left_position();
-        float r_position = motor_control.get_right_position();
+        //obtain required value
+        unsigned int idx = (steps/200)%16;   
+        float left_required  = left_required_positions[idx]*PI*0.75;
+        float right_required = right_required_positions[idx]*PI*0.75;
+ 
+        //obtain measured
+        float left_position  = motor_control.get_left_position();
+        float right_position = motor_control.get_right_position();
 
-        float vl = k*(l_req_position - l_position);
-        float vr = k*(r_req_position - r_position);
+        //LQR controller
+        float left_u   = left_lqr.step(left_required, left_position);
+        float right_u  = right_lqr.step(right_required, right_position);
+  
+        //output shaping
+        float vl_shaped = shaper_left.step(left_u); 
+        float vr_shaped = shaper_right.step(right_u);
 
-        float vl_shaped = shaper_left.step(vl); 
-        float vr_shaped = shaper_right.step(vr);
-
-    
+        //send to motors
         motor_control.set_velocity(vl_shaped, vr_shaped);
-        timer.delay_ms(4);
 
-        terminal << steps << " " << vl << " " << vr << " " << l_position << " " << r_position << "\n";
-
+        terminal << steps << " " << left_u << " " << right_u << " " << left_position << " " << right_position << " " << curr_dt_fil << "\n";
         steps++;
+
+        int32_t time_stop = timer.get_time();
+
+        int32_t dif = time_stop - time_start;
+        int32_t curr_dt = dt - dif;
+
+        curr_dt_fil = 0.9*curr_dt_fil + 0.1*dif;
+
+        if (curr_dt > 0)
+        {
+            timer.delay_ms(curr_dt);
+        }
     }
 }
 
