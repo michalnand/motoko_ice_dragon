@@ -9,7 +9,7 @@
 //set_torque min and max range
 #define MOTOR_CONTROL_MAX       ((int32_t)1024) 
 
-//dt step in microseconds, 2kHz, 500uS
+//dt step in microseconds, 4kHz, 250uS
 #define MOTOR_CONTROL_DT    ((uint32_t)250)
 
 

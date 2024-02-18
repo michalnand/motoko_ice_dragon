@@ -46,6 +46,7 @@ LDFLAGS = $(TARGET) -Wl,--gc-sections
 
 CCFLAGS = $(TARGET) $(INC) -c -O2 -Os -s -Wall -Wextra -std=c99    -fdata-sections -ffunction-sections   -Wl,--gc-sections 
 CXXFLAGS= $(TARGET) $(INC) -c -O2 -s -funroll-loops -Wall -Wextra -pedantic -std=c++14 -fno-rtti  -fno-exceptions -fdata-sections -ffunction-sections  -Wl,--gc-sections 
+#CXXFLAGS= $(TARGET) $(INC) -c -O3 -funroll-loops -s -Wall -Wextra -pedantic -std=c++14 -fno-rtti  -fno-exceptions -fdata-sections -ffunction-sections  -Wl,--gc-sections 
 LDFLAGS = -T$(LDSCRIPT) $(TARGET)  -Wl,--gc-sections -specs=nano.specs -specs=nosys.specs
 
 

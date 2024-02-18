@@ -5,7 +5,7 @@
 #include <pwm.h>
 
 #include <identification.h>
-#include <position_control.h>
+#include <position_control_lqr.h>
 
 #include <fmath.h>
  
@@ -114,7 +114,7 @@ int main(void)
   //motor_control.set_torque(0, 1000);
 
   
-  PositionControl position_control;
+  PositionControlLQR position_control;
 
   position_control.init();
 
@@ -131,7 +131,7 @@ int main(void)
     float angle = req_angle[(steps/400)%12]*PI/180.0;
  
     position_control.step(dist, angle);
-    position_control.callback_position(); 
+    position_control.callback(); 
 
     led_1 = 0;  
 

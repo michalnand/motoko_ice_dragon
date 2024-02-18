@@ -1,31 +1,31 @@
-#include "position_control.h"
+#include "position_control_lqr.h"
 #include <drivers.h>
 #include <fmath.h>
 
 
 
-PositionControl *g_position_control;
+PositionControlLQR *g_position_control_lqr;
 
 #ifdef __cplusplus
 extern "C" {
-#endif
+#endif 
 
 
 void TIM7_IRQHandler(void)
 { 
-    g_position_control->callback_position();
+    g_position_control_lqr->callback();
     TIM_ClearITPendingBit(TIM7, TIM_IT_CC1);  
 } 
-
+ 
  
 #ifdef __cplusplus
 }
 #endif
 
 
-void PositionControl::init()
+void PositionControlLQR::init()
 {
-    g_position_control = this;
+    g_position_control_lqr = this;
 
     //TODO - move this into config.h
 
@@ -65,7 +65,7 @@ void PositionControl::init()
     this->x     = 0.0;
     this->theta = 0.0;
 
-    /*
+    
     //init timer 7 interrupt for callback calling, 250Hz
     
     TIM_TimeBaseInitTypeDef     TIM_TimeBaseStructure;
@@ -89,7 +89,8 @@ void PositionControl::init()
     NVIC_InitStructure.NVIC_IRQChannelSubPriority           = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
-    */
+    
+
 
     steps = 0;
     terminal << "position_control init [DONE]\n";
@@ -97,13 +98,13 @@ void PositionControl::init()
 
 // @param : x : required distance, [m]
 // @param : theta : required angle, [rad]
-void PositionControl::step(float x, float theta)
+void PositionControlLQR::step(float x, float theta)
 {
     this->x     = x;
     this->theta = theta;
 }
         
-void PositionControl::callback_position()
+void PositionControlLQR::callback()
 {
     //fill required values
     lqr.xr[0] = this->x;

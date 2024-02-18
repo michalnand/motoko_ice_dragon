@@ -29,7 +29,7 @@ class LQR
             this->antiwindup = antiwindup;
         }
 
-        void step()
+        void step() 
         { 
             // integral action  
             auto error = this->xr - this->x;
@@ -40,7 +40,6 @@ class LQR
 
             //antiwindup with conditional integration
             this->u = u_new.clip(-antiwindup, antiwindup);
-            
             this->integral_action = integral_action_new - (u_new - this->u);
         } 
 
@@ -48,6 +47,7 @@ class LQR
 
 
     public:
+        //inputs and outputs
         Matrix<float, system_order, 1> x;
         Matrix<float, system_order, 1> xr;
         Matrix<float, system_inputs, 1>  u;
@@ -59,7 +59,8 @@ class LQR
         Matrix<float, system_inputs, system_order> k;
         Matrix<float, system_inputs, system_order> ki;
 
-    public:
+    private:
+        //internal state
         Matrix<float, system_inputs, 1> integral_action;
 };
 

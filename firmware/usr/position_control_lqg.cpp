@@ -1,31 +1,31 @@
-#include "position_control.h"
+#include "position_control_lqg.h"
 #include <drivers.h>
 #include <fmath.h>
 
 
 
-PositionControl *g_position_control;
+PositionControlLQG *g_position_control_lqg;
 
 #ifdef __cplusplus
 extern "C" {
-#endif
+#endif  
 
-
+/*
 void TIM7_IRQHandler(void)
 { 
-    g_position_control->callback_position();
+    g_position_control_lqg->callback();
     TIM_ClearITPendingBit(TIM7, TIM_IT_CC1);  
 } 
-
+*/ 
  
 #ifdef __cplusplus
 }
 #endif
 
 
-void PositionControl::init()
+void PositionControlLQG::init()
 {
-    g_position_control = this;
+    g_position_control_lqg = this;
 
     //TODO - move this into config.h
 
@@ -40,47 +40,46 @@ void PositionControl::init()
     float antiwindup = 1200*2.0*PI/60.0;
 
 
-    //input shaper ramps
-    float du_p = 1.0;
-    float du_n = -1.0;
+    //input shaper ramps 
+    float du_p = 0.5;
+    float du_n = -2.0;
 
-    //init LQR with Kalman observer
+    //init LQG (LQR with Kalman observer) 
 
     float mat_a[] = {
-		0.99998784, -4.165272e-06, 0.40438575, 0.00932306, 
-		-0.0022387686, 1.0002357, 3.2722392, 0.24350357, 
-		-1.217908e-05, -4.165851e-06, 0.40454173, 0.00932245, 
-		-0.0022387677, 0.00023565967, 3.2722385, 0.24350397 };
+		1.0001942, 1.6989966e-06, 0.007875604, 0.0009928172, 
+		-0.0005337515, 1.0004458, 2.2487402, -0.12869346, 
+		0.00019399085, 1.7007355e-06, 0.008591391, 0.0009844207, 
+		-0.0005337489, 0.0004457849, 2.2487316, -0.12869215 };
 
     float mat_b[] = {
-            5.9936603e-05, 2.6422116e-05, 
-            -0.0015565199, 0.0010904992, 
-            5.9924234e-05, 2.6412128e-05, 
-            -0.0015565191, 0.0010904986 };
+            3.5510842e-05, 3.3929868e-05, 
+            -0.0010557491, 0.0008889191, 
+            3.5478788e-05, 3.3911936e-05, 
+            -0.0010557477, 0.0008889183 };
 
     float mat_c[] = {
             1.0, 0.0, 0.0, 0.0, 
             0.0, 1.0, 0.0, 0.0 };
 
     float k[] = {
-            31.676172, -6.5725865, -24.707117, -1.9916012, 
-            30.022614, 6.5334544, 73.61637, 3.338386 };
+            910.45795, -29.55551, -49.44718, 4.032002, 
+            921.3549, 29.50125, 66.909966, -2.4442132 };
 
     float ki[] = {
-            0.07065838, -0.0717278, 
-            0.07107809, 0.071294695 };
+            28.143831, -0.72764903, 
+            28.355661, 0.72218627 };
 
     float f[] = {
-            0.6227735, 0.03759783, 
-            0.03759783, 0.9322217, 
-            0.012180835, 0.092096195, 
-            0.09769884, 0.77118033 };
+            0.6180795, 0.0009016679, 
+            0.0009016679, 0.8721142, 
+            5.5975008e-05, 0.0025088456, 
+            0.0019244041, 0.64249945 };
 
-
-
-
+        
     //controller init
     lqg.init(mat_a, mat_b, mat_c, k, ki, f, antiwindup);
+
 
     //shaper init
     shaper_left.init(du_p, du_n); 
@@ -116,19 +115,19 @@ void PositionControl::init()
     NVIC_Init(&NVIC_InitStructure);
     */
 
-    
+    steps = 0;
     terminal << "position_control init [DONE]\n";
 }
 
 // @param : x : required distance, [m]
 // @param : theta : required angle, [rad]
-void PositionControl::step(float x, float theta)
+void PositionControlLQG::step(float x, float theta)
 {
     this->x     = x;
     this->theta = theta;
 }
         
-void PositionControl::callback_position()
+void PositionControlLQG::callback()
 {
     //fill required values
     lqg.yr[0] = this->x;
@@ -138,15 +137,14 @@ void PositionControl::callback_position()
     float right_position = motor_control.get_right_position();
     float left_position  = motor_control.get_left_position();
 
-    float distance = 0.5*(right_position + left_position)*wheel_diameter;
-    float angle    = (right_position - left_position)*wheel_diameter / wheel_brace;
+    float distance = 0.25*(right_position + left_position)*wheel_diameter;
+    float angle    = 0.5*(right_position - left_position)*wheel_diameter / wheel_brace;
 
     lqg.y[0]  = distance;
     lqg.y[1]  = angle;
 
     //compute controller output
-    bool saturation = shaper_left.is_saturated() || shaper_right.is_saturated();
-    lqg.step(saturation);
+    lqg.step();
 
     //output shaping
     float vl_shaped = shaper_left.step(lqg.u[0]); 
@@ -154,5 +152,15 @@ void PositionControl::callback_position()
 
     // send to wheel velocity controll
     motor_control.set_velocity(vl_shaped, vr_shaped);
-}
+    
+    
+    /*
+        
+    if ((steps%50) == 0)
+    {
+        terminal << lqr.integral_action[0] << " " << lqr.integral_action[1] << " " << lqr.u[0] << " " << lqr.u[1] << "\n";
+    }
 
+    steps++;
+    */
+}

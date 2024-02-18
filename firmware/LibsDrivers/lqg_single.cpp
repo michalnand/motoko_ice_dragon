@@ -19,7 +19,7 @@ void LQGSingle::init(float a, float b, float k, float ki, float f, float antiwin
     this->ki = ki;
     this->f  = f;
 
-    this->x_hat      = 0.0;
+    this->x_hat = 0.0;
 
     this->integral_action = 0.0;
 

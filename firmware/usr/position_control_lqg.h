@@ -1,10 +1,10 @@
-#ifndef _POSITION_CONTROL_H_
-#define _POSITION_CONTROL_H_
+#ifndef _POSITION_CONTROL_LQG_H_
+#define _POSITION_CONTROL_LQG_H_
 
 #include <shaper.h>
-#include <lqr.h>
+#include <lqg.h>
 
-class PositionControl
+class PositionControlLQG
 {   
     public:
         void init();
@@ -13,11 +13,11 @@ class PositionControl
         //theta  required theta
         void step(float x, float theta);
 
-        void callback_position();
+        void callback();
 
     private:
         Shaper shaper_left, shaper_right;  
-        LQR<2, 2> lqr;
+        LQG<4, 2, 2> lqg;
 
     private:
         float wheel_diameter;

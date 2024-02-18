@@ -36,20 +36,19 @@ class LQG
             this->antiwindup = antiwindup;
         }
 
-        void step(bool saturation = false)
+        void step()
         { 
             // integral action  
             auto error = this->yr - this->y;
             auto integral_action_new = this->integral_action + this->ki*error;
 
             //LQR controll law 
-            auto u_tmp = this->k*this->x_hat*(-1.0) + integral_action_new;
+            auto u_new = this->k*this->x_hat*(-1.0) + integral_action_new;
 
             //antiwindup with conditional integration
-            this->u = u_tmp.clip(-antiwindup, antiwindup);
-            this->integral_action = integral_action_new - (u - u_tmp);
+            this->u = u_new.clip(-antiwindup, antiwindup);
+            this->integral_action = integral_action_new - (u_new - this->u);
             
-
             // kalman observer
             // only y is known, and using knowledge of dynamics, 
             // the full state x_hat can be reconstructed
@@ -61,9 +60,10 @@ class LQG
 
 
     public:
+        //inputs and outputs
         Matrix<float, system_outputs, 1> y;
         Matrix<float, system_outputs, 1> yr;
-        Matrix<float, system_inputs, 1> u;
+        Matrix<float, system_inputs, 1>  u;
 
     private:
         float antiwindup;
@@ -81,6 +81,7 @@ class LQG
         Matrix<float, system_inputs, system_outputs> ki;
 
     private:
+        //internal state
         Matrix<float, system_inputs, 1> integral_action;
         Matrix<float, system_order, 1> x_hat;
 };
