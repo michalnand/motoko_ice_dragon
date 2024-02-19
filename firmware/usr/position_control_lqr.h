@@ -9,21 +9,30 @@ class PositionControlLQR
     public:
         void init();
         
-        //x      required position
-        //theta  required theta
-        void step(float x, float theta);
+        //required position and angle
+        void set(float req_distance, float req_angle);
 
         void callback();
 
-    private:
-        Shaper shaper_left, shaper_right;  
-        LQR<2, 2> lqr;
+    public:
+        Shaper distance_shaper, angle_shaper;
+        LQR<2, 2> lqr; 
 
-    private:
+    private: 
         float wheel_diameter;
-        float wheel_brace;
+        float wheel_brace;   
 
-        float x, theta;
+        float shaper_ramp;  
+        float speed_max;
+
+        float req_distance, req_angle;
+
+    public:
+        float distance; 
+        float angle;
+        float distance_velocity;
+        float angle_velocity;
+
 
         uint32_t steps;
 };

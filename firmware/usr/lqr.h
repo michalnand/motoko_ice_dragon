@@ -35,15 +35,14 @@ class LQR
             auto error = this->xr - this->x;
             auto integral_action_new = this->integral_action + this->ki*error;
 
-            //LQR controll law 
+            //LQR controll law  
             auto u_new = this->k*this->x*(-1.0) + this->integral_action;
 
-            //antiwindup with conditional integration
+            //antiwindup with backcalculating integration
             this->u = u_new.clip(-antiwindup, antiwindup);
             this->integral_action = integral_action_new - (u_new - this->u);
         } 
-
-    
+ 
 
 
     public:
@@ -59,7 +58,7 @@ class LQR
         Matrix<float, system_inputs, system_order> k;
         Matrix<float, system_inputs, system_order> ki;
 
-    private:
+    public:
         //internal state
         Matrix<float, system_inputs, 1> integral_action;
 };

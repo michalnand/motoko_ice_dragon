@@ -11,11 +11,11 @@ class PositionControlLQG
         
         //x      required position
         //theta  required theta
-        void step(float x, float theta);
+        void set(float x, float theta);
 
         void callback();
 
-    private:
+    public:
         Shaper shaper_left, shaper_right;  
         LQG<4, 2, 2> lqg;
 

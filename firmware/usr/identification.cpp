@@ -3,6 +3,7 @@
 #include <fmath.h>
 #include <shaper.h>
 #include <lqr_single.h>
+#include <position_control_lqr.h>
 
 
 #define LED_GPIO        TGPIOE
@@ -88,7 +89,7 @@ void motor_identification()
 
 
 
-
+/*
 void robot_dynamics_identification()
 {
     Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;
@@ -106,6 +107,7 @@ void robot_dynamics_identification()
     float left_required_positions[]  = {0.0, 1.0, 0.0, -1.0,   0.0, -1.0, 0.0,  1.0,   0.0, 1.0, 0.0, -1.0,   0.0, 0.0, 0.0,  0.0};
     float right_required_positions[] = {0.0, 1.0, 0.0, -1.0,   0.0,  1.0, 0.0, -1.0,   0.0, 0.0, 0.0, 0.0,    0.0, 1.0, 0.0, -1.0};
 
+    //max allowed speed, rpm to rad/s
     float speed_max = 1500.0*2.0*PI/60.0;
 
     //float k  = 10.0;  
@@ -169,5 +171,102 @@ void robot_dynamics_identification()
         {
             timer.delay_ms(curr_dt);
         }
+    }
+}
+*/
+
+
+
+
+void robot_dynamics_identification()
+{
+    Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;
+
+    motor_control.set_velocity(0, 0);
+    timer.delay_ms(200);
+
+    terminal << "\n\n\n";
+    terminal << "starting identification\n";
+    terminal << "\n\n\n";
+
+    //dims in mm
+    float wheel_diameter = 34.0;
+    float wheel_brace    = 80.0;
+
+    float shaper_ramp   = 0.005;
+
+    //max speed, 1500rpm
+    float speed_max     = 1500*2.0*PI/60.0;
+
+    float required_forward[] = {0.0, 50.0, 0.0, -50.0, 0.0,  0.0,  0.0,   0.0,  0.0};
+    float required_turn[]    = {0.0, 0.0,  0.0,  0.0,  0.0, 90.0, 0.0, -90.0, 0.0};
+
+    //float required_forward[] = {0.0, 0.0, 0.0, 0.0};
+    //float required_turn[]    = {0.0, 90.0, 0.0, -90.0};
+
+    //controllers
+    float pf = 0.01;
+    float df = 0.03;
+
+    float pt = 0.08; 
+    float dt = 0.1; 
+
+    //input shaper
+    Shaper shaper_left, shaper_right;
+    
+    //shaper init
+    shaper_left.init(shaper_ramp, -shaper_ramp); 
+    shaper_right.init(shaper_ramp, -shaper_ramp); 
+
+    uint32_t steps = 0;
+
+    float e0_forward = 0.0;
+    float e1_forward = 0.0;
+
+    float e0_turn = 0.0;
+    float e1_turn = 0.0;
+
+    while (1)  
+    {     
+        uint32_t idx = (steps/200)%9;
+
+        //required values
+        float req_forward = required_forward[idx];
+        float req_turn    = required_turn[idx]*PI/180.0;
+
+        //obtain current state
+
+        float left_position  = motor_control.get_left_position();
+        float right_position = motor_control.get_right_position();
+
+        float distance = 0.5*(right_position + left_position)*0.5*wheel_diameter;
+        float angle    = 0.5*(right_position - left_position)*wheel_diameter / wheel_brace;
+
+        //compute controller
+        e1_forward = e0_forward;
+        e0_forward = req_forward - distance;
+
+        e1_turn = e0_turn;
+        e0_turn = req_turn - angle;
+
+        float u_forward = pf*e0_forward + df*(e0_forward - e1_forward);
+        float u_turn    = pt*e0_turn + dt*(e0_turn - e1_turn); 
+
+        float u_left  = u_forward - u_turn;
+        float u_right = u_forward + u_turn; 
+
+        u_left  = clip(u_left, -1.0, 1.0);
+        u_right = clip(u_right, -1.0, 1.0);
+
+
+        float u_left_shaped  = shaper_left.step(u_left);
+        float u_right_shaped = shaper_right.step(u_right);
+
+        motor_control.set_velocity(u_left_shaped*speed_max, u_right_shaped*speed_max);
+
+        terminal << steps << " " << u_left << " " << u_right << " " << u_left_shaped << " " << u_right_shaped << " " << distance << " " <<  angle << "\n";
+        steps++;
+
+        timer.delay_ms(4);
     }
 }

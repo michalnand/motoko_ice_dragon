@@ -13,7 +13,7 @@ LQRSingle::~LQRSingle()
 
 void LQRSingle::init(float k, float ki, float antiwindup)
 {
-    this->k  = k;
+    this->k = k;
     this->ki = ki;
  
     this->integral_action = 0.0;
@@ -21,7 +21,7 @@ void LQRSingle::init(float k, float ki, float antiwindup)
 }
  
         
-//xr  required value
+//xr  required value 
 //x   actual value
 float LQRSingle::step(float xr, float x)
 {

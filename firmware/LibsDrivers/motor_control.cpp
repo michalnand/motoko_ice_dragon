@@ -67,15 +67,13 @@ void MotorControl::init()
     //Kalman gain  
     float f  = 0.00124699;
 
-
     left_controller.init(a, b, k,  ki, f, antiwindup); 
-    right_controller.init(a, b, k,  ki, f, antiwindup); 
+    right_controller.init(a, b, k, ki, f, antiwindup); 
 
 
     steps = 0;
 
-    //init timer 2 interrupt for callback calling, 2kHz
-    
+    //init timer 2 interrupt for callback calling, 4kHz
     TIM_TimeBaseInitTypeDef     TIM_TimeBaseStructure;
     NVIC_InitTypeDef            NVIC_InitStructure;
 
@@ -90,7 +88,7 @@ void MotorControl::init()
 
     TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
     TIM_ITConfig(TIM2, TIM_IT_CC1, ENABLE);
-    TIM_Cmd(TIM2, ENABLE);  
+    TIM_Cmd(TIM2, ENABLE);   
 
     NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority    = 1;

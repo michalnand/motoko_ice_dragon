@@ -6,6 +6,7 @@
 
 #include <identification.h>
 #include <position_control_lqr.h>
+#include <position_control_lqg.h>
 
 #include <fmath.h>
  
@@ -27,25 +28,14 @@
      
 int main(void)      
 { 
-  /*
-  Matrix<float, 3, 4> mat_a;
-  Matrix<float, 3, 4> mat_b;
-  Matrix<float, 3, 4> mat_c;
-  Matrix<float, 3, 4> mat_y;
- 
-  mat_b = mat_a; 
-
-  Matrix<float, 3, 4> mat_d = mat_a*3.0 + mat_b*2.1 - mat_c*5;
-  */  
-
-  LQG<6, 2, 3> lqg;  
-
-  lqg.step(); 
-
-
   drivers_init();
+  
+  PositionControlLQR position_control;
+  position_control.init();
+  position_control.set(0.0, 0.0);
+ 
 
-  terminal << "\n\n\n";
+  terminal << "\n\n\n"; 
   terminal << "machine ready\n";
 
   Gpio<LED_1_GPIO, LED_1_PIN, GPIO_MODE_OUT> led_1;   //user led
@@ -54,7 +44,6 @@ int main(void)
   Gpio<LED_2_GPIO, LED_2_PIN, GPIO_MODE_OUT> led_2;   //bottom led
   Gpio<LED_3_GPIO, LED_3_PIN, GPIO_MODE_OUT> led_3;   //bottom led
     
-
   Gpio<KEY_GPIO, KEY_PIN, GPIO_MODE_IN_PULLUP> key;   //user button
  
   for (unsigned int i = 0; i < 5; i++)
@@ -73,15 +62,17 @@ int main(void)
 
 
   while (key != 0)
-  {
+  { 
     led_1 = 1; 
     timer.delay_ms(100);
 
     led_1 = 0; 
     timer.delay_ms(200);
   }
-
+ 
   led_1 = 1; 
+
+  
   
 
   //timer_test();
@@ -114,31 +105,66 @@ int main(void)
   //motor_control.set_torque(0, 1000);
 
   
-  PositionControlLQR position_control;
 
-  position_control.init();
+  /*
+  //turn test
+  float req_angle[] = {0.0, 90.0, 0.0, -90.0, 0.0, 90.0, 0.0, -90.0, 0.0, 90.0, 0.0, -90.0};
 
-  float req_dist[]  = {0.0, 0.08, 0.0, 0.08, 0.0, 0.08, 0.0,  0.0, 0.0,  0.0,   0.0, 0.0};
-  float req_angle[] = {0.0, 0.0,  0.0, 0.0,  0.0, 0.0,  0.0,  0.0, 90.0, 0.0, -90.0, 0.0};
 
-  uint32_t steps = 0;
-
-  while (1) 
+  for (unsigned int n = 0; n < 12; n++)
   {
-    led_1 = 1;   
-    
-    float dist  = req_dist[(steps/400)%12];
-    float angle = req_angle[(steps/400)%12]*PI/180.0;
- 
-    position_control.step(dist, angle);
-    position_control.callback(); 
+    float dist  = 0;
+    float angle = req_angle[n]*PI/180.0;
 
-    led_1 = 0;  
+    position_control.set(dist, angle);
 
-    steps++;
-    timer.delay_ms(4);
-  }
+    timer.delay_ms(300);
+  } 
+
+  position_control.set(0, 0);
+  */
+
+
   
+    //forward test
+    float req_distance[] = {0.0, 100.0, 0.0, 100.0, 0.0, 100.0, 0.0, 100.0};
+
+ 
+    for (unsigned int n = 0; n < 8; n++) 
+    {
+      float dist  = req_distance[n];
+      float angle = 0.0;
+
+      position_control.set(dist, angle);
+
+      timer.delay_ms(300);
+    } 
+
+    position_control.set(0, 0);
+  
+
+  /*
+  float req_dist[]  = {0.0, 80.0, 80.0,  80.0, 0.0,  80.0, 0.0,  80.0};
+  float req_angle[] = {0.0, 0.0, 90.0, 0.0, 90.0, 0.0, 90.0, 0.0};
+
+  float dist_sum = 0.0;
+  float angle_sum = 0.0;
+
+  while (1)
+  {
+    for (unsigned int n = 0; n < 8; n++)
+    {
+      dist_sum+= req_dist[n];
+      angle_sum+= req_angle[n]*PI/180.0;
+
+      position_control.set(dist_sum, angle_sum);
+
+      timer.delay_ms(1000);
+    }
+  }
+  */
+
+ 
 
   while (1) 
   {

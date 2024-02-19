@@ -43,7 +43,7 @@ class LQG
             auto integral_action_new = this->integral_action + this->ki*error;
 
             //LQR controll law 
-            auto u_new = this->k*this->x_hat*(-1.0) + integral_action_new;
+            auto u_new = this->k*this->x_hat*(-1.0) ; //+ integral_action_new;
 
             //antiwindup with conditional integration
             this->u = u_new.clip(-antiwindup, antiwindup);
@@ -80,7 +80,7 @@ class LQG
         Matrix<float, system_inputs, system_order> k;
         Matrix<float, system_inputs, system_outputs> ki;
 
-    private:
+    public:
         //internal state
         Matrix<float, system_inputs, 1> integral_action;
         Matrix<float, system_order, 1> x_hat;

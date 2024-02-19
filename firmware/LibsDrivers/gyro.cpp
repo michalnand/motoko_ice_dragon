@@ -83,11 +83,13 @@ Gyro *g_gyro_ptr;
 extern "C" {
 #endif
 
-void TIM5_IRQHandler(void)
+
+void TIM6_DAC_IRQHandler(void)
 { 
     g_gyro_ptr->callback();
-    TIM_ClearITPendingBit(TIM5, TIM_IT_CC1);  
+    TIM_ClearITPendingBit(TIM6, TIM_IT_CC1);  
 } 
+
  
 #ifdef __cplusplus
 }
@@ -147,12 +149,14 @@ int Gyro::init(I2C_Interface &i2c_interface)
         angular_rate_old[i] = 0.0;
     }
     
+
+    /*
     TIM_TimeBaseInitTypeDef     TIM_TimeBaseStructure;
     NVIC_InitTypeDef            NVIC_InitStructure;
 
-    //init timer 5 interrupt for callback calling, 500Hz
+    //init timer 6 interrupt for callback calling, 500Hz
 
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5, ENABLE);
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM6, ENABLE);
 
     TIM_TimeBaseStructure.TIM_Prescaler         = 0;
     TIM_TimeBaseStructure.TIM_CounterMode       = TIM_CounterMode_Up;
@@ -160,17 +164,17 @@ int Gyro::init(I2C_Interface &i2c_interface)
     TIM_TimeBaseStructure.TIM_ClockDivision     = 0; 
     TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;   
 
-    TIM_TimeBaseInit(TIM5, &TIM_TimeBaseStructure);
-    TIM_ITConfig(TIM5, TIM_IT_CC1, ENABLE);
-    TIM_Cmd(TIM5, ENABLE); 
+    TIM_TimeBaseInit(TIM6, &TIM_TimeBaseStructure);
+    TIM_ITConfig(TIM6, TIM_IT_CC1, ENABLE);
+    TIM_Cmd(TIM6, ENABLE); 
 
-     
-    NVIC_InitStructure.NVIC_IRQChannel = TIM5_IRQn;
+      
+    NVIC_InitStructure.NVIC_IRQChannel = TIM6_DAC_IRQn;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority    = 4;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority           = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure); 
-    
+    */
 
     terminal << "gyro_sensor init [DONE]\n";
     return 0;

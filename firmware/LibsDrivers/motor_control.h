@@ -21,7 +21,10 @@ class MotorControl
     public:
         void init();
 
+        //helping fuction for testing, only when running in open loop
         void set_torque(float left_torque, float right_torque);
+
+        //required velocity, in rad/s
         void set_velocity(float left_velocity, float right_velocity);
 
         void callback_torque(); 

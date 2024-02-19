@@ -10,13 +10,13 @@ class LQRSingle
         
         virtual ~LQRSingle();
         
-        //k  : gain
+        //k0 : gain
         //ki : integral action gain
-        void init(float k , float ki, float antiwindup);
+        void init(float k , float ki,  float antiwindup);
         
-        //xr required value
-        //x  actual value
-        float step(float xr, float x);
+        //xr : required value
+        //x  : actual value
+        float step(float xr, float x); 
     
     private:
         float _clip(float v, float min_v, float max_v);

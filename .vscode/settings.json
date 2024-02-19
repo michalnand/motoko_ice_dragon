@@ -1,6 +1,13 @@
 {
     "files.associations": {
         "__locale": "cpp",
-        "ios": "cpp"
+        "ios": "cpp",
+        "bitset": "cpp",
+        "chrono": "cpp",
+        "cmath": "cpp",
+        "complex": "cpp",
+        "cstdlib": "cpp",
+        "locale": "cpp",
+        "string": "cpp"
     }
 }

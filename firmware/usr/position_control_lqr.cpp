@@ -11,12 +11,12 @@ extern "C" {
 #endif 
 
 
-void TIM7_IRQHandler(void)
+void TIM5_IRQHandler(void)
 { 
     g_position_control_lqr->callback();
-    TIM_ClearITPendingBit(TIM7, TIM_IT_CC1);  
+    TIM_ClearITPendingBit(TIM5, TIM_IT_CC1);  
 } 
- 
+
  
 #ifdef __cplusplus
 }
@@ -32,47 +32,53 @@ void PositionControlLQR::init()
     //250Hz sampling rate, 4ms
     uint32_t dt_us = 4000;
 
-    //robot dimensions
-    this->wheel_diameter = 34.0*0.001;
-    this->wheel_brace    = 80.0*0.001;
+    //dims in mm
+    this->wheel_diameter = 34.0;
+    this->wheel_brace    = 80.0;
 
-    //1200RPM max, to rad/s
-    float antiwindup = 1200*2.0*PI/60.0;
+    //max speed, 1500rpm
+    this->speed_max     = 1500*2.0*PI/60.0;
 
+    float dist_ramp  = 10.0; 
+    float angle_ramp = 180.0*PI/180.0;
 
-    //input shaper ramps
-    float du_p = 0.5;
-    float du_n = -2.0;
+    distance_shaper.init(dist_ramp, -dist_ramp);
+    angle_shaper.init(angle_ramp, -angle_ramp);
 
-    //init LQR 
 
     float k[] = {
-		687.7318, -29.65278, 
-		694.7266, 29.526167 };
+		  0.01783013, -0.1605672, 
+		  0.015368554, 0.19272842 };
 
     float ki[] = {
-		16.122814, -0.7278881, 
-		16.255505, 0.7219375 };
-        
+      0.0028430824, -0.0067023537, 
+      0.0023793622, 0.00798543 };
+
+
+   
     //controller init
-    lqr.init(k, ki, antiwindup);
-
-    //shaper init
-    shaper_left.init(du_p, du_n); 
-    shaper_right.init(du_p, du_n); 
-
-    //required values init
-    this->x     = 0.0;
-    this->theta = 0.0;
+    lqr.init(k, ki, 1.0);
 
     
-    //init timer 7 interrupt for callback calling, 250Hz
+    //required values init
+    this->req_distance  = 0.0;
+    this->req_angle     = 0.0;
+
+    this->distance = 0.0;
+    this->angle    = 0.0;
+
+    this->distance_velocity = 0.0;
+    this->angle_velocity    = 0.0;
+
+    steps = 0;
+   
+    //init timer 5 interrupt for callback calling, 250Hz
     
     TIM_TimeBaseInitTypeDef     TIM_TimeBaseStructure;
     NVIC_InitTypeDef            NVIC_InitStructure;
 
-    
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM7, ENABLE);
+
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5, ENABLE);
 
     TIM_TimeBaseStructure.TIM_Prescaler         = 0;
     TIM_TimeBaseStructure.TIM_CounterMode       = TIM_CounterMode_Up;
@@ -80,64 +86,64 @@ void PositionControlLQR::init()
     TIM_TimeBaseStructure.TIM_ClockDivision     = 0; 
     TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;   
 
-    TIM_TimeBaseInit(TIM7, &TIM_TimeBaseStructure);
-    TIM_ITConfig(TIM7, TIM_IT_CC1, ENABLE);
-    TIM_Cmd(TIM7, ENABLE);  
+    TIM_TimeBaseInit(TIM5, &TIM_TimeBaseStructure);
+    TIM_ITConfig(TIM5, TIM_IT_CC1, ENABLE);
+    TIM_Cmd(TIM5, ENABLE);  
 
-    NVIC_InitStructure.NVIC_IRQChannel = TIM7_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannel = TIM5_IRQn;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority    = 4;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority           = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
-    
 
-
-    steps = 0;
     terminal << "position_control init [DONE]\n";
-}
+} 
 
-// @param : x : required distance, [m]
-// @param : theta : required angle, [rad]
-void PositionControlLQR::step(float x, float theta)
+void PositionControlLQR::set(float req_distance, float req_angle)
 {
-    this->x     = x;
-    this->theta = theta;
+    this->req_distance  = req_distance;
+    this->req_angle     = req_angle;
 }
         
 void PositionControlLQR::callback()
 {
     //fill required values
-    lqr.xr[0] = this->x;
-    lqr.xr[1] = this->theta;
+    lqr.xr[0] = this->distance_shaper.step(this->req_distance);    // position
+    lqr.xr[1] = this->angle_shaper.step(this->req_angle); // angle
 
     //fill current state
-    float right_position = motor_control.get_right_position();
     float left_position  = motor_control.get_left_position();
+    float right_position = motor_control.get_right_position();
 
-    float distance = 0.25*(right_position + left_position)*wheel_diameter;
-    float angle    = 0.5*(right_position - left_position)*wheel_diameter / wheel_brace;
+    float left_velocity  = motor_control.get_left_velocity();
+    float right_velocity = motor_control.get_right_velocity();
 
-    lqr.x[0]  = distance;
-    lqr.x[1]  = angle;
 
-    //compute controller output
+    this->distance = 0.25*(right_position + left_position)*wheel_diameter;
+    this->angle    = 0.5*(right_position - left_position)*wheel_diameter / wheel_brace;
+
+    this->distance_velocity = 0.25*(right_velocity + left_velocity)*wheel_diameter;
+    this->angle_velocity    = 0.5*(right_position - left_velocity)*wheel_diameter / wheel_brace;
+   
+ 
+    lqr.x[0]  = this->distance; 
+    lqr.x[1]  = this->angle;
+    //lqr.x[2]  = this->distance_velocity;  
+    //lqr.x[3]  = this->angle_velocity;  
+ 
+    
+    //compute controller output 
     lqr.step();
 
-    //output shaping
-    float vl_shaped = shaper_left.step(lqr.u[0]); 
-    float vr_shaped = shaper_right.step(lqr.u[1]);
+    
+    float v_left_req  = this->speed_max*lqr.u[0]; 
+    float v_right_req = this->speed_max*lqr.u[1]; 
+    
 
     // send to wheel velocity controll
-    motor_control.set_velocity(vl_shaped, vr_shaped);
-    
-    
-    /*
-        
-    if ((steps%50) == 0)
-    {
-        terminal << lqr.integral_action[0] << " " << lqr.integral_action[1] << " " << lqr.u[0] << " " << lqr.u[1] << "\n";
-    }
+    motor_control.set_velocity(v_left_req, v_right_req);
+
 
     steps++;
-    */
 }
+
