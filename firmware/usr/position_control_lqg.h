@@ -1,7 +1,7 @@
 #ifndef _POSITION_CONTROL_LQG_H_
 #define _POSITION_CONTROL_LQG_H_
 
-#include <shaper.h>
+#include <shaper_s.h>
 #include <lqg.h>
 
 class PositionControlLQG
@@ -9,21 +9,30 @@ class PositionControlLQG
     public:
         void init();
         
-        //x      required position
-        //theta  required theta
-        void set(float x, float theta);
+        //required position and angle
+        void set(float req_distance, float req_angle);
 
         void callback();
 
     public:
-        Shaper shaper_left, shaper_right;  
-        LQG<4, 2, 2> lqg;
+        ShaperS distance_shaper, angle_shaper;
+        LQG<4, 2, 4> lqg;  
 
-    private:
+    private: 
         float wheel_diameter;
-        float wheel_brace;
+        float wheel_brace;   
 
-        float x, theta;
+        float shaper_ramp;  
+        float speed_max;
+
+        float req_distance, req_angle;
+
+    public:
+        float distance; 
+        float angle;
+        float distance_velocity;
+        float angle_velocity;
+
 
         uint32_t steps;
 };

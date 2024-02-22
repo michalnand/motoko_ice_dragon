@@ -96,7 +96,7 @@ void LineSensor::print()
     terminal << "\n";
 
 
-    terminal << "\n";
+    terminal << "\n"; 
 
     terminal << "measurement_id =   " << measurement_id << "\n";
     terminal << "line_lost_type =   " << line_lost_type << "\n";

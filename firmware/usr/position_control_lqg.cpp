@@ -8,7 +8,7 @@ PositionControlLQG *g_position_control_lqg;
 
 #ifdef __cplusplus
 extern "C" {
-#endif  
+#endif 
 
 /*
 void TIM5_IRQHandler(void)
@@ -18,7 +18,7 @@ void TIM5_IRQHandler(void)
 } 
 */
 
- 
+  
 #ifdef __cplusplus
 }
 #endif
@@ -33,66 +33,70 @@ void PositionControlLQG::init()
     //250Hz sampling rate, 4ms
     uint32_t dt_us = 4000;
 
-    //robot dimensions, mm
+    //dims in mm
     this->wheel_diameter = 34.0;
     this->wheel_brace    = 80.0;
 
-    //1200RPM max, to rad/s
-    float antiwindup = 1200*2.0*PI/60.0;
+    //max speed, 1500rpm
+    this->speed_max     = 1500*2.0*PI/60.0;
 
+    float dist_ramp  = 0.5; 
+    float angle_ramp = 0.1;
 
-    //input shaper ramps 
-    float du_p = 0.5;
-    float du_n = -0.5;
-
-    //init LQG (LQR with Kalman observer) 
+    distance_shaper.init(dist_ramp);
+    angle_shaper.init(angle_ramp);
 
     float mat_a[] = {
-            1.0001942, 0.0, 0.007881245, 0.0, 
-            0.0, 1.0004458, 0.0, -0.12871236, 
-            0.00019422911, 0.0, 0.007881246, 0.0, 
-            0.0, 0.00044578884, 0.0, -0.12871104 };
+      0.9996948, -0.0024726202, 0.7173754, 4.1855664, 
+      2.344187e-08, 1.0000275, 0.0015241175, 0.20310567, 
+      -0.00030514644, -0.0024726202, 0.7173754, 4.1855664, 
+      2.3442079e-08, 2.7533026e-05, 0.001524116, 0.2031063 };
 
-    float mat_b[] = {
-            0.034720156, 0.034720156, 
-            -0.00097235, 0.00097235, 
-            0.034720156, 0.034720156, 
-            -0.0009723489, 0.0009723489 };
+  float mat_b[] = {
+      4.5308847, 1.9240154, 
+      -0.2135496, 0.18302794, 
+      4.5308847, 1.9240154, 
+      -0.21354944, 0.1830278 };
 
-    float mat_c[] = {
-            1.0, 0.0, 0.0, 0.0, 
-            0.0, 1.0, 0.0, 0.0 };
+  float mat_c[] = {
+      1.0, 0.0, 0.0, 0.0, 
+      0.0, 1.0, 0.0, 0.0, 
+      0.0, 0.0, 1.0, 0.0, 
+      0.0, 0.0, 0.0, 1.0 };
 
-    float k[] = {
-            1.4984868, -29.526764, 0.011306433, 3.2926738, 
-            1.4984868, 29.526764, 0.011306433, -3.2926738 };
+  float k[] = {
+      0.0111122355, -0.08381365, 0.02097094, 0.12868126, 
+      0.009244162, 0.110913455, 0.018990804, 0.16063412 };
 
-    float ki[] = {
-            0.07432498, -0.7249198, 
-            0.07432498, 0.7249198 };
+  float ki[] = {
+      0.00086349266, -0.0019752574, 0.0, 0.0, 
+      0.0006678071, 0.0025652659, 0.0, 0.0 };
 
-    float f[] = {
-            0.6180858, 0.0, 
-            0.0, 0.6207114, 
-            6.9791655e-05, 0.0, 
-            0.0, 0.006191243 };
+  float f[] = {
+      0.7764054, 0.006789762, 0.18654844, 0.007995918, 
+      0.006789762, 0.6184826, 0.00909337, 0.00055541546, 
+      0.18654844, 0.00909337, 0.7540578, 0.012323017, 
+      0.007995918, 0.00055541546, 0.012323017, 0.5007928 };
 
-
-        
+   
     //controller init
-    lqg.init(mat_a, mat_b, mat_c, k, ki, f, antiwindup);
-
-
-    //shaper init
-    shaper_left.init(du_p, du_n); 
-    shaper_right.init(du_p, du_n); 
-
+    lqg.init(mat_a, mat_b, mat_c, k, ki, f, 1.0);
+    
+    
     //required values init
-    this->x     = 0.0;
-    this->theta = 0.0;
+    this->req_distance  = 0.0;
+    this->req_angle     = 0.0;
+
+    this->distance = 0.0;
+    this->angle    = 0.0;
+
+    this->distance_velocity = 0.0;
+    this->angle_velocity    = 0.0;
 
     steps = 0;
-
+   
+    //init timer 5 interrupt for callback calling, 250Hz
+    
     TIM_TimeBaseInitTypeDef     TIM_TimeBaseStructure;
     NVIC_InitTypeDef            NVIC_InitStructure;
 
@@ -116,50 +120,55 @@ void PositionControlLQG::init()
     NVIC_Init(&NVIC_InitStructure);
 
     terminal << "position_control init [DONE]\n";
-}
+} 
 
-// @param : x : required distance, [m]
-// @param : theta : required angle, [rad]
-void PositionControlLQG::set(float x, float theta)
+void PositionControlLQG::set(float req_distance, float req_angle)
 {
-    this->x     = x;
-    this->theta = theta;
+    this->req_distance  = req_distance;
+    this->req_angle     = req_angle;
 }
         
 void PositionControlLQG::callback()
 {
     //fill required values
-    lqg.yr[0] = this->x;
-    lqg.yr[1] = this->theta;
+    lqg.yr[0] = this->distance_shaper.step(this->req_distance);    // position
+    lqg.yr[1] = this->angle_shaper.step(this->req_angle); // angle
+    lqg.yr[2] = 0;
+    lqg.yr[3] = 0;
 
     //fill current state
-    float right_position = motor_control.get_right_position();
     float left_position  = motor_control.get_left_position();
+    float right_position = motor_control.get_right_position();
 
-    float distance = 0.25*(right_position + left_position)*wheel_diameter;
-    float angle    = 0.5*(right_position - left_position)*wheel_diameter / wheel_brace;
+    float left_velocity  = motor_control.get_left_velocity();
+    float right_velocity = motor_control.get_right_velocity();
 
-    lqg.y[0]  = distance;
-    lqg.y[1]  = angle;
 
-    //compute controller output
+    this->distance = 0.25*(right_position + left_position)*wheel_diameter;
+    this->angle    = 0.5*(right_position - left_position)*wheel_diameter / wheel_brace;
+
+    this->distance_velocity = 0.25*(right_velocity + left_velocity)*wheel_diameter;
+    this->angle_velocity    = 0.5*(right_position - left_velocity)*wheel_diameter / wheel_brace;
+   
+ 
+    lqg.y[0]  = this->distance; 
+    lqg.y[1]  = this->angle;
+    lqg.y[2]  = this->distance_velocity;  
+    lqg.y[3]  = this->angle_velocity;  
+ 
+    
+    //compute controller output 
     lqg.step();
 
-    //output shaping
-    float vl_shaped = shaper_left.step(lqg.u[0]); 
-    float vr_shaped = shaper_right.step(lqg.u[1]);
+    
+    float v_left_req  = this->speed_max*lqg.u[0]; 
+    float v_right_req = this->speed_max*lqg.u[1]; 
+    
 
     // send to wheel velocity controll
-    motor_control.set_velocity(vl_shaped, vr_shaped);
-    
-    
-    /*
-        
-    if ((steps%50) == 0)
-    {
-        terminal << lqr.integral_action[0] << " " << lqr.integral_action[1] << " " << lqr.u[0] << " " << lqr.u[1] << "\n";
-    }
+    motor_control.set_velocity(v_left_req, v_right_req);
+
 
     steps++;
-    */
 }
+

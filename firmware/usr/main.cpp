@@ -22,14 +22,84 @@
 #define KEY_GPIO          TGPIOE 
 #define KEY_PIN           4 
 
-#include <matrix.h> 
 
-#include <lqg.h>     
+void brick_avoid(PositionControlLQR &position_control, float a, float d, float angle)
+{
+  float d_curr = position_control.distance;
+  float a_curr = position_control.angle;
+
+  float points_distance[] = {0.0,    a,   0.0,   d,  0.0,  a,   0.0};
+  float points_angle[]    = {angle, 0.0, -angle, 0.0, -angle, 0.0, angle}; 
+
+
+  for (unsigned int n = 0; n < 7; n++)
+  {
+    d_curr+= points_distance[n];
+    a_curr+= points_angle[n]*PI/180.0;
+
+    position_control.set(d_curr, a_curr);
+
+    while (abs(d_curr - position_control.distance) > 5.0)
+    {
+      __asm("nop");
+    }
+
+    while (abs(a_curr - position_control.angle) > 5.0*PI/180.0)
+    {
+      __asm("nop");
+    }
+  }
+}
+
+
+
+void broken_line_search(PositionControlLQR &position_control, float d, float angle)
+{
+  float d_curr = position_control.distance;
+  float a_curr = position_control.angle;
+
+  float points_distance[] = {d,     -d,     d,      -d,     d};
+  float points_angle[]    = {angle, -angle, -angle, angle,  0.0}; 
+
+
+  for (unsigned int n = 0; n < 5; n++)
+  {
+    d_curr+= points_distance[n];
+    a_curr+= points_angle[n]*PI/180.0;
+
+    position_control.set(d_curr, a_curr);
+
+    while (abs(d_curr - position_control.distance) > 5.0)
+    {
+      __asm("nop");
+    }
+
+    while (abs(a_curr - position_control.angle) > 5.0*PI/180.0)
+    {
+      __asm("nop");
+    }
+  }
+}
+
+
+void line_following(PositionControlLQR &position_control, float speed)
+{
+  while (1)
+  {
+    float line_position    = position_control.angle + 0.5*line_sensor.line_position;
+    float forward_position = position_control.distance + speed;
+ 
+    position_control.set(forward_position, line_position);
+
+    timer.delay_ms(4);
+  }
+} 
      
 int main(void)      
 { 
   drivers_init();
   
+
   PositionControlLQR position_control;
   position_control.init();
   position_control.set(0.0, 0.0);
@@ -125,34 +195,38 @@ int main(void)
   */
 
 
-  
+    /*
     //forward test
-    float req_distance[] = {0.0, 100.0, 0.0, 100.0, 0.0, 100.0, 0.0, 100.0};
-
- 
-    for (unsigned int n = 0; n < 8; n++) 
+    float req_distance[] = {0.0, 100.0, 0.0, 150.0, 0.0, 200.0, 0.0, 250.0, 0.0, 500.0};
+  
+    for (unsigned int n = 0; n < 10; n++) 
     {
       float dist  = req_distance[n];
       float angle = 0.0;
 
       position_control.set(dist, angle);
 
-      timer.delay_ms(300);
+      timer.delay_ms(800);
     } 
 
     position_control.set(0, 0);
-  
+    */
 
+   timer.delay_ms(1000);
+   //brick_avoid(position_control, 200.0, 400.0, 90.0);
+   
+   line_following(position_control, 100.0);
+ 
   /*
-  float req_dist[]  = {0.0, 80.0, 80.0,  80.0, 0.0,  80.0, 0.0,  80.0};
-  float req_angle[] = {0.0, 0.0, 90.0, 0.0, 90.0, 0.0, 90.0, 0.0};
+  float req_dist[]  = {0.0, 100.0,  0.0,  100.0,  0.0,  100.0, 0.0,  100.0, 0.0};
+  float req_angle[] = {0.0, 0.0,   90.0,    0.0,  90.0, 0.0,   90.0,   0.0, 90.0};
 
   float dist_sum = 0.0;
   float angle_sum = 0.0;
 
   while (1)
   {
-    for (unsigned int n = 0; n < 8; n++)
+    for (unsigned int n = 0; n < 9; n++)
     {
       dist_sum+= req_dist[n];
       angle_sum+= req_angle[n]*PI/180.0;
@@ -163,6 +237,7 @@ int main(void)
     }
   }
   */
+
 
  
 

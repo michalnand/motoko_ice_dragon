@@ -1,8 +1,8 @@
 #ifndef _POSITION_CONTROL_LQR_H_
 #define _POSITION_CONTROL_LQR_H_
 
-#include <shaper.h>
-#include <lqr.h>
+#include <shaper_s.h>
+#include <lqr.h> 
 
 class PositionControlLQR
 {   
@@ -15,8 +15,8 @@ class PositionControlLQR
         void callback();
 
     public:
-        Shaper distance_shaper, angle_shaper;
-        LQR<2, 2> lqr; 
+        ShaperS distance_shaper, angle_shaper;
+        LQR<4, 2> lqr; 
 
     private: 
         float wheel_diameter;
@@ -28,11 +28,11 @@ class PositionControlLQR
         float req_distance, req_angle;
 
     public:
+        float distance_prev; 
         float distance; 
+        float angle_prev;
         float angle;
-        float distance_velocity;
-        float angle_velocity;
-
+        
 
         uint32_t steps;
 };

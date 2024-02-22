@@ -31,31 +31,32 @@ void PositionControlLQR::init()
 
     //250Hz sampling rate, 4ms
     uint32_t dt_us = 4000;
-
-    //dims in mm
+ 
+    //dims in mm 
     this->wheel_diameter = 34.0;
     this->wheel_brace    = 80.0;
 
     //max speed, 1500rpm
     this->speed_max     = 1500*2.0*PI/60.0;
 
-    float dist_ramp  = 10.0; 
-    float angle_ramp = 180.0*PI/180.0;
+    float dist_ramp  = 5.0; 
+    float angle_ramp = 10.0;  
+ 
+    distance_shaper.init(dist_ramp, 0.98);
+    angle_shaper.init(angle_ramp, 0.2);
 
-    distance_shaper.init(dist_ramp, -dist_ramp);
-    angle_shaper.init(angle_ramp, -angle_ramp);
-
-
+    
+    // q = 10**-7, 10**-3
     float k[] = {
-		  0.01783013, -0.1605672, 
-		  0.015368554, 0.19272842 };
+		  0.0052, -0.17, 0.01, -0.12, 
+		  0.0052,  0.17, 0.01,  0.12 };
 
     float ki[] = {
-      0.0028430824, -0.0067023537, 
-      0.0023793622, 0.00798543 };
+		  0.00023, -0.0073, 0.0, 0.0, 
+		  0.00023,  0.0073, 0.0, 0.0 };
+    
 
 
-   
     //controller init
     lqr.init(k, ki, 1.0);
 
@@ -64,11 +65,12 @@ void PositionControlLQR::init()
     this->req_distance  = 0.0;
     this->req_angle     = 0.0;
 
-    this->distance = 0.0;
-    this->angle    = 0.0;
+    this->distance_prev  = 0.0;
+    this->distance       = 0.0;
+    this->angle_prev     = 0.0;
+    this->angle          = 0.0;
 
-    this->distance_velocity = 0.0;
-    this->angle_velocity    = 0.0;
+   
 
     steps = 0;
    
@@ -108,41 +110,35 @@ void PositionControlLQR::set(float req_distance, float req_angle)
 void PositionControlLQR::callback()
 {
     //fill required values
-    lqr.xr[0] = this->distance_shaper.step(this->req_distance);    // position
-    lqr.xr[1] = this->angle_shaper.step(this->req_angle); // angle
-
-    //fill current state
+    lqr.xr[0] = this->distance_shaper.step(this->req_distance);
+    lqr.xr[1] = this->angle_shaper.step(this->req_angle);
+    
+    //fill current state  
     float left_position  = motor_control.get_left_position();
     float right_position = motor_control.get_right_position();
 
-    float left_velocity  = motor_control.get_left_velocity();
-    float right_velocity = motor_control.get_right_velocity();
-
-
+    this->distance_prev = this->distance;
     this->distance = 0.25*(right_position + left_position)*wheel_diameter;
+
+    this->angle_prev = this->angle;
     this->angle    = 0.5*(right_position - left_position)*wheel_diameter / wheel_brace;
 
-    this->distance_velocity = 0.25*(right_velocity + left_velocity)*wheel_diameter;
-    this->angle_velocity    = 0.5*(right_position - left_velocity)*wheel_diameter / wheel_brace;
-   
- 
+    
     lqr.x[0]  = this->distance; 
     lqr.x[1]  = this->angle;
-    //lqr.x[2]  = this->distance_velocity;  
-    //lqr.x[3]  = this->angle_velocity;  
+    lqr.x[2]  = this->distance - this->distance_prev;  
+    lqr.x[3]  = this->angle    - this->angle_prev;  
  
     
     //compute controller output 
     lqr.step();
 
-    
+    // scale to motors
     float v_left_req  = this->speed_max*lqr.u[0]; 
     float v_right_req = this->speed_max*lqr.u[1]; 
-    
 
     // send to wheel velocity controll
     motor_control.set_velocity(v_left_req, v_right_req);
-
 
     steps++;
 }
