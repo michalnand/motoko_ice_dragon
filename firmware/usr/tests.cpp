@@ -2,6 +2,7 @@
 #include <drivers.h>
 #include <fmath.h>
 #include <shaper.h>
+#include <position_control_lqr.h>
 
 #define LED_GPIO        TGPIOE
 #define LED_PIN         3
@@ -70,7 +71,7 @@ void ir_sensor_test()
       terminal << "\n\n\n";
   }
 }
-
+ 
 
 
 void line_sensor_test()
@@ -581,49 +582,49 @@ void smooth_motor_driver_test()
 
 
 
-
-void forward_run_test()
+void turn_test()
 {
-    Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;        //user led
+  PositionControlLQR position_control;
+  position_control.init();
 
-    //required RPM velocity
-    const float required[] = {0, 1500, 0};
+  //turn test
+  float req_angle[] = {0.0, 90.0, 0.0, -90.0, 0.0, 90.0, 0.0, -90.0, 0.0, 90.0, 0.0, -90.0};
 
-    uint32_t n_steps = 1000;  
-    uint32_t dt = 4; //4ms 
 
-    float dx_max = 1.0;  
+  for (unsigned int n = 0; n < 12; n++)
+  {
+    float dist  = 0;
+    float angle = req_angle[n]*PI/180.0;
 
-    Shaper shaper; 
-    shaper.init(dx_max, -2.0*dx_max); 
-    
+    position_control.set(dist, angle);
 
-    for (unsigned int n = 0; n < n_steps; n++)
-    {
-      uint32_t required_idx = n/(n_steps/3);
+    timer.delay_ms(300);
+  } 
 
-      //convert rpm to rad/s
-      float req = required[required_idx]*2.0*PI/60.0;
-
-      //shape signal
-      float req_shaped = shaper.step(req);
-
-      motor_control.set_velocity(req_shaped, req_shaped);
-
-      timer.delay_ms(dt);
-
-      if ((n/50)%10 == 0)
-      {
-        led = 1;
-      }
-      else
-      {
-        led = 0;
-      }
-    }
-
-    motor_control.set_velocity(0.0, 0.0);
+  position_control.set(0, 0);
 }
+
+void forward_test()
+{
+  PositionControlLQR position_control;
+  position_control.init();
+
+  //forward test
+  float req_distance[] = {0.0, 100.0, 0.0, 150.0, 0.0, 200.0, 0.0, 250.0, 0.0, 500.0};
+
+  for (unsigned int n = 0; n < 10; n++) 
+  {
+    float dist  = req_distance[n];
+    float angle = 0.0;
+
+    position_control.set(dist, angle);
+
+    timer.delay_ms(800);
+  } 
+
+  position_control.set(0, 0);
+}
+
 
 
 
@@ -653,30 +654,6 @@ void mcu_usage()
 }
 
 
-
-
-
-void sensors_matching()
-{
-  Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;
-
-  float sensors_brace    = 69.5;
-  float sensors_distance = 68.88;
-  while(1)
-  {
-    led = 1;
-    
-    float line_position = line_sensor.line_position;
-    float line_angle    = fatan(line_position*(sensors_brace/2.0) / sensors_distance)/PI;
-    float gyro_angle    = gyro_sensor.angle;
-
-    terminal << line_position << " " << line_angle << " " << gyro_angle << "\n";
-
-    led = 0;
-
-    timer.delay_ms(100);
-  }
-}
 
 
 

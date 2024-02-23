@@ -84,26 +84,109 @@ void broken_line_search(PositionControlLQR &position_control, float d, float ang
 
 void line_following(PositionControlLQR &position_control, float speed)
 {
+  float line_position     = 0.0;
+  float forward_position  = 0.0;
+
   while (1)
   {
-    float line_position    = position_control.angle + 0.5*line_sensor.line_position;
-    float forward_position = position_control.distance + speed;
- 
-    position_control.set(forward_position, line_position);
+    if (line_sensor.line_lost_type == LINE_LOST_NONE)
+    {
+      line_position    = position_control.angle + line_sensor.left_angle;
+      forward_position = position_control.distance + speed;
+    }
+    else if (line_sensor.line_lost_type == LINE_LOST_LEFT)
+    {
+      line_position    = position_control.angle + 90.0*PI/180.0;
+      forward_position = position_control.distance;
+    }
+    else if (line_sensor.line_lost_type == LINE_LOST_RIGHT)
+    {
+      line_position    = position_control.angle - 90.0*PI/180.0;
+      forward_position = position_control.distance;
+    }
+    else if (line_sensor.line_lost_type == LINE_LOST_CENTER)
+    {
+      return; 
+    } 
 
+
+    position_control.set(forward_position, line_position);
+    timer.delay_ms(4);
+  }
+} 
+
+#include "filter.h"
+
+void line_following_advanced(PositionControlLQR &position_control, float speed_min, float speed_max)
+{
+  float line_position     = 0.0;
+  float forward_position  = 0.0;
+
+
+  float speed_w = 0.0;
+
+
+  FirFilter<float, 64> filter;
+
+  while (1)
+  {
+    if (line_sensor.line_lost_type == LINE_LOST_NONE)
+    {
+      float distance = max(abs(line_sensor.left_position), abs(line_sensor.right_position));
+
+      filter.step(distance); 
+
+      float distance_fil = filter.max();
+      
+      if (distance_fil < 0.2)   
+      {
+        speed_w+= 0.01;
+      } 
+      else     
+      {
+        speed_w-= 0.05;   
+      }
+       
+      speed_w = clip(speed_w, 0.0, 1.0); 
+
+      float speed = (1.0 - speed_w)*speed_min + speed_w*speed_max;
+
+      line_position    = position_control.angle + line_sensor.left_angle;
+      forward_position = position_control.distance + speed;
+    }
+    else if (line_sensor.line_lost_type == LINE_LOST_LEFT)
+    {
+      line_position    = position_control.angle + 90.0*PI/180.0;
+      forward_position = position_control.distance;
+      speed_w          = 0.0;
+    }
+    else if (line_sensor.line_lost_type == LINE_LOST_RIGHT)
+    {
+      line_position    = position_control.angle - 90.0*PI/180.0;
+      forward_position = position_control.distance;
+      speed_w          = 0.0;
+    }
+    else if (line_sensor.line_lost_type == LINE_LOST_CENTER)
+    {
+      return; 
+    } 
+
+
+    position_control.set(forward_position, line_position);
     timer.delay_ms(4);
   }
 } 
      
+
+
+    
 int main(void)      
 { 
   drivers_init();
   
-
   PositionControlLQR position_control;
   position_control.init();
   position_control.set(0.0, 0.0);
- 
 
   terminal << "\n\n\n"; 
   terminal << "machine ready\n";
@@ -169,77 +252,13 @@ int main(void)
   //line_stabilise(); 
   //gyro_turn_test(); 
 
-  //line_follow_test();
-
-
-  //motor_control.set_torque(0, 1000);
 
   
 
-  /*
-  //turn test
-  float req_angle[] = {0.0, 90.0, 0.0, -90.0, 0.0, 90.0, 0.0, -90.0, 0.0, 90.0, 0.0, -90.0};
+  //line_following(position_control, 100.0);
+  line_following_advanced(position_control, 100.0, 500.0);
 
 
-  for (unsigned int n = 0; n < 12; n++)
-  {
-    float dist  = 0;
-    float angle = req_angle[n]*PI/180.0;
-
-    position_control.set(dist, angle);
-
-    timer.delay_ms(300);
-  } 
-
-  position_control.set(0, 0);
-  */
-
-
-    /*
-    //forward test
-    float req_distance[] = {0.0, 100.0, 0.0, 150.0, 0.0, 200.0, 0.0, 250.0, 0.0, 500.0};
-  
-    for (unsigned int n = 0; n < 10; n++) 
-    {
-      float dist  = req_distance[n];
-      float angle = 0.0;
-
-      position_control.set(dist, angle);
-
-      timer.delay_ms(800);
-    } 
-
-    position_control.set(0, 0);
-    */
-
-   timer.delay_ms(1000);
-   //brick_avoid(position_control, 200.0, 400.0, 90.0);
-   
-   line_following(position_control, 100.0);
- 
-  /*
-  float req_dist[]  = {0.0, 100.0,  0.0,  100.0,  0.0,  100.0, 0.0,  100.0, 0.0};
-  float req_angle[] = {0.0, 0.0,   90.0,    0.0,  90.0, 0.0,   90.0,   0.0, 90.0};
-
-  float dist_sum = 0.0;
-  float angle_sum = 0.0;
-
-  while (1)
-  {
-    for (unsigned int n = 0; n < 9; n++)
-    {
-      dist_sum+= req_dist[n];
-      angle_sum+= req_angle[n]*PI/180.0;
-
-      position_control.set(dist_sum, angle_sum);
-
-      timer.delay_ms(1000);
-    }
-  }
-  */
-
-
- 
 
   while (1) 
   {

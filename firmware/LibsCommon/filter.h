@@ -29,6 +29,19 @@ class FirFilter
             return result/size;
         }
 
+        DType max() 
+        {
+            DType result = this->x[0];
+
+            for (unsigned int i = 0; i < size; i++)
+                if (this->x[i] > result)
+                {
+                    result = this->x[i];
+                }
+
+            return result;
+        }
+
     private:
         unsigned int ptr;
         DType x[size];

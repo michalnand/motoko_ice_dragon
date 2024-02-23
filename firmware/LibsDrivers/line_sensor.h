@@ -9,8 +9,8 @@
 #define LINE_SENSOR_STEP                ((int32_t)128)
 
 //sensitivity
-//#define LINE_SENSOR_THRESHOLD           ((int32_t)300) 
-#define LINE_SENSOR_THRESHOLD           ((int32_t)100) 
+#define LINE_SENSOR_THRESHOLD           ((int32_t)300) 
+//#define LINE_SENSOR_THRESHOLD           ((int32_t)100) 
 
 
 //brace from first to last sesor in mm
@@ -35,9 +35,6 @@ class LineSensor
   protected:
       Gpio<TGPIOC, 15, GPIO_MODE_OUT> sensor_led;        //sensor white led
 
-      uint32_t  time_prev, time_now;
-
-
    public:
         Array<int, LINE_SENSOR_COUNT> adc_result;
 
@@ -59,15 +56,17 @@ class LineSensor
         Gpio<TGPIOA, 7, GPIO_MODE_AN> sensor_in_7;
 
     public:
-        uint32_t measurement_id;
         uint32_t line_lost_type;
         uint32_t on_line_count;
 
-        //this stores last valid line position
-        float line_position;
-        //recomputed raw line position into angle
-        float angle;
-        float angular_rate; 
+        //this stores last valid line position <-1, 1>
+        float left_position, right_position;
+
+        //raw line position into angle (radians)
+        float left_angle, right_angle;
+
+
+        uint32_t measurement_id;
 
     private:
         float angle_prev[4];

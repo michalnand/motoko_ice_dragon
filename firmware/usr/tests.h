@@ -18,14 +18,12 @@ void sensors_test();
 
 void motor_driver_test();
 void smooth_motor_driver_test();
-void forward_run_test();
+
+
+void turn_test();
+void forward_test();
+
 
 void mcu_usage();
-
-void sensors_matching();
-
-void gyro_turn_test();
-
-void line_follow_test();
 
 #endif

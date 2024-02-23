@@ -180,12 +180,10 @@ float facos(float x)
 
 
 
+//http://pubs.opengroup.org/onlinepubs/009695399/functions/atan2.html
 
 float fatan(float x) 
 {
-    //http://pubs.opengroup.org/onlinepubs/009695399/functions/atan2.html
-
-
     if (x > 1.0)
     {
         return PI/2 - fatan(1.0/x);

@@ -46,20 +46,16 @@ void LineSensor::init()
     weights[7] =  4*LINE_SENSOR_STEP;
 
 
-    time_prev= timer.get_time();
-    time_now = time_prev;
+    line_lost_type = LINE_LOST_CENTER;
+    on_line_count  = 0;
+
+    left_position = 0.0;
+    right_position = 0.0;
+
+    left_angle = 0.0;
+    right_angle = 0.0;
 
     measurement_id = 0;
-    line_lost_type = LINE_LOST_NONE;
-    on_line_count  = 0;
-    line_position  = 0.0;
-    angle          = 0.0;
-    angular_rate   = 0.0;
-
-    for (unsigned int i = 0; i < 4; i++)
-    {
-        angle_prev[i] = 0.0;
-    }
 
     terminal << "line_sensor init [DONE]\n";
 }
@@ -98,13 +94,13 @@ void LineSensor::print()
 
     terminal << "\n"; 
 
-    terminal << "measurement_id =   " << measurement_id << "\n";
     terminal << "line_lost_type =   " << line_lost_type << "\n";
     terminal << "on_line_count  =   " << on_line_count << "\n";
-    terminal << "line_position  =   " << line_position << "\n";
-    terminal << "angle          =   " << angle << "\n";
-    terminal << "angular_rate   =   " << angular_rate << "\n";
-  
+    terminal << "left_position  =   " << left_position << "\n";
+    terminal << "right_position =   " << right_position << "\n";
+    terminal << "left_angle     =   " << left_angle << " deg \n";
+    terminal << "right_angle    =   " << right_angle << " deg \n";
+    
     terminal << "\n\n\n";
 }
 
@@ -118,60 +114,64 @@ void LineSensor::process()
     average = average/adc_result.size();
  
  
-    //find maximum sensor value
-    unsigned int center_line_idx = 0;
-    for (unsigned int i = 0; i < adc_result.size(); i++)
-        if (adc_result[i] > adc_result[center_line_idx])
+    //find most left sensor on line
+    unsigned int left_idx = 0;
+    bool left_valid = false;
+    for (int i = 0; i < adc_result.size(); i++)
+        if (adc_result[i] > LINE_SENSOR_THRESHOLD)
         {
-            center_line_idx = i;
+            left_idx = i;
+            left_valid = true; 
+            break;
+        }
+
+    //find most right sensor on line 
+    unsigned int right_idx = 0;
+    bool right_valid = false;
+    for (int i = (adc_result.size()-1); i >= 0; i--)
+        if (adc_result[i] > LINE_SENSOR_THRESHOLD)
+        {
+            right_idx = i;
+            right_valid = true;
+            break;
         }
 
 
-    //update line position only if machine still on line
-    if (adc_result[center_line_idx] > LINE_SENSOR_THRESHOLD)
+    //compute line position arround strongest sensors
+    float k = 1.0/((LINE_SENSOR_COUNT/2)*LINE_SENSOR_STEP);
+
+   
+    if (left_valid)
     {
-        //compute line position arround strongest sensors
-        float k = 1.0/((LINE_SENSOR_COUNT/2)*LINE_SENSOR_STEP);
-
-        //parabolic integration, raw line position from -1, to 1
-        line_position = k*integrate(center_line_idx);
-
-        //compute to robot angle
-        angle           = fatan(line_position * (SENSORS_BRACE/2.0) / SENSORS_DISTANCE)/PI;
-
-        //from past angles compute angular rate
-        time_prev   = time_now;
-        time_now    = timer.get_time();
-
-        //1st order 1st difference
-        float dt    = (float)(time_now - time_prev)/1000.0;
-        float tmp   = first_difference_1(angle, angle_prev, dt);
-        
-
-        //low pass filter for angular rate, smooth the value
-        angular_rate    = (7.0*angular_rate + 1.0*tmp)/8.0;
+        left_position  = k*integrate(left_idx);
+        right_position = left_position;
 
         line_lost_type  = LINE_LOST_NONE;
     }
-    else
-    //line lost, fill value of lost type
+
+    if (right_valid)
     {
-        if (line_position < -0.75)
+        right_position  = k*integrate(right_idx);
+
+        line_lost_type  = LINE_LOST_NONE;
+    }
+
+    //compute to robot angle in radians
+    left_angle  = fatan(left_position * (SENSORS_BRACE/2.0) / SENSORS_DISTANCE);
+    right_angle = fatan(right_position * (SENSORS_BRACE/2.0) / SENSORS_DISTANCE);
+
+    //solve if line lost
+    if ((left_valid == false) && (right_valid == false))
+    {
+        if (left_position < -0.75)
             line_lost_type = LINE_LOST_RIGHT;
         else
-        if (line_position > 0.75)
+        if (left_position > 0.75)
             line_lost_type = LINE_LOST_LEFT;
         else
             line_lost_type = LINE_LOST_CENTER;
-
-        /*
-        //clear angular rate, to avoid robot kick when returns back on line
-        for (unsigned int i = 0; i < 4; i++)
-        {
-            angle_prev[i] = 0.0;
-        }
-        */
     }
+
 
     measurement_id++;
 }

@@ -8,6 +8,9 @@
         "complex": "cpp",
         "cstdlib": "cpp",
         "locale": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "*.h_": "c",
+        "limits": "cpp",
+        "algorithm": "cpp"
     }
 }
