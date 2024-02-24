@@ -82,7 +82,7 @@ void broken_line_search(PositionControlLQR &position_control, float d, float ang
 }
 
 
-void line_following(PositionControlLQR &position_control, float speed)
+void line_followingA(PositionControlLQR &position_control, float speed)
 {
   float line_position     = 0.0;
   float forward_position  = 0.0;
@@ -115,56 +115,44 @@ void line_following(PositionControlLQR &position_control, float speed)
   }
 } 
 
-#include "filter.h"
 
-void line_following_advanced(PositionControlLQR &position_control, float speed_min, float speed_max)
+
+void line_followingB(PositionControlLQR &position_control, float speed_min, float speed_max)
 {
   float line_position     = 0.0;
   float forward_position  = 0.0;
 
+  float speed_curr = 0.0;
 
-  float speed_w = 0.0;
-
-
-  FirFilter<float, 64> filter;
-
-  while (1)
+  float ramp_up   =  10.0;   
+  float ramp_down = -1.5*ramp_up;       
+   
+  while (1)    
   {
     if (line_sensor.line_lost_type == LINE_LOST_NONE)
     {
-      float distance = max(abs(line_sensor.left_position), abs(line_sensor.right_position));
+      line_position    = position_control.angle + line_sensor.left_angle; 
 
-      filter.step(distance); 
+      float quality = 1.0 - 1.0*max(abs(line_sensor.left_position), abs(line_sensor.right_position));
+      quality = clip(quality, 0.0, 1.0);  
 
-      float distance_fil = filter.max();
+      speed_curr = speed_curr + (1.0 - quality)*ramp_down + quality*ramp_up;
+
+      speed_curr = clip(speed_curr, speed_min, speed_max);
       
-      if (distance_fil < 0.2)   
-      {
-        speed_w+= 0.01;
-      } 
-      else     
-      {
-        speed_w-= 0.05;   
-      }
-       
-      speed_w = clip(speed_w, 0.0, 1.0); 
-
-      float speed = (1.0 - speed_w)*speed_min + speed_w*speed_max;
-
-      line_position    = position_control.angle + line_sensor.left_angle;
-      forward_position = position_control.distance + speed;
+      forward_position = position_control.distance + speed_curr;
     }
-    else if (line_sensor.line_lost_type == LINE_LOST_LEFT)
+    else if (line_sensor.line_lost_type == LINE_LOST_LEFT) 
     {
-      line_position    = position_control.angle + 90.0*PI/180.0;
-      forward_position = position_control.distance;
-      speed_w          = 0.0;
+      line_position    = position_control.angle + 80.0*PI/180.0;
+      forward_position = position_control.distance + speed_min/2;
+      speed_curr       = speed_min/2;
     }
-    else if (line_sensor.line_lost_type == LINE_LOST_RIGHT)
+    else if (line_sensor.line_lost_type == LINE_LOST_RIGHT)  
     {
-      line_position    = position_control.angle - 90.0*PI/180.0;
-      forward_position = position_control.distance;
-      speed_w          = 0.0;
+      line_position    = position_control.angle - 80.0*PI/180.0;
+      forward_position = position_control.distance + speed_min/2;
+      speed_curr       = speed_min/2;
     }
     else if (line_sensor.line_lost_type == LINE_LOST_CENTER)
     {
@@ -176,6 +164,12 @@ void line_following_advanced(PositionControlLQR &position_control, float speed_m
     timer.delay_ms(4);
   }
 } 
+
+
+
+
+
+
      
 
 
@@ -190,6 +184,8 @@ int main(void)
 
   terminal << "\n\n\n"; 
   terminal << "machine ready\n";
+
+
 
   Gpio<LED_1_GPIO, LED_1_PIN, GPIO_MODE_OUT> led_1;   //user led
   led_1 = 1;  
@@ -225,6 +221,17 @@ int main(void)
  
   led_1 = 1; 
 
+  while (key == 0)
+  {
+    led_1 = 1; 
+    timer.delay_ms(50);
+
+    led_1 = 0; 
+    timer.delay_ms(50);
+  } 
+
+  timer.delay_ms(1500);
+
   
   
 
@@ -253,10 +260,11 @@ int main(void)
   //gyro_turn_test(); 
 
 
-  
 
-  //line_following(position_control, 100.0);
-  line_following_advanced(position_control, 100.0, 500.0);
+
+  //line_followingA(position_control, 100.0);
+  line_followingB(position_control, 100.0, 200.0);
+
 
 
 

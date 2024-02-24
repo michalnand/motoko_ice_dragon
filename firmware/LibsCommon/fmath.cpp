@@ -233,6 +233,26 @@ float fatan2(float x, float y)
 }
 
 
+float exp(float x)
+{
+    
+    uint32_t factorial = 1;  
+    float pow       = 1.0;
+
+    float result    = 1.0;
+
+    for (unsigned int i = 0; i < 10; i++)
+    {
+        factorial*= (i+1);  
+        pow*= x;
+
+        result+= pow/factorial;
+    }
+
+    return result;
+}
+
+
 //compute difference from two consecutive values
 float first_difference_1(float x_now, float *x, float dt)
 {

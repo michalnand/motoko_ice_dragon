@@ -46,7 +46,7 @@ float fatan(float x);
 
 float fatan2(float x, float y);
 
-
+float exp(float x);
 
 //compute difference from two consecutive values
 float first_difference_1(float x_now, float *x, float dt);

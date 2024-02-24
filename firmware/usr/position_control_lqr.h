@@ -12,6 +12,9 @@ class PositionControlLQR
         //required position and angle
         void set(float req_distance, float req_angle);
 
+        void set_circle_motion(float radius, float angular_rate);
+
+
         void callback();
 
     public:
