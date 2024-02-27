@@ -252,6 +252,11 @@ float exp(float x)
     return result;
 }
 
+float sigmoid(float x)
+{
+    return 1.0/(1.0 + exp(-x));
+}
+
 
 //compute difference from two consecutive values
 float first_difference_1(float x_now, float *x, float dt)

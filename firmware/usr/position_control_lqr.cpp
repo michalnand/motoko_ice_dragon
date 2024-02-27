@@ -108,6 +108,7 @@ void PositionControlLQR::set(float req_distance, float req_angle)
 }
 
 
+/*
 void PositionControlLQR::set_circle_motion(float radius, float angular_rate)
 {
     //obtain current state  
@@ -118,11 +119,30 @@ void PositionControlLQR::set_circle_motion(float radius, float angular_rate)
     float dr = angular_rate*(2*radius - 0.5*wheel_brace);
 
     //TODO : constrains
-    left_position+=  dl;
+    left_position+=  dl; 
     right_position+= dr;
 
     this->req_distance = 0.25*(right_position + left_position)*wheel_diameter;
     this->req_angle    = 0.5*(right_position - left_position)*wheel_diameter / wheel_brace;
+}
+*/
+
+void PositionControlLQR::set_circle_motion(float radius, float speed)
+{
+    //obtain current state  
+    float left_position  = motor_control.get_left_position();
+    float right_position = motor_control.get_right_position();
+
+    float distance = 0.25*(right_position + left_position)*wheel_diameter;
+    float angle    = 0.5*(right_position - left_position)*wheel_diameter / wheel_brace;
+
+    //calculate motion change
+
+    float vc = speed; 
+    float va = speed/radius;
+
+    this->req_distance = distance + vc;
+    this->req_angle    = angle    + va;
 }
         
 void PositionControlLQR::callback()

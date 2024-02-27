@@ -82,90 +82,91 @@ void broken_line_search(PositionControlLQR &position_control, float d, float ang
 }
 
 
-void line_followingA(PositionControlLQR &position_control, float speed)
+
+void line_followingA(PositionControlLQR &position_control, float r_min, float r_max, float speed_min, float speed_max)
 {
-  float line_position     = 0.0;
-  float forward_position  = 0.0;
+  float radius  = 0.0;
+  float speed   = 0.0;
+  
+  float ramp = 1;  
 
   while (1)
   {
     if (line_sensor.line_lost_type == LINE_LOST_NONE)
+    { 
+      float pos = line_sensor.right_position; 
+      float w   = clip(1.2*abs(pos), 0.0, 1.0);      
+
+      radius = (1.0 - w)*r_max + w*r_min; 
+      radius = radius*sgn(pos);     
+
+      float new_speed = (1.0 - w)*speed_max + w*speed_min;
+      speed = clip(speed + ramp, speed_min, new_speed);
+
+      position_control.set_circle_motion(radius, speed);
+    } 
+    else if (line_sensor.line_lost_type == LINE_LOST_LEFT) 
     {
-      line_position    = position_control.angle + line_sensor.left_angle;
-      forward_position = position_control.distance + speed;
-    }
-    else if (line_sensor.line_lost_type == LINE_LOST_LEFT)
-    {
-      line_position    = position_control.angle + 90.0*PI/180.0;
-      forward_position = position_control.distance;
+      position_control.set(position_control.distance, position_control.angle + 90.0*PI/180.0);
+      speed = 0.0;
     }
     else if (line_sensor.line_lost_type == LINE_LOST_RIGHT)
     {
-      line_position    = position_control.angle - 90.0*PI/180.0;
-      forward_position = position_control.distance;
+      position_control.set(position_control.distance, position_control.angle - 90.0*PI/180.0);
+      speed = 0.0;
     }
-    else if (line_sensor.line_lost_type == LINE_LOST_CENTER)
+    else if (line_sensor.line_lost_type == LINE_LOST_CENTER) 
     {
       return; 
     } 
 
-
-    position_control.set(forward_position, line_position);
     timer.delay_ms(4);
   }
 } 
 
 
 
-void line_followingB(PositionControlLQR &position_control, float speed_min, float speed_max)
+void line_followingB(PositionControlLQR &position_control, float r_min, float r_max, float speed_min, float speed_max)
 {
-  float line_position     = 0.0;
-  float forward_position  = 0.0;
+  float radius  = 0.0;
+  float speed   = 0.0;
+  
+  float ramp = 4;    
 
-  float speed_curr = 0.0;
-
-  float ramp_up   =  10.0;   
-  float ramp_down = -1.5*ramp_up;       
-   
-  while (1)    
+  while (1)
   {
     if (line_sensor.line_lost_type == LINE_LOST_NONE)
-    {
-      line_position    = position_control.angle + line_sensor.left_angle; 
+    { 
+      float pos = line_sensor.left_position; 
+      float wr  = clip(1.0*abs(pos), 0.0, 1.0);      
+      float ws  = clip(1.5*abs(pos), 0.0, 1.0);      
 
-      float quality = 1.0 - 1.0*max(abs(line_sensor.left_position), abs(line_sensor.right_position));
-      quality = clip(quality, 0.0, 1.0);  
+      radius = (1.0 - wr)*r_max + wr*r_min;   
+      radius = radius*sgn(pos);        
 
-      speed_curr = speed_curr + (1.0 - quality)*ramp_down + quality*ramp_up;
+      float new_speed = (1.0 - ws)*speed_max + ws*speed_min;
+      speed = clip(speed + ramp, speed_min, new_speed);
 
-      speed_curr = clip(speed_curr, speed_min, speed_max);
-      
-      forward_position = position_control.distance + speed_curr;
-    }
+    } 
     else if (line_sensor.line_lost_type == LINE_LOST_LEFT) 
     {
-      line_position    = position_control.angle + 80.0*PI/180.0;
-      forward_position = position_control.distance + speed_min/2;
-      speed_curr       = speed_min/2;
+      radius = r_min;  
+      speed  = 1.5*speed_min; 
     }
-    else if (line_sensor.line_lost_type == LINE_LOST_RIGHT)  
+    else if (line_sensor.line_lost_type == LINE_LOST_RIGHT)
     {
-      line_position    = position_control.angle - 80.0*PI/180.0;
-      forward_position = position_control.distance + speed_min/2;
-      speed_curr       = speed_min/2;
+      radius = -r_min;
+      speed  = 1.5*speed_min;
     }
-    else if (line_sensor.line_lost_type == LINE_LOST_CENTER)
+    else if (line_sensor.line_lost_type == LINE_LOST_CENTER) 
     {
       return; 
     } 
 
-
-    position_control.set(forward_position, line_position);
+    position_control.set_circle_motion(radius, speed);
     timer.delay_ms(4);
   }
 } 
-
-
 
 
 
@@ -230,6 +231,8 @@ int main(void)
     timer.delay_ms(50);
   } 
 
+  led_1 = 1; 
+
   timer.delay_ms(1500);
 
   
@@ -262,11 +265,16 @@ int main(void)
 
 
 
-  //line_followingA(position_control, 100.0);
-  line_followingB(position_control, 100.0, 200.0);
+  //line_followingA(position_control, 80.0, 1000.0, 50.0, 300.0);
+  line_followingB(position_control, 80.0, 1000.0, 80.0, 300.0);
 
-
-
+  /* 
+  while (1)
+  {
+    position_control.set_circle_motion(80.0, 100.0);
+    timer.delay_ms(4); 
+  }
+  */
 
   while (1) 
   {
