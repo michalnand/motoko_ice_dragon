@@ -11,6 +11,7 @@
         "string": "cpp",
         "*.h_": "c",
         "limits": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "__node_handle": "cpp"
     }
 }

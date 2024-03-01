@@ -98,7 +98,7 @@ void ADC_driver::init()
 
     ADC_CommonInitTypeDef ADC_CommonInitStruct;
     ADC_CommonInitStruct.ADC_Mode               =   ADC_Mode_Independent;
-    ADC_CommonInitStruct.ADC_Prescaler          =   ADC_Prescaler_Div8; 
+    ADC_CommonInitStruct.ADC_Prescaler          =   ADC_Prescaler_Div4; 
     ADC_CommonInitStruct.ADC_DMAAccessMode      =   ADC_DMAAccessMode_Disabled;
     ADC_CommonInitStruct.ADC_TwoSamplingDelay   =   ADC_TwoSamplingDelay_5Cycles;
 
@@ -114,9 +114,10 @@ void ADC_driver::init()
     ADC_InitStruct.ADC_DataAlign            =   ADC_DataAlign_Right;
     ADC_InitStruct.ADC_NbrOfConversion      =   1;
 
-    ADC_Init(ADC1, &ADC_InitStruct);
+    ADC_Init(ADC1, &ADC_InitStruct); 
 
-    ADC_RegularChannelConfig(ADC1, adc_channels[0], 1, ADC_SampleTime_112Cycles);
+    ADC_RegularChannelConfig(ADC1, adc_channels[0], 1, ADC_SampleTime_480Cycles);
+
 
     ADC_ITConfig(ADC1, ADC_IT_EOC, ENABLE);
 

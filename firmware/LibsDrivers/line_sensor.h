@@ -5,7 +5,6 @@
 #include <array.h>
 
 
-#define LINE_SENSOR_DT                  ((uint32_t)5)
 #define LINE_SENSOR_STEP                ((int32_t)128)
 
 //sensitivity

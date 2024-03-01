@@ -36,14 +36,14 @@ void LineSensor::init()
         adc_result[i] = 0;
 
 
-    weights[0] = -4*LINE_SENSOR_STEP;
-    weights[1] = -3*LINE_SENSOR_STEP; 
-    weights[2] = -2*LINE_SENSOR_STEP;
-    weights[3] = -1*LINE_SENSOR_STEP;
-    weights[4] =  1*LINE_SENSOR_STEP;
-    weights[5] =  2*LINE_SENSOR_STEP;
-    weights[6] =  3*LINE_SENSOR_STEP;
-    weights[7] =  4*LINE_SENSOR_STEP;
+    weights[0] =  4*LINE_SENSOR_STEP;
+    weights[1] =  3*LINE_SENSOR_STEP; 
+    weights[2] =  2*LINE_SENSOR_STEP;
+    weights[3] =  1*LINE_SENSOR_STEP;
+    weights[4] = -1*LINE_SENSOR_STEP;
+    weights[5] = -2*LINE_SENSOR_STEP;
+    weights[6] = -3*LINE_SENSOR_STEP;
+    weights[7] = -4*LINE_SENSOR_STEP;
 
 
     line_lost_type = LINE_LOST_CENTER;

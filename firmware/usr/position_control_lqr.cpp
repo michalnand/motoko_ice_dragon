@@ -89,9 +89,11 @@ void PositionControlLQR::init()
     this->angle_prev     = 0.0;
     this->angle          = 0.0;
 
-   
+    this->line_angle_prev = 0.0;
+    this->line_angle      = 0.0;
 
-    steps = 0;
+    this->lf_mode = false;
+    this->steps = 0;
    
     //init timer 5 interrupt for callback calling, 250Hz
     
@@ -125,43 +127,55 @@ void PositionControlLQR::set(float req_distance, float req_angle)
     this->req_distance  = req_distance;
     this->req_angle     = req_angle;
 }
-
-
-/*
-void PositionControlLQR::set_circle_motion(float radius, float angular_rate)
-{
-    //obtain current state  
-    float left_position  = motor_control.get_left_position();
-    float right_position = motor_control.get_right_position();
-
-    float dl = angular_rate*(2*radius + 0.5*wheel_brace);
-    float dr = angular_rate*(2*radius - 0.5*wheel_brace);
-
-    //TODO : constrains
-    left_position+=  dl; 
-    right_position+= dr;
-
-    this->req_distance = 0.25*(right_position + left_position)*wheel_diameter;
-    this->req_angle    = 0.5*(right_position - left_position)*wheel_diameter / wheel_brace;
-}
-*/
-
+ 
 void PositionControlLQR::set_circle_motion(float radius, float speed)
 {
     //obtain current state  
-    float left_position  = motor_control.get_left_position();
-    float right_position = motor_control.get_right_position();
-
-    float distance = 0.25*(right_position + left_position)*wheel_diameter;
-    float angle    = 0.5*(right_position - left_position)*wheel_diameter / wheel_brace;
+    float distance = this->distance;  
+    float angle    = this->angle;
 
     //calculate motion change
 
-    float vc = speed; 
+    float vc = speed;  
     float va = speed/radius;
 
     this->req_distance = distance + vc;
     this->req_angle    = angle    + va;
+}
+
+
+void PositionControlLQR::enable_lf()
+{
+  if (this->lf_mode == false)
+  {
+    this->lf_mode = true;
+
+    uint32_t steps_old = this->steps;
+    
+    while (steps_old == this->steps)
+    {
+      __asm("nop");
+    }
+
+    this->angle_prev = this->angle;
+  }
+}
+
+void PositionControlLQR::disable_lf()
+{
+  if (this->lf_mode == true)
+  {
+    this->lf_mode = false;
+
+    uint32_t steps_old = this->steps;
+    
+    while (steps_old == this->steps)
+    {
+      __asm("nop");
+    }
+
+    this->angle_prev = this->angle;
+  }
 }
         
 void PositionControlLQR::callback()
@@ -170,7 +184,7 @@ void PositionControlLQR::callback()
     lqr.xr[0] = this->distance_shaper.step(this->req_distance);
     lqr.xr[1] = this->angle_shaper.step(this->req_angle);
     
-    //fill current state  
+    //fill current state 
     float left_position  = motor_control.get_left_position();
     float right_position = motor_control.get_right_position();
 
@@ -178,13 +192,30 @@ void PositionControlLQR::callback()
     this->distance = 0.25*(right_position + left_position)*wheel_diameter;
 
     this->angle_prev = this->angle;
-    this->angle    = 0.5*(right_position - left_position)*wheel_diameter / wheel_brace;
+    this->angle      = 0.5*(right_position - left_position)*wheel_diameter / wheel_brace;
 
+    this->line_angle_prev = this->line_angle;
+    this->line_angle  = line_sensor.left_angle;
+
+    //in line following mode, read angular rate from line sensor
+    if (this->lf_mode == true)
+    {
+      float angular_rate = this->line_angle  - this->line_angle_prev;
+
+      lqr.x[0]  = this->distance; 
+      lqr.x[1]  = this->angle;
+      lqr.x[2]  = this->distance - this->distance_prev;  
+      lqr.x[3]  = angular_rate; 
+    } 
+    else
+    {
+      lqr.x[0]  = this->distance; 
+      lqr.x[1]  = this->angle;
+      lqr.x[2]  = this->distance - this->distance_prev;  
+      lqr.x[3]  = this->angle    - this->angle_prev;  
+    }
     
-    lqr.x[0]  = this->distance; 
-    lqr.x[1]  = this->angle;
-    lqr.x[2]  = this->distance - this->distance_prev;  
-    lqr.x[3]  = this->angle    - this->angle_prev;  
+   
  
     
     //compute controller output 
@@ -199,4 +230,3 @@ void PositionControlLQR::callback()
 
     steps++;
 }
-

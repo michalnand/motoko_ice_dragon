@@ -3,7 +3,7 @@
 Timer                       timer;
 Terminal                    terminal;
 ADC_driver                  adc;
-TI2C<TGPIOD, 1, 2, 5>      i2c;
+TI2C<TGPIOD, 1, 2, 5>       i2c;
  
 IRSensor     ir_sensor;
 LineSensor   line_sensor;

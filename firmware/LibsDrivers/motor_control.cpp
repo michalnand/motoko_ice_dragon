@@ -126,7 +126,7 @@ void MotorControl::callback_torque()
     this->right_torque = clamp(right_torque, -MOTOR_CONTROL_MAX, MOTOR_CONTROL_MAX);
 
     int32_t left_u; 
-    int32_t left_phase; 
+    int32_t left_phase;  
     
     if (left_torque < 0) 
     {
@@ -153,7 +153,7 @@ void MotorControl::callback_torque()
     {
         right_u     = right_torque;
         right_phase = -SINE_TABLE_SIZE/4; 
-    }
+    } 
 
     set_torque_from_rotation(left_u,   left_phase,  left_encoder.angle,   0);
     set_torque_from_rotation(right_u,  right_phase, right_encoder.angle,  1);

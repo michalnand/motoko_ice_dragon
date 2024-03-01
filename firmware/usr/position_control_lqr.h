@@ -5,7 +5,7 @@
 #include <lqr.h> 
 
 class PositionControlLQR
-{   
+{       
     public:
         void init();
         
@@ -14,8 +14,9 @@ class PositionControlLQR
 
         void set_circle_motion(float radius, float speed);
 
-
-
+        void enable_lf();
+        void disable_lf();
+        
         void callback();
 
     public:
@@ -31,12 +32,16 @@ class PositionControlLQR
 
         float req_distance, req_angle;
 
+        bool lf_mode;
+
     public:
         float distance_prev; 
         float distance; 
         float angle_prev;
         float angle;
-        
+
+        float line_angle_prev;
+        float line_angle; 
 
         uint32_t steps;
 };

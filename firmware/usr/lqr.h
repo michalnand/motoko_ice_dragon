@@ -29,7 +29,7 @@ class LQR
             this->antiwindup = antiwindup;
         }
 
-        void step() 
+        void step(bool is_saturated = false) 
         { 
             // integral action  
             auto error = this->xr - this->x;
@@ -40,9 +40,24 @@ class LQR
 
             //antiwindup with backcalculating integration
             this->u = u_new.clip(-antiwindup, antiwindup);
-            this->integral_action = integral_action_new - (u_new - this->u);
+
+            if (is_saturated == false)
+            {
+                this->integral_action = integral_action_new - (u_new - this->u);
+            }
         } 
- 
+
+        void reset_integral_action(int idx = -1)
+        {
+            if (idx >= 0)
+            {
+                integral_action[idx] = 0.0;
+            }
+            else
+            {
+                integral_action.init(0.0);
+            }
+        }
 
 
     public:

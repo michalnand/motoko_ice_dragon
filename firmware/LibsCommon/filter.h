@@ -7,12 +7,12 @@ template<class DType, int size>
 class FirFilter
 {
     public:
-        FirFilter()
+        FirFilter(DType value = 0)
         {
             ptr = 0;
             for (unsigned int i = 0; i < size; i++)
             {
-                this->x[i] = 0;
+                this->x[i] = value;
             }
 
             result = 0;
@@ -47,6 +47,9 @@ class FirFilter
         DType x[size];
         DType result;
 };
+
+
+
 
 
 

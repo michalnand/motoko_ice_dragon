@@ -9,6 +9,7 @@
 #include <position_control_lqg.h>
 
 #include <fmath.h>
+#include <filter.h>
  
 #define LED_1_GPIO        TGPIOE
 #define LED_1_PIN         3
@@ -79,50 +80,9 @@ void broken_line_search(PositionControlLQR &position_control, float d, float ang
       __asm("nop");
     }
   }
-}
-
-
-void line_followingA(PositionControlLQR &position_control, float r_min, float r_max, float speed_min, float speed_max)
-{
-  float radius  = 0.0;
-  float speed   = 0.0;
-  
-  float ramp = 4;    
-
-  while (1)
-  {
-    if (line_sensor.line_lost_type == LINE_LOST_NONE)
-    { 
-      float pos = line_sensor.left_position; 
-      float wr  = clip(1.0*abs(pos), 0.0, 1.0);      
-      float ws  = clip(1.5*abs(pos), 0.0, 1.0);      
-
-      radius = (1.0 - wr)*r_max + wr*r_min;   
-      radius = radius*sgn(pos);        
-
-      float new_speed = (1.0 - ws)*speed_max + ws*speed_min;
-      speed = clip(speed + ramp, speed_min, new_speed);
-
-    } 
-    else if (line_sensor.line_lost_type == LINE_LOST_LEFT) 
-    {
-      radius = r_min;  
-      speed  = 1.5*speed_min; 
-    }
-    else if (line_sensor.line_lost_type == LINE_LOST_RIGHT)
-    {
-      radius = -r_min;
-      speed  = 1.5*speed_min;
-    }
-    else if (line_sensor.line_lost_type == LINE_LOST_CENTER) 
-    {
-      return; 
-    } 
-
-    position_control.set_circle_motion(radius, speed);
-    timer.delay_ms(4);
-  }
 } 
+
+
 
 
 
@@ -138,7 +98,7 @@ float estimate_turn_radius(float sensor_reading, float eps = 0.001)
 
 
 
-void line_followingB(PositionControlLQR &position_control, float r_min, float r_max, float speed_min, float speed_max)
+void line_followingA(PositionControlLQR &position_control, float r_min, float r_max, float speed_min, float speed_max)
 {
   float radius  = 0.0;
   float speed   = 0.0;
@@ -157,7 +117,7 @@ void line_followingB(PositionControlLQR &position_control, float r_min, float r_
 
       float new_speed = (1.0 - ws)*speed_max + ws*speed_min;
       speed = clip(speed + ramp, speed_min, new_speed);
-
+    
     } 
     else if (line_sensor.line_lost_type == LINE_LOST_LEFT) 
     {
@@ -181,17 +141,63 @@ void line_followingB(PositionControlLQR &position_control, float r_min, float r_
 
 
 
-
      
 
 
+
+void line_followingB(PositionControlLQR &position_control, float r_min, float r_max, float speed_min, float speed_max)
+{
+  Gpio<LED_1_GPIO, LED_1_PIN, GPIO_MODE_OUT> led_1;   //user led
     
+
+  uint32_t steps = 0;
+
+  FirFilter<float, 64> quality_filter(1.0);
+
+  while (1)       
+  {
+    position_control.enable_lf();
+    //position_control.disable_lf();
+
+    float position = line_sensor.left_position; 
+
+    quality_filter.step(abs(position));
+
+    float radius  = estimate_turn_radius(position, 1.0/r_max);
+    radius  = -sgn(position)*clip(radius, r_min, r_max);      
+
+    float q = 1.0 - 1.5*quality_filter.max(); 
+    q = clip(q, 0.0, 1.0);         
+
+    //if quality is high (close to 1), increase radius - allows faster speed
+    float kr = q*6.0 + (1.0 - q)*2.0;  
+
+    //if quality is high (close to 1), use higher speed
+    float speed = q*speed_max + (1.0 - q)*speed_min;  
+
+    position_control.set_circle_motion(kr*radius, speed);
+   
+    if (line_sensor.line_lost_type == LINE_LOST_CENTER)   
+    {
+      break; 
+    } 
+
+    timer.delay_ms(4);
+
+    steps++;
+  }
+
+  led_1 = 0;
+  position_control.disable_lf();
+  position_control.set(position_control.distance, position_control.angle); 
+} 
+
 int main(void)      
 { 
   drivers_init();
   
   PositionControlLQR position_control;
-  position_control.init();
+  position_control.init(); 
   position_control.set(0.0, 0.0);
 
   terminal << "\n\n\n"; 
@@ -247,7 +253,7 @@ int main(void)
   timer.delay_ms(1500);
 
   
-  
+  //mcu_usage();
 
   //timer_test();
 
@@ -274,14 +280,18 @@ int main(void)
   //gyro_turn_test(); 
 
 
+  //angle_test(position_control);
 
 
   
   //line_followingA(position_control, 80.0, 1000.0, 80.0, 300.0);
-  line_followingB(position_control, 80.0, 1000.0, 80.0, 300.0);
+  
+  line_followingB(position_control, 80.0, 10000.0, 150.0, 350.0);
 
-  /* 
-  while (1)
+  
+ 
+  /*  
+  while (1) 
   {
     position_control.set_circle_motion(80.0, 100.0);
     timer.delay_ms(4); 
