@@ -182,7 +182,8 @@ void PositionControlLQR::callback()
 {
     //fill required values
     lqr.xr[0] = this->distance_shaper.step(this->req_distance);
-    lqr.xr[1] = this->angle_shaper.step(this->req_angle);
+    //lqr.xr[1] = this->angle_shaper.step(this->req_angle);
+    lqr.xr[1] = this->req_angle; 
     
     //fill current state 
     float left_position  = motor_control.get_left_position();

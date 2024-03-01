@@ -166,8 +166,8 @@ void line_followingB(PositionControlLQR &position_control, float r_min, float r_
     float radius  = estimate_turn_radius(position, 1.0/r_max);
     radius  = -sgn(position)*clip(radius, r_min, r_max);      
 
-    float q = 1.0 - 1.5*quality_filter.max(); 
-    q = clip(q, 0.0, 1.0);         
+    float q = 1.0 - 1.0*quality_filter.max(); 
+    q = clip(q, 0.0, 1.0);           
 
     //if quality is high (close to 1), increase radius - allows faster speed
     float kr = q*6.0 + (1.0 - q)*2.0;  
