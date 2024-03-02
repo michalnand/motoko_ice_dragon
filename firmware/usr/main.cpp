@@ -152,12 +152,18 @@ void line_followingB(PositionControlLQR &position_control, float r_min, float r_
 
   uint32_t steps = 0;
 
+  float speed_min_curr = 0.0;
+
   FirFilter<float, 64> quality_filter(1.0);
 
   while (1)       
   {
+    
+
     position_control.enable_lf();
     //position_control.disable_lf();
+
+    speed_min_curr = clip(speed_min_curr + speed_min/100.0, 0.0, speed_min);
 
     float position = line_sensor.left_position; 
 
@@ -166,21 +172,22 @@ void line_followingB(PositionControlLQR &position_control, float r_min, float r_
     float radius  = estimate_turn_radius(position, 1.0/r_max);
     radius  = -sgn(position)*clip(radius, r_min, r_max);      
 
-    float q = 1.0 - 1.0*quality_filter.max(); 
-    q = clip(q, 0.0, 1.0);           
+    float q = 1.0 - 1.5*quality_filter.max(); 
+
+    q = clip(q, 0.0, 1.0);         
 
     //if quality is high (close to 1), increase radius - allows faster speed
     float kr = q*6.0 + (1.0 - q)*2.0;  
 
     //if quality is high (close to 1), use higher speed
-    float speed = q*speed_max + (1.0 - q)*speed_min;  
+    float speed = q*speed_max + (1.0 - q)*speed_min_curr;  
 
     position_control.set_circle_motion(kr*radius, speed);
    
     if (line_sensor.line_lost_type == LINE_LOST_CENTER)   
     {
       break; 
-    } 
+    }  
 
     timer.delay_ms(4);
 
