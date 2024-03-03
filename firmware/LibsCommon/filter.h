@@ -9,6 +9,11 @@ class FirFilter
     public:
         FirFilter(DType value = 0)
         {
+            this->init(value);
+        }
+
+        void init(DType value)
+        {
             ptr = 0;
             for (unsigned int i = 0; i < size; i++)
             {
