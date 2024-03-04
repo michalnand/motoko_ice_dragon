@@ -1,11 +1,10 @@
 #include "line_following.h"
 #include <fmath.h>
+#include <position_control_lqr.h>
 
 
-LineFollowing::LineFollowing(PositionControlLQR &position_control)
+LineFollowing::LineFollowing()
 {
-    this->position_control = &position_control;
-
     this->r_min = 80.0;
     this->r_max = 10000.0;
 
@@ -16,8 +15,6 @@ LineFollowing::LineFollowing(PositionControlLQR &position_control)
     this->q_penalty = 1.5;
     this->qr_max    = 6.0;
     this->qr_min    = 2.0;
-
-    quality_filter.init(1.0);
 }
 
 
@@ -25,11 +22,13 @@ int LineFollowing::main()
 {
     float speed_min_curr = 0.0;
 
+    quality_filter.init(1.0);
+
     while (1)
     {
-        position_control->enable_lf();
+        position_control.enable_lf();
 
-        speed_min_curr = clip(speed_min_curr + speed_min/100.0, 0.0, speed_min);
+        speed_min_curr = clip(speed_min_curr + speed_min/10.0, 0.0, speed_min);
 
         float position = line_sensor.left_position; 
 
@@ -48,59 +47,71 @@ int LineFollowing::main()
         //if quality is high (close to 1), use higher speed
         float speed = q*speed_max + (1.0 - q)*speed_min_curr;  
 
-        position_control->set_circle_motion(kr*radius, speed);
+        position_control.set_circle_motion(kr*radius, speed);
 
         timer.delay_ms(4);
 
-        /*
-        if (line_sensor.line_lost_type != LINE_LOST_NONE)   
-        {
-            break; 
-        }  
-        */  
+      
 
-        if (line_sensor.line_lost_type == LINE_LOST_CENTER)   
+        uint32_t line_lost_type = line_sensor.line_lost_type;
+
+        if (line_lost_type != LINE_LOST_NONE)   
         {
-            break; 
-        }  
+          position_control.disable_lf();
+          this->line_search(line_lost_type);
+        } 
     } 
-
-    position_control->disable_lf();
-    position_control->set(position_control->distance, position_control->angle); 
 
     return 0;
 }
 
-void LineFollowing::line_search()
+void LineFollowing::line_search(uint32_t line_lost_type)
 {
     //TODO
 
-    float d = 0.0;
-    float angle = 0.0;
+    float d     = 100.0;
+    float angle = 90.0;
 
-    float d_curr = position_control->distance;
-    float a_curr = position_control->angle;
+    float d_curr = position_control.distance;
+    float a_curr = position_control.angle;
 
     float points_distance[] = {d,     -d,     d,      -d,     d};
     float points_angle[]    = {angle, -angle, -angle, angle,  0.0}; 
 
+    uint32_t ptr = 0;
 
-    for (unsigned int n = 0; n < 5; n++)
+    if (line_lost_type == LINE_LOST_CENTER)
     {
-        d_curr+= points_distance[n];
-        a_curr+= points_angle[n]*PI/180.0;
+      ptr = 4;
+    }
+    else if (line_lost_type == LINE_LOST_LEFT)
+    {
+      ptr = 0;
+    }
+    else if (line_lost_type == LINE_LOST_RIGHT)
+    {
+      ptr = 2;
+    }
 
-        position_control->set(d_curr, a_curr);
+    while (1)
+    {
+        d_curr+= points_distance[ptr];
+        a_curr+= points_angle[ptr]*PI/180.0;
 
-        while (abs(d_curr - position_control->distance) > 5.0)
+        position_control.set(d_curr, a_curr);
+
+        //wait until move done or robot on line
+        while (position_control.on_target() != true && line_sensor.line_lost_type != LINE_LOST_NONE)
         {
-        __asm("nop");
+          __asm("nop");
         }
 
-        while (abs(a_curr - position_control->angle) > 5.0*PI/180.0)
+        if (line_sensor.line_lost_type == LINE_LOST_NONE)
         {
-        __asm("nop");
+          return;
         }
+
+        ptr = (ptr + 1)%5;
     }
 }
 

@@ -2,7 +2,7 @@
 #define _SHAPER_S_H_
 
 
-// s surve signal shaper
+// s curve signal shaper
 class ShaperS
 {
     public:

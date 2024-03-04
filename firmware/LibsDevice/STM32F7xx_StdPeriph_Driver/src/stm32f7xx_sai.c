@@ -350,6 +350,8 @@ void SAI_Cmd(SAI_Block_TypeDef* SAI_Block_x, FunctionalState NewState)
   */
 void SAI_MonoModeConfig(SAI_Block_TypeDef* SAI_Block_x, uint32_t SAI_Mono_StreoMode)
 {
+  (void)SAI_Mono_StreoMode;
+
   /* Check the parameters */
   assert_param(IS_SAI_BLOCK_PERIPH(SAI_Block_x));
   assert_param(IS_SAI_BLOCK_MONO_STREO_MODE(SAI_MonoMode));

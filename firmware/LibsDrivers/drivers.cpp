@@ -9,7 +9,6 @@ IRSensor     ir_sensor;
 LineSensor   line_sensor;
 Gyro         gyro_sensor;   
 
- 
 MotorControl motor_control;
  
 void drivers_init()

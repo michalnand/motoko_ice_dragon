@@ -56,10 +56,10 @@ int main(void)
 { 
   drivers_init();
   
-  PositionControlLQR position_control;
+  //main LQR controller init
   position_control.init(); 
 
-  LineFollowing line_following(position_control);
+  LineFollowing line_following;
 
   terminal << "\n\n\n"; 
   terminal << "machine ready\n";

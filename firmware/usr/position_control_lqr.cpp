@@ -3,6 +3,7 @@
 #include <fmath.h>
 
 
+PositionControlLQR position_control;
 
 PositionControlLQR *g_position_control_lqr;
 
@@ -21,7 +22,7 @@ void TIM5_IRQHandler(void)
 #ifdef __cplusplus
 }
 #endif
-
+  
 
 void PositionControlLQR::init()
 {
@@ -48,32 +49,32 @@ void PositionControlLQR::init()
     /*
     // q = 10**-7, 10**-3
     float k[] = {
-		0.0052479296, -0.33005857, 0.011264713, 0.08377834, 
-		0.0052479296, 0.33005857, 0.011264713, 0.08377834 };
+      0.0052479296, -0.33005857, 0.011264713, 0.08377834, 
+      0.0052479296, 0.33005857, 0.011264713, 0.08377834 };
 
     float ki[] = {
-		0.00023484259, -0.024085023, 0.0, 0.0, 
-		0.00023484259, 0.024085023, 0.0, 0.0 };
+      0.00023484259, -0.024085023, 0.0, 0.0, 
+      0.00023484259, 0.024085023, 0.0, 0.0 };
     */
 
     // q = 10**-7, 0.5*10**-4 
     float k[] = {
-		0.005248046, -0.27352497, 0.011264535, 0.08430575, 
-		0.005248046, 0.27352497, 0.011264535, 0.08430575 };
+      0.005248046, -0.27352497, 0.011264535, 0.08430575, 
+      0.005248046, 0.27352497, 0.011264535, 0.08430575 };
 
     float ki[] = {
-		0.00023489761, -0.016833698, 0.0, 0.0, 
-		0.00023489761, 0.016833698, 0.0, 0.0 };
+		  0.00023489761, -0.016833698, 0.0, 0.0, 
+		  0.00023489761, 0.016833698, 0.0, 0.0 };
     
     /*
     // q = 10**-7, 10**-4
     float k[] = {
-		0.0052446346, -0.17818446, 0.011256655, -0.084595665, 
-		0.0052446346, 0.17818446, 0.011256655,   0.084595665 };
+      0.0052446346, -0.17818446, 0.011256655, -0.084595665, 
+      0.0052446346, 0.17818446, 0.011256655,   0.084595665 };
 
     float ki[] = {
-		0.000234812, -0.007370741, 0.0, 0.0, 
-		0.000234812, 0.007370741, 0.0, 0.0 };
+      0.000234812, -0.007370741, 0.0, 0.0, 
+      0.000234812, 0.007370741, 0.0, 0.0 };
     */
 
     //controller init
@@ -143,6 +144,21 @@ void PositionControlLQR::set_circle_motion(float radius, float speed)
     this->req_angle    = angle    + va;
 }
 
+
+bool PositionControlLQR::on_target(float distance_threshold, float angle_threshold)
+{
+  if (abs(this->req_distance - this->distance) > distance_threshold)
+  {
+    return false;
+  }
+
+  if (abs(this->req_angle - this->angle) > angle_threshold)
+  {
+    return false;
+  }
+
+  return true;
+}
 
 void PositionControlLQR::enable_lf()
 {
@@ -216,8 +232,6 @@ void PositionControlLQR::callback()
       lqr.x[3]  = this->angle    - this->angle_prev;  
     }
     
-   
- 
     
     //compute controller output 
     lqr.step();

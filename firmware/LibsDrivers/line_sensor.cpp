@@ -117,7 +117,7 @@ void LineSensor::process()
     //find most left sensor on line
     unsigned int left_idx = 0;
     bool left_valid = false;
-    for (int i = 0; i < adc_result.size(); i++)
+    for (int i = 0; i < (int)adc_result.size(); i++)
         if (adc_result[i] > LINE_SENSOR_THRESHOLD)
         {
             left_idx = i;

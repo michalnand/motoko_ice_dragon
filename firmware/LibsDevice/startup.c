@@ -14,13 +14,12 @@ extern void (*__init_array_end)();
 extern int main(void);
 
 // Default interrupt handler
-void __attribute__((interrupt("IRQ"))) Default_Handler()
+void __attribute__((interrupt("IRQ"))) Default_Handler(void)
 {
-    while (1)
-    {
-
-    }
+  
 }
+
+
 
 void Reset_Handler()                    __attribute__((naked, aligned(2)));
 /* Weak definitions of handlers point to Default_Handler if not implemented */
