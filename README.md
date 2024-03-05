@@ -34,6 +34,8 @@
 - to remove distrubance, integral action term is included
 ![lqr_structure](doc/diagrams/control-lqri_synth.png)
 
+![lqr_structure](doc/diagrams/control-lqg_discrete.png)
+
 
 ## motors velocity control
 step response 1st order identification
