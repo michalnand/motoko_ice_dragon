@@ -64,7 +64,7 @@ int main(void)
   terminal << "\n\n\n"; 
   terminal << "machine ready\n";
 
-
+  
 
   Gpio<LED_1_GPIO, LED_1_PIN, GPIO_MODE_OUT> led_1;   //user led
   led_1 = 1;  

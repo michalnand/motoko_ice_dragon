@@ -8,7 +8,7 @@
 
 class LineFollowing
 {
-    public:
+    public: 
         LineFollowing();
         
         int main();

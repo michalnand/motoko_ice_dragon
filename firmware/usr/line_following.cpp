@@ -2,7 +2,7 @@
 #include <fmath.h>
 #include <position_control_lqr.h>
 
-
+  
 LineFollowing::LineFollowing()
 {
     this->r_min = 80.0;
