@@ -41,9 +41,9 @@ class LQG
             // integral action  
             auto error = this->yr - this->y;
             auto integral_action_new = this->integral_action + this->ki*error;
-
+            
             //LQR controll law 
-            auto u_new = this->k*this->x_hat*(-1.0) ; //+ integral_action_new;
+            auto u_new = this->k*this->x_hat*(-1.0) + integral_action_new;
 
             //antiwindup with conditional integration
             this->u = u_new.clip(-antiwindup, antiwindup);
@@ -54,9 +54,9 @@ class LQG
             // the full state x_hat can be reconstructed
             auto prediction_error = this->y - this->c*this->x_hat;
             this->x_hat = this->a*this->x_hat + this->b*this->u + this->f*prediction_error;
-        }
+        }   
 
-
+    
 
 
     public:

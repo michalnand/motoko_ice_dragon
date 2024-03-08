@@ -1,6 +1,8 @@
 #include "line_following.h"
 #include <fmath.h>
-#include <position_control_lqr.h>
+
+//#include <position_control_lqr.h>
+#include <position_control_lqg.h>
 
   
 LineFollowing::LineFollowing()
@@ -9,12 +11,36 @@ LineFollowing::LineFollowing()
     this->r_max = 10000.0;
 
     this->speed_min = 150.0;
-    this->speed_max = 350.0;
+    this->speed_max = 300.0; //150.0, 250.0, 300.0, 400
 
 
-    this->q_penalty = 1.5;
-    this->qr_max    = 6.0;
-    this->qr_min    = 2.0;
+    this->q_penalty = 1.0;   
+    this->qr_max    = 8.0;    
+    this->qr_min    = 2.0;  
+
+    this->left_turn_distance  = -100;
+    this->right_turn_distance = 100;
+}
+
+
+bool LineFollowing::double_line_detect(float max_distance)
+{
+  left_positon_filter.step(line_sensor.right_position);
+  right_positon_filter.step(line_sensor.right_position);
+
+  float left_min = left_positon_filter.min();
+  float right_max = right_positon_filter.max();
+
+  float dif = right_max - left_min;
+
+  if (dif > max_distance)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 
@@ -28,9 +54,14 @@ int LineFollowing::main()
     {
         position_control.enable_lf();
 
+        float position = line_sensor.right_position; 
+        if (double_line_detect(1.5))
+        {
+          position = right_positon_filter.max();
+        }
+
         speed_min_curr = clip(speed_min_curr + speed_min/10.0, 0.0, speed_min);
 
-        float position = line_sensor.left_position; 
 
         quality_filter.step(abs(position));
 
@@ -38,8 +69,8 @@ int LineFollowing::main()
         radius  = -sgn(position)*clip(radius, r_min, r_max);      
 
         float q = 1.0 - this->q_penalty*quality_filter.max(); 
-
-        q = clip(q, 0.0, 1.0);         
+      
+        q = clip(q, 0.0, 1.0);          
 
         //if quality is high (close to 1), increase radius - allows faster speed
         float kr = q*this->qr_max + (1.0 - q)*this->qr_min;  
@@ -51,9 +82,9 @@ int LineFollowing::main()
 
         timer.delay_ms(4);
 
-      
-
         uint32_t line_lost_type = line_sensor.line_lost_type;
+
+      
 
         /*
         if (line_lost_type != LINE_LOST_NONE)   
@@ -62,7 +93,10 @@ int LineFollowing::main()
           this->line_search(line_lost_type);
         } 
         */
-    } 
+    }   
+
+    position_control.disable_lf();
+    position_control.set(position_control.distance, position_control.angle);
 
     return 0;
 }
@@ -148,7 +182,7 @@ void line_followingA(PositionControlLQR &position_control, float r_min, float r_
   {
     if (line_sensor.line_lost_type == LINE_LOST_NONE)
     { 
-      float pos = line_sensor.left_position; 
+      float pos = line_sensor.right_position; 
       float ws  = clip(1.5*abs(pos), 0.0, 1.0); 
       
       radius = estimate_turn_radius(pos, 1.0/r_max);
@@ -204,7 +238,7 @@ void line_followingB(PositionControlLQR &position_control, float r_min, float r_
 
     speed_min_curr = clip(speed_min_curr + speed_min/100.0, 0.0, speed_min);
 
-    float position = line_sensor.left_position; 
+    float position = line_sensor.right_position; 
 
     quality_filter.step(abs(position));
 

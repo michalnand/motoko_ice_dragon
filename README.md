@@ -61,9 +61,9 @@ step response 1st order identification
 
 - kalman based identification
 - LQR synthesis
-- [controller identification + synthetis](simulations/robot_controller/robot_controller_a.ipynb)
+- [controller identification + synthetis](simulations/position_controller/position_controller_lqr.ipynb)
 - step response and disturbance rejection
-![lqr_discrete](simulations/robot_controller/lqr_discrete_output.png)
+![lqr_discrete](simulations/position_controller/lqr_discrete_output.png)
 
 
 # photos

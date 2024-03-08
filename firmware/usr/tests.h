@@ -26,4 +26,6 @@ void forward_test();
 
 void mcu_usage();
 
+void noise_measurement();
+
 #endif

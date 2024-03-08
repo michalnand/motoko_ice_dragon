@@ -3,7 +3,9 @@
 #include <fmath.h>
 #include <shaper.h>
 #include <lqr_single.h>
-#include <position_control_lqr.h>
+
+//#include <position_control_lqr.h>
+#include <position_control_lqg.h>
 
 
 #define LED_GPIO        TGPIOE

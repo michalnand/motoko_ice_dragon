@@ -32,19 +32,15 @@ class LQR
         void step(bool is_saturated = false) 
         { 
             // integral action  
-            auto error = this->xr - this->x;
+            auto error = this->xr - this->x; 
             auto integral_action_new = this->integral_action + this->ki*error;
 
             //LQR controll law  
             auto u_new = this->k*this->x*(-1.0) + this->integral_action;
 
-            //antiwindup with backcalculating integration
+            //antiwindup with back calculating integration
             this->u = u_new.clip(-antiwindup, antiwindup);
-
-            if (is_saturated == false)
-            {
-                this->integral_action = integral_action_new - (u_new - this->u);
-            }
+            this->integral_action = integral_action_new - (u_new - this->u);
         } 
 
         void reset_integral_action(int idx = -1)
@@ -64,7 +60,7 @@ class LQR
         //inputs and outputs
         Matrix<float, system_order, 1> x;
         Matrix<float, system_order, 1> xr;
-        Matrix<float, system_inputs, 1>  u;
+        Matrix<float, system_inputs, 1>  u; 
 
     private:
         float antiwindup;

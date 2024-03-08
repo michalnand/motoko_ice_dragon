@@ -5,8 +5,6 @@
 
 PositionControlLQR position_control;
 
-PositionControlLQR *g_position_control_lqr;
-
 #ifdef __cplusplus
 extern "C" {
 #endif 
@@ -14,7 +12,7 @@ extern "C" {
 
 void TIM5_IRQHandler(void)
 { 
-    g_position_control_lqr->callback();
+    position_control.callback();
     TIM_ClearITPendingBit(TIM5, TIM_IT_CC1);  
 } 
 
@@ -46,15 +44,28 @@ void PositionControlLQR::init()
     distance_shaper.init(dist_ramp, 0.98);
     angle_shaper.init(angle_ramp, 0.2);
 
-    // q = 10**-7, 0.5*10**-3, current
+    // q = 10**-7, 0.5*10**-3
+
+    
     float k[] = {
-      0.005248046, -0.27352497, 0.011264535, 0.08430575, 
-      0.005248046, 0.27352497, 0.011264535, 0.08430575 };
+		  0.005200292, -0.27277815, 0.011130019, -0.06414945, 
+		  0.005200292, 0.27277815, 0.011130019, 0.06414945 };
 
     float ki[] = {
-		  0.00023489761, -0.016833698, 0.0, 0.0, 
-		  0.00023489761, 0.016833698, 0.0, 0.0 };
-    
+		  0.00023509684, -0.016834622, 0.0, 0.0, 
+		  0.00023509684, 0.016834622, 0.0, 0.0 };
+     
+
+    /*
+    // q = 10**-7, 10**-4
+    float k[] = {
+		  0.005200292, -0.1777031, 0.011130019, -0.042935148, 
+		  0.005200292, 0.1777031, 0.011130019, 0.042935148 };
+
+    float ki[] = {
+		  0.00023509684, -0.007373941, 0.0, 0.0, 
+		  0.00023509684, 0.007373941, 0.0, 0.0 };
+    */
 
     //controller init
     lqr.init(k, ki, 1.0);
@@ -172,7 +183,8 @@ void PositionControlLQR::disable_lf()
     this->angle_prev = this->angle;
   }
 }
-        
+
+     
 void PositionControlLQR::callback()
 {
     //fill required values

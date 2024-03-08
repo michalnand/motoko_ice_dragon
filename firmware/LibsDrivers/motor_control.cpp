@@ -163,24 +163,12 @@ void MotorControl::callback_torque()
         right_u     = right_torque;
         right_phase = -SINE_TABLE_SIZE/4; 
     } 
-
+    
+    //left_u = 0;
+    //right_u = 0;
     set_torque_from_rotation(left_u,   left_phase,  left_encoder.angle,   0);
     set_torque_from_rotation(right_u,  right_phase, right_encoder.angle,  1);
-
-
-    /*
-    this->distance_prev = this->distance;
-    this->distance      = 0.25*(get_right_position() + get_left_position())*wheel_diameter;
-
-    this->angle_prev    = this->angle;
-    this->angle         = 0.5*(get_right_position() - get_left_position())*wheel_diameter / wheel_brace;
-
-    this->distance_fil  = (1.0 - alpha_d)*this->distance_fil + alpha_d*this->distance;
-    this->angle_fil     = (1.0 - alpha_d)*this->angle_fil    + alpha_d*this->angle;
-
-    this->distance_v_fil  = (1.0 - alpha_v)*this->distance_v_fil + alpha_v*(this->distance - this->distance_prev);
-    this->angle_v_fil     = (1.0 - alpha_v)*this->angle_v_fil    + alpha_v*(this->angle - this->angle_prev);
-    */
+    
 
     this->steps++;
 }

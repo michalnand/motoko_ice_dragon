@@ -45,6 +45,19 @@ class FirFilter
                 }
 
             return result;
+        }   
+
+        DType min() 
+        {
+            DType result = this->x[0];
+
+            for (unsigned int i = 0; i < size; i++)
+                if (this->x[i] < result)
+                {
+                    result = this->x[i];
+                }
+
+            return result;
         }
 
     private:

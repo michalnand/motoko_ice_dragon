@@ -92,14 +92,14 @@ void LineSensor::print()
     terminal << "\n";
 
 
-    terminal << "\n"; 
+    terminal << "\n";   
 
     terminal << "line_lost_type =   " << line_lost_type << "\n";
     terminal << "on_line_count  =   " << on_line_count << "\n";
     terminal << "left_position  =   " << left_position << "\n";
     terminal << "right_position =   " << right_position << "\n";
-    terminal << "left_angle     =   " << left_angle << " deg \n";
-    terminal << "right_angle    =   " << right_angle << " deg \n";
+    terminal << "left_angle     =   " << (float)(left_angle*180.0/PI) << " deg \n";
+    terminal << "right_angle    =   " << (float)(right_angle*180.0/PI) << " deg \n";
     
     terminal << "\n\n\n";
 }
@@ -117,7 +117,7 @@ void LineSensor::process()
     //find most left sensor on line
     unsigned int left_idx = 0;
     bool left_valid = false;
-    for (int i = 0; i < (int)adc_result.size(); i++)
+    for (int i = (adc_result.size()-1); i >= 0; i--)
         if (adc_result[i] > LINE_SENSOR_THRESHOLD)
         {
             left_idx = i;
@@ -128,7 +128,7 @@ void LineSensor::process()
     //find most right sensor on line 
     unsigned int right_idx = 0;
     bool right_valid = false;
-    for (int i = (adc_result.size()-1); i >= 0; i--)
+    for (int i = 0; i < (int)adc_result.size(); i++)
         if (adc_result[i] > LINE_SENSOR_THRESHOLD)
         {
             right_idx = i;
@@ -163,15 +163,15 @@ void LineSensor::process()
     //solve if line lost
     if ((left_valid == false) && (right_valid == false))
     {
-        if (left_position < -0.75)
-            line_lost_type = LINE_LOST_RIGHT;
-        else
-        if (left_position > 0.75)
+        if (left_position < -0.85)
             line_lost_type = LINE_LOST_LEFT;
+        else
+        if (left_position > 0.85) 
+            line_lost_type = LINE_LOST_RIGHT;
         else
             line_lost_type = LINE_LOST_CENTER;
     }
-
+ 
 
     measurement_id++;
 }

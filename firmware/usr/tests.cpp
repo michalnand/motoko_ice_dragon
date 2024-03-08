@@ -2,7 +2,9 @@
 #include <drivers.h>
 #include <fmath.h>
 #include <shaper.h>
-#include <position_control_lqr.h>
+
+//#include <position_control_lqr.h>
+#include <position_control_lqg.h>
 
 #define LED_GPIO        TGPIOE
 #define LED_PIN         3
@@ -91,7 +93,7 @@ void line_sensor_test()
       uint32_t measurement_id_now  = line_sensor.measurement_id;
 
       terminal << "measurements/s : " << 2*(measurement_id_now - measurement_id_prev) << "\n";
-      line_sensor.print(); 
+      line_sensor.print();  
 
       terminal << "\n\n\n";
   }
@@ -584,7 +586,6 @@ void smooth_motor_driver_test()
 
 void turn_test()
 {
-  PositionControlLQR position_control;
   position_control.init();
 
   //turn test
@@ -606,7 +607,6 @@ void turn_test()
 
 void forward_test()
 {
-  PositionControlLQR position_control;
   position_control.init();
 
   //forward test
@@ -653,6 +653,76 @@ void mcu_usage()
   }
 }
 
+
+
+
+
+void noise_measurement()
+{
+  uint32_t n_max = 1000;
+
+  float mean_distance          = 0.0;
+  float mean_angle             = 0.0;
+  float mean_velocity          = 0.0;
+  float mean_angular_velocity  = 0.0;
+
+
+  float var_distance          = 0.0;
+  float var_angle             = 0.0;
+  float var_velocity          = 0.0;
+  float var_angular_velocity  = 0.0;
+
+  terminal << "measuring mean and variance\n";
+
+
+  float k = 0.99; 
+
+  for (unsigned int n = 0; n < n_max; n++)
+  {
+    float d  = position_control.distance; 
+    float a  = position_control.angle;
+    float dd = position_control.distance - position_control.distance_prev;
+    float da = position_control.angle    - position_control.angle_prev;
+
+    mean_distance         = k*mean_distance +         (1.0 - k)*d;
+    mean_angle            = k*mean_angle +            (1.0 - k)*a;
+    mean_velocity         = k*mean_velocity +         (1.0 - k)*dd;
+    mean_angular_velocity = k*mean_angular_velocity + (1.0 - k)*da;
+
+
+    var_distance         = k*var_distance +         (1.0 - k)*(d - mean_distance)*(d - mean_distance);
+    var_angle            = k*var_angle +            (1.0 - k)*(a - mean_angle)*(a - mean_angle);
+    var_velocity         = k*var_velocity +         (1.0 - k)*(dd - mean_velocity)*(dd - mean_velocity);
+    var_angular_velocity = k*var_angular_velocity + (1.0 - k)*(da - mean_angular_velocity)*(da - mean_angular_velocity);
+
+    timer.delay_ms(4);
+  }
+
+  var_distance*= 1000;
+  var_angle*= 1000;
+  var_velocity*= 1000;
+  var_angular_velocity*= 1000;
+
+
+  terminal << "noise mean\n";
+  terminal << mean_distance << " " << mean_angle << " " << mean_velocity << " " << mean_angular_velocity << "\n";
+  terminal << "\n\n";
+
+  terminal << "noise var\n";
+  terminal << var_distance << " " << var_angle << " " << var_velocity << " " << var_angular_velocity << "\n";
+  terminal << "\n\n";
+
+  var_distance         = fsqrt(var_distance);
+  var_angle            = fsqrt(var_angle);
+  var_velocity         = fsqrt(var_velocity);
+  var_angular_velocity = fsqrt(var_angular_velocity);
+
+  terminal << "noise std\n";
+  terminal << var_distance << " " << var_angle << " " << var_velocity << " " << var_angular_velocity << "\n";
+  terminal << "\n\n";
+
+
+}
 
 
 

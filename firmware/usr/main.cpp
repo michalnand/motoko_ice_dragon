@@ -3,8 +3,10 @@
 #include <tests.h>
 
 #include <identification.h>
-#include <position_control_lqr.h>
 #include <line_following.h>
+
+//#include <position_control_lqr.h>
+#include <position_control_lqg.h>
 
  
 #define LED_1_GPIO        TGPIOE
@@ -51,13 +53,12 @@ void brick_avoid(PositionControlLQR &position_control, float a, float d, float a
 */
 
 
-
 int main(void)      
 { 
   drivers_init();
   
   //main LQR controller init
-  position_control.init(); 
+  position_control.init();  
 
   LineFollowing line_following;
 
@@ -97,7 +98,7 @@ int main(void)
     led_1 = 0; 
     timer.delay_ms(200);
   }
- 
+  
   led_1 = 1; 
 
   while (key == 0)
@@ -113,8 +114,8 @@ int main(void)
 
   timer.delay_ms(1500);
 
-  
-  mcu_usage();
+  //mcu_usage();
+  //noise_measurement();
 
   //timer_test();
 
