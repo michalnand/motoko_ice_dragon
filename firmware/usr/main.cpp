@@ -114,7 +114,7 @@ int main(void)
   timer.delay_ms(1500);
 
   
-  //mcu_usage();
+  mcu_usage();
 
   //timer_test();
 

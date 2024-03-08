@@ -45,8 +45,8 @@ void MotorControl::init()
 
     hold(); 
 
-    left_encoder.init();
-    right_encoder.init();
+    int left_encoder_result  = left_encoder.init();
+    int right_encoder_result = right_encoder.init();
 
     set_torque(0, 0);
     set_velocity(0, 0);
@@ -96,7 +96,16 @@ void MotorControl::init()
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 
-    
+    if (left_encoder_result != 0)
+    {
+        terminal << "motor_controll init [ERROR], left encoder returned " << left_encoder_result << "\n";
+    }
+
+    if (right_encoder_result != 0) 
+    {
+        terminal << "motor_controll init [ERROR], right encoder returned " << right_encoder_result << "\n";
+    }
+
     terminal << "motor_controll init [DONE]\n";
 }
 

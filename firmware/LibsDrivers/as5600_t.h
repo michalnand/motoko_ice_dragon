@@ -27,7 +27,7 @@
 
 
 
-template <unsigned char port_name, unsigned char sda_pin, unsigned char scl_pin, unsigned int bus_speed = 10>
+template <unsigned char port_name, unsigned char sda_pin, unsigned char scl_pin, unsigned int bus_speed = 20>
 class AS5600T
 {
     public:

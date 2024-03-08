@@ -55,11 +55,13 @@ int LineFollowing::main()
 
         uint32_t line_lost_type = line_sensor.line_lost_type;
 
+        /*
         if (line_lost_type != LINE_LOST_NONE)   
         {
           position_control.disable_lf();
           this->line_search(line_lost_type);
         } 
+        */
     } 
 
     return 0;
