@@ -41,7 +41,7 @@ void PositionControlLQG::init()
     float angle_ramp = 10.0;  
  
     distance_shaper.init(dist_ramp, 0.98);
-    angle_shaper.init(angle_ramp, 0.2);
+    angle_shaper.init(angle_ramp, 0.5);
 
     // q = 10**-7, 0.5*10**-3
     float a[] = {
@@ -199,8 +199,16 @@ void PositionControlLQG::callback()
 {
     //fill required values
     lqg.yr[0] = this->distance_shaper.step(this->req_distance);
-    //lqg.yr[1] = this->angle_shaper.step(this->req_angle);
-    lqg.yr[1] = this->req_angle; 
+
+    if (this->lf_mode == true)
+    {
+      lqg.yr[1] = this->req_angle; 
+      this->angle_shaper.set(this->req_angle);
+    }
+    else
+    {
+      lqg.yr[1] = this->angle_shaper.step(this->req_angle);
+    }
     
     //fill current state 
     float left_position  = motor_control.get_left_position();

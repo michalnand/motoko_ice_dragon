@@ -7,6 +7,9 @@
 
 //#include <position_control_lqr.h>
 #include <position_control_lqg.h>
+#include <trajectory_tracking.h>
+
+#include <fmath.h>
 
  
 #define LED_1_GPIO        TGPIOE
@@ -140,7 +143,57 @@ int main(void)
 
 
   line_following.main();
- 
+
+  /*
+  position_control.set(150.0, 0.0);
+  timer.delay_ms(800);
+
+  TrajectoryTracking trajectory_tracking;
+  
+  while (1)   
+  {
+    trajectory_tracking.start(100, 130.0*PI/180.0);
+    while (trajectory_tracking.step() != true)
+    { 
+      timer.delay_ms(4);  
+    } 
+
+    timer.delay_ms(50);      
+
+
+    trajectory_tracking.start(-100, -130.0*PI/180.0);
+    while (trajectory_tracking.step() != true)
+    {
+      timer.delay_ms(4); 
+    } 
+
+    timer.delay_ms(50);
+
+
+
+    trajectory_tracking.start(100, -130.0*PI/180.0);
+    while (trajectory_tracking.step() != true)
+    { 
+      timer.delay_ms(4);  
+    } 
+
+    timer.delay_ms(50);      
+
+
+    trajectory_tracking.start(-100, 130.0*PI/180.0);
+    while (trajectory_tracking.step() != true)
+    {
+      timer.delay_ms(4);
+    } 
+
+    timer.delay_ms(50);
+  }
+  */
+
+
+  
+
+
   /*  
   while (1) 
   {

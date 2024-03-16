@@ -4,6 +4,8 @@
 //#include <position_control_lqr.h>
 #include <position_control_lqg.h>
 
+#include <trajectory_tracking.h>
+
   
 LineFollowing::LineFollowing()
 {
@@ -11,57 +13,43 @@ LineFollowing::LineFollowing()
     this->r_max = 10000.0;
 
     this->speed_min = 150.0;
-    this->speed_max = 300.0; //150.0, 250.0, 300.0, 400
+    //this->speed_max = 300.0; //150.0, 250.0, 300.0, 400
+    this->speed_max = 150.0; //150.0, 250.0, 300.0, 400
 
 
     this->q_penalty = 1.0;   
-    this->qr_max    = 8.0;    
+    this->qr_max    = 8.0;      
     this->qr_min    = 2.0;  
 
-    this->left_turn_distance  = -100;
-    this->right_turn_distance = 100;
+
+    sharp_turn_detect.init(60.0, 0.8);
 }
 
 
-bool LineFollowing::double_line_detect(float max_distance)
-{
-  left_positon_filter.step(line_sensor.right_position);
-  right_positon_filter.step(line_sensor.right_position);
-
-  float left_min = left_positon_filter.min();
-  float right_max = right_positon_filter.max();
-
-  float dif = right_max - left_min;
-
-  if (dif > max_distance)
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
-}
 
 
 int LineFollowing::main()
 {
+    this->line_search(LINE_LOST_CENTER);
+
     float speed_min_curr = 0.0;
 
     quality_filter.init(1.0);
 
     while (1)
     {
+        float position = line_sensor.right_position; 
+
+        if (line_sensor.line_lost_type != LINE_LOST_NONE)   
+        {
+          position_control.disable_lf();
+          this->line_search(line_sensor.line_lost_type);
+        } 
+        
+
         position_control.enable_lf();
 
-        float position = line_sensor.right_position; 
-        if (double_line_detect(1.5))
-        {
-          position = right_positon_filter.max();
-        }
-
         speed_min_curr = clip(speed_min_curr + speed_min/10.0, 0.0, speed_min);
-
 
         quality_filter.step(abs(position));
 
@@ -81,18 +69,6 @@ int LineFollowing::main()
         position_control.set_circle_motion(kr*radius, speed);
 
         timer.delay_ms(4);
-
-        uint32_t line_lost_type = line_sensor.line_lost_type;
-
-      
-
-        /*
-        if (line_lost_type != LINE_LOST_NONE)   
-        {
-          position_control.disable_lf();
-          this->line_search(line_lost_type);
-        } 
-        */
     }   
 
     position_control.disable_lf();
@@ -101,55 +77,90 @@ int LineFollowing::main()
     return 0;
 }
 
+
 void LineFollowing::line_search(uint32_t line_lost_type)
 {
-    //TODO
+  TrajectoryTracking trajectory_tracking;
 
-    float d     = 100.0;
-    float angle = 90.0;
+  position_control.disable_lf();
 
-    float d_curr = position_control.distance;
-    float a_curr = position_control.angle;
+  float search_distance = 100.0;
+  float search_angle    = 130.0*PI/180.0;
 
-    float points_distance[] = {d,     -d,     d,      -d,     d};
-    float points_angle[]    = {angle, -angle, -angle, angle,  0.0}; 
+  int      way = 1;
+  uint32_t state = 0.0;
 
-    uint32_t ptr = 0;
+  if (line_lost_type == LINE_LOST_LEFT)
+  {
+    way   = 1;
+    state = 0;
+  }
+  else if (line_lost_type == LINE_LOST_RIGHT)
+  {
+    way   = -1;
+    state = 0;
+  }
+  else
+  {
+    way = 1;
+    state = 1.0;
+  }
 
-    if (line_lost_type == LINE_LOST_CENTER)
+  while (true)
+  {
+    //side line search
+    if (state == 0 || state == 1)
     {
-      ptr = 4;
-    }
-    else if (line_lost_type == LINE_LOST_LEFT)
-    {
-      ptr = 0;
-    }
-    else if (line_lost_type == LINE_LOST_RIGHT)
-    {
-      ptr = 2;
-    }
-
-    while (1)
-    {
-        d_curr+= points_distance[ptr];
-        a_curr+= points_angle[ptr]*PI/180.0;
-
-        position_control.set(d_curr, a_curr);
-
-        //wait until move done or robot on line
-        while (position_control.on_target() != true && line_sensor.line_lost_type != LINE_LOST_NONE)
-        {
-          __asm("nop");
-        }
+      trajectory_tracking.start(search_distance, way*search_angle);
+      while (trajectory_tracking.step() != true)
+      { 
+        timer.delay_ms(4);  
 
         if (line_sensor.line_lost_type == LINE_LOST_NONE)
         {
           return;
         }
+      } 
 
-        ptr = (ptr + 1)%5;
+      timer.delay_ms(50);      
+
+      trajectory_tracking.start(-search_distance, -way*search_angle);
+      while (trajectory_tracking.step() != true)
+      {
+        timer.delay_ms(4); 
+
+        if (line_sensor.line_lost_type == LINE_LOST_NONE)
+        {
+          return;
+        }
+      } 
+
+      timer.delay_ms(50);
+
+      way*= -1;
+      state++;
     }
+
+    //forward line search
+    else
+    {
+      trajectory_tracking.start(search_distance, 0.0);
+      while (trajectory_tracking.step() != true)
+      {
+        timer.delay_ms(4); 
+
+        if (line_sensor.line_lost_type == LINE_LOST_NONE)
+        {
+          return;
+        }
+      } 
+
+      state = 0;
+    }
+  }
+ 
 }
+
 
 float LineFollowing::estimate_turn_radius(float sensor_reading, float eps)
 {

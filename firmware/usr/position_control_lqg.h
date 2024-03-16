@@ -12,6 +12,7 @@ class PositionControlLQG
         //required position and angle
         void set(float req_distance, float req_angle);
 
+        //set circular motion
         void set_circle_motion(float radius, float speed);
 
         //5mm, 5degrees

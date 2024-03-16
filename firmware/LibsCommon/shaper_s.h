@@ -12,7 +12,8 @@ class ShaperS
         // closer to 1 more S-like curve, 0 the shaper equals to trapezoidal
         void init(float ramp, float alpha = 0.5);
         float step(float x_req);
-        
+        void set(float value);
+
     private:
         float ramp, alpha;
         float x0, x1;

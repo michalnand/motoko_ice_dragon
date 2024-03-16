@@ -1,0 +1,54 @@
+#include "trajectory_tracking.h"
+
+#include <position_control_lqg.h>
+
+#include <fmath.h>
+
+
+
+
+void TrajectoryTracking::start(float target_distance, float target_angle)
+{
+    this->start_distance  = position_control.distance;
+    this->target_distance = this->start_distance + target_distance;
+
+    this->start_angle  = position_control.angle;
+    this->target_angle = this->start_angle + target_angle;
+}
+
+
+
+bool TrajectoryTracking::step(float distance_th, float angle_th)
+{
+    float cur_distance = position_control.distance;
+    float cur_angle    = position_control.angle;  
+    
+
+    float k = 1.0/(this->target_distance - this->start_distance);
+    float q = 1.0 - k*this->target_distance;
+    float w = k*cur_distance + q;
+
+    if (this->target_distance < this->start_distance)
+    {
+        //have no idea why robot needs turn more shapr when going back
+        w = 2.5*w; 
+    } 
+
+    w = clip(w, 0.0, 1.0);
+
+    float req_angle = (1.0 - w)*this->start_angle + w*this->target_angle;
+
+
+    position_control.set(this->target_distance, req_angle);
+
+
+    float error_d = abs(cur_distance - this->target_distance);
+    float error_a = abs(cur_angle - this->target_angle);
+
+    if ((error_d < distance_th) && (error_a < angle_th))
+    {
+        return true;
+    }
+
+    return false;   
+}

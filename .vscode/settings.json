@@ -12,6 +12,13 @@
         "*.h_": "c",
         "limits": "cpp",
         "algorithm": "cpp",
-        "__node_handle": "cpp"
+        "__node_handle": "cpp",
+        "__hash_table": "cpp",
+        "__split_buffer": "cpp",
+        "array": "cpp",
+        "initializer_list": "cpp",
+        "unordered_map": "cpp",
+        "vector": "cpp",
+        "string_view": "cpp"
     }
 }

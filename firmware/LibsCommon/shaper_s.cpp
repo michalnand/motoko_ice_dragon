@@ -30,3 +30,9 @@ float ShaperS::step(float x_req)
 }
 
 
+void ShaperS::set(float value)
+{
+    this->x0 = value;
+    this->x1 = value; 
+}
+
