@@ -13,8 +13,8 @@ LineFollowing::LineFollowing()
     this->r_max = 10000.0;
 
     this->speed_min = 150.0;
-    //this->speed_max = 300.0; //150.0, 250.0, 300.0, 400
-    this->speed_max = 150.0; //150.0, 250.0, 300.0, 400
+    this->speed_max = 300.0; //150.0, 250.0, 300.0, 400
+    //this->speed_max = 150.0; //150.0, 250.0, 300.0, 400
 
 
     this->q_penalty = 1.0;   

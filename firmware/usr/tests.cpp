@@ -50,21 +50,18 @@ void timer_test()
 void ir_sensor_test()
 {
   Gpio<LED_GPIO, LED_PIN, GPIO_MODE_OUT> led;        //user led
-    
+  
+  led = 1; 
+
   while(1)
   {
-      led = 1; 
-      timer.delay_ms(50);
-
-      led = 0; 
-      timer.delay_ms(50);
-
       uint32_t measurement_id_prev = ir_sensor.measurement_id;
       timer.delay_ms(100);
       uint32_t measurement_id_now = ir_sensor.measurement_id;
 
       terminal << "measurements/s : " << 10*(measurement_id_now - measurement_id_prev) << "\n";
       terminal << "ir readings    : ";
+
 
       for (unsigned int i = 0; i < IR_SENSORS_COUNT; i++)
       {

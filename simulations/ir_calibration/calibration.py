@@ -44,41 +44,82 @@ def interpolate(x, inter_points):
 
 if __name__ == "__main__":
 
-
+    #robot A
     front_left_sensor = []
-    front_left_sensor.append([0,    430])
-    front_left_sensor.append([20,   508])
-    front_left_sensor.append([50,   915])
-    front_left_sensor.append([80,   1820])
-    front_left_sensor.append([100,  2170])
+    front_left_sensor.append([30,    400])
+    front_left_sensor.append([50,   1620])
+    front_left_sensor.append([70,   2320])
+    front_left_sensor.append([100,   2940])
+    front_left_sensor.append([120,  3190])
+    front_left_sensor.append([150,  3390])
    
-    
     front_right_sensor = []
-    front_right_sensor.append([0,   415])
-    front_right_sensor.append([20,  470])
-    front_right_sensor.append([50,  580])
-    front_right_sensor.append([80,  1300])
-    front_right_sensor.append([100, 1630])
-
+    front_right_sensor.append([30,   710])
+    front_right_sensor.append([50,  2000])
+    front_right_sensor.append([70,  2620])
+    front_right_sensor.append([100,  3110])
+    front_right_sensor.append([120, 3300])
+    front_right_sensor.append([150, 3530])
 
     left_sensor = []
-    left_sensor.append([0,    335])
-    left_sensor.append([20,   390])
-    left_sensor.append([50,   800])
-    left_sensor.append([80,   1720])
-    left_sensor.append([100,  2060])
-
+    left_sensor.append([30,   250])
+    left_sensor.append([50,  290])
+    left_sensor.append([70,  500])
+    left_sensor.append([100,  1150])
+    left_sensor.append([120, 1430])
+    left_sensor.append([150, 1720])
 
 
     right_sensor = []
-    right_sensor.append([0,    380])
-    right_sensor.append([20,   430])
-    right_sensor.append([50,   950])
-    right_sensor.append([80,   1460])
-    right_sensor.append([100,  1640])
+    right_sensor.append([30,   240])
+    right_sensor.append([50,  300])
+    right_sensor.append([70,  700])
+    right_sensor.append([100,  1320])
+    right_sensor.append([120, 1560])
+    right_sensor.append([150, 1780])
+
+
+
+
+
+
+
+    #robot B
+    front_left_sensor = []
+    front_left_sensor.append([30,    262])
+    front_left_sensor.append([50,   780])
+    front_left_sensor.append([70,   1820])
+    front_left_sensor.append([100,   2600])
+    front_left_sensor.append([120,  2940])
+    front_left_sensor.append([150,  3240])
    
+    front_right_sensor = []
+    front_right_sensor.append([30,   360])
+    front_right_sensor.append([50,  1550])
+    front_right_sensor.append([70,  2300])
+    front_right_sensor.append([100,  2900])
+    front_right_sensor.append([120, 3120])
+    front_right_sensor.append([150, 3340])
+
+    left_sensor = []
+    left_sensor.append([30,   265])
+    left_sensor.append([50,  620])
+    left_sensor.append([70,  1380])
+    left_sensor.append([100,  1950])
+    left_sensor.append([120, 2250])
+    left_sensor.append([150, 2500])
+
+
+    right_sensor = []
+    right_sensor.append([30,   290])
+    right_sensor.append([50,  1200])
+    right_sensor.append([70,  1980])
+    right_sensor.append([100,  2580])
+    right_sensor.append([120, 2830])
+    right_sensor.append([150, 3120])
+
     
-    data_xy  = numpy.array(front_right_sensor)
+    data_xy  = numpy.array(right_sensor)
 
     data_x = numpy.expand_dims(data_xy[:, 1], axis=1)
     data_y = numpy.expand_dims(data_xy[:, 0], axis=1)

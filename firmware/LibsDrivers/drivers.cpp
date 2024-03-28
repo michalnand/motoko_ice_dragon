@@ -19,7 +19,7 @@ void drivers_init()
     
     terminal.init();
     i2c.init();
-    //ir_sensor.init(); 
+    ir_sensor.init(); 
     adc.init();
     line_sensor.init();
     gyro_sensor.init(i2c);    

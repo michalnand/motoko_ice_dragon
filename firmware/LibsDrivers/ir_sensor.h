@@ -2,9 +2,9 @@
 #define _IR_SENSOR_H_
 
 #include <gpio.h>
+#include <biquad_filter.h>
 
 #define IR_SENSORS_COUNT        ((unsigned int)4)
-#define IR_SENSORS_VARIANCE     ((float)0.1)
 
 
 /*
@@ -35,13 +35,11 @@ class IRSensor
         uint32_t state;
         Gpio<TGPIOC, 14, GPIO_MODE_OUT> ir_led;         //ir led
   
-        //KalmanFilter filters[IR_SENSORS_COUNT];
 
         int ir_off[IR_SENSORS_COUNT];
         int ir_on[IR_SENSORS_COUNT];
 
-        float filter_coeef;
-
+        float filter_coeff;
         
 
     private:

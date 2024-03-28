@@ -8,23 +8,31 @@
 
 
 //cubic polynomial calibration coefficients
+
+//robot A
+/*
 const float ir_calibration[] = 
 {
-    -6.08119998e+01,  2.50778924e-01, -1.72371335e-04,  4.30063148e-08,
-    -8.70491608e+01,  2.80947098e-01, -1.79185738e-04,  4.12438948e-08,
-    -2.77370776e+02,  9.92379652e-01, -8.87244399e-04,  2.57949395e-07,
-    -9.53491031e+01,  3.79776430e-01, -3.43710052e-04,  1.12921640e-07
+    -2.29540903e+01,  2.96361755e-01, -2.62612931e-04,  8.66668161e-08,
+     9.06688653e+00,  6.64371251e-02, -4.04385662e-05,  9.68716433e-09,
+    -1.52182976e+01,  9.69920014e-02, -5.52549401e-05,  1.16107679e-08,
+    -3.66428832e+00,  1.97931509e-01, -1.71666039e-04,  6.12578482e-08
+}; 
+*/
+
+//robot B
+const float ir_calibration[] = 
+{
+    9.80249682e+00,  9.26234367e-02, -5.90240728e-05,  1.77460804e-08,
+    1.43986983e+01,  6.88630342e-02, -3.69489076e-05,  8.81606417e-09,
+    1.09433293e+01,  6.61345111e-02, -4.17044185e-05,  1.02359695e-08,
+     1.83792407e+01,  4.68946392e-02, -2.65283530e-05,  8.01138781e-09
 }; 
  
 
 void IRSensor::init()
 {
     terminal << "ir_sensor init start\n";
-
-    for (unsigned int i = 0; i < IR_SENSORS_COUNT; i++)
-    {
-        //filters[i].init();
-    }
 
     for (unsigned int i = 0; i < IR_SENSORS_COUNT; i++)
     {
@@ -38,19 +46,19 @@ void IRSensor::init()
     ir_led          = 0;
     state           = 0;
 
-    filter_coeef    = 0.1;
+    filter_coeff    = 0.01;
 
     measurement_id  = 0;
 
     terminal << "ir_sensor init [DONE]\n";
-}
+}   
 
 
 void IRSensor::callback()
 {
     measurement_id++;
 
-    if (state == 0)
+    if (state == 0) 
     {
         for (unsigned int i = 0; i < IR_SENSORS_COUNT; i++)
         {
@@ -58,35 +66,45 @@ void IRSensor::callback()
         }
 
         //turn on IR led for next step
-        ir_led = 1;
-        state  = 1;
+        ir_led  = 1;
+        state   = 1;
     }
-    else
+    //wait state
+    else if (state == 1)
+    {
+        state = 2;      
+    }
+    else if (state == 2)
     {
         for (unsigned int i = 0; i < IR_SENSORS_COUNT; i++)
         {
             ir_on[i] = adc.get()[i + IR_SENSOR_OFFSET];
         }
-
+        
         //turn off IR led for next step
-        ir_led = 0;
-        state  = 0;
+        ir_led  = 0;
+        state   = 3;
+    }   
+    //wait state
+    else     
+    {
+        state   = 0;  
     }
-
-
+  
 
     //if dif is small obstacle is close
     //bigger value, bigger distance
     for (unsigned int i = 0; i < IR_SENSORS_COUNT; i++)
     {
         //difference
-        int dif     = 4096 - (ir_off[i] - ir_on[i]);
+        int dif = 4096 - (ir_off[i] - ir_on[i]);
 
         //compute distance from raw readings
-        float d     = calibration((float*)(ir_calibration + i*4), dif);
-      
+        float d = calibration((float*)(ir_calibration + i*4), dif);
+        //float d = dif;
+
         //filter values
-        distance[i] = (1.0 - filter_coeef)*distance[i] + filter_coeef*d;
+        distance[i] = (1.0 - filter_coeff)*distance[i] + filter_coeff*d;
     }
 }
  
