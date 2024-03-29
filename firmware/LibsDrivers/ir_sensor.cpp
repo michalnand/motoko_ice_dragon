@@ -10,7 +10,6 @@
 //cubic polynomial calibration coefficients
 
 //robot A
-/*
 const float ir_calibration[] = 
 {
     -2.29540903e+01,  2.96361755e-01, -2.62612931e-04,  8.66668161e-08,
@@ -18,8 +17,8 @@ const float ir_calibration[] =
     -1.52182976e+01,  9.69920014e-02, -5.52549401e-05,  1.16107679e-08,
     -3.66428832e+00,  1.97931509e-01, -1.71666039e-04,  6.12578482e-08
 }; 
-*/
 
+/*
 //robot B
 const float ir_calibration[] = 
 {
@@ -28,7 +27,7 @@ const float ir_calibration[] =
     1.09433293e+01,  6.61345111e-02, -4.17044185e-05,  1.02359695e-08,
      1.83792407e+01,  4.68946392e-02, -2.65283530e-05,  8.01138781e-09
 }; 
- 
+*/
 
 void IRSensor::init()
 {
@@ -46,7 +45,7 @@ void IRSensor::init()
     ir_led          = 0;
     state           = 0;
 
-    filter_coeff    = 0.01;
+    filter_coeff    = 0.1;
 
     measurement_id  = 0;
 

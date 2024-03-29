@@ -125,7 +125,7 @@ int main(void)
   //left_motor_connect_test();
   //right_motor_connect_test();
 
-  ir_sensor_test();
+  //ir_sensor_test();
   //line_sensor_test();
   //gyro_sensor_test(); 
   //encoder_sensor_test();
@@ -144,61 +144,48 @@ int main(void)
 
   //line_following.main();
 
-  /*
-  position_control.set(150.0, 0.0);
-  timer.delay_ms(800);
+  float r_min = 300.0; 
+  float r_max = 10000.0;
+  float speed = 150.0;
+  float d_req = 70.0;   
 
-  TrajectoryTracking trajectory_tracking;
-  
-  while (1)   
+  while (1)
   {
-    trajectory_tracking.start(100, 130.0*PI/180.0);
-    while (trajectory_tracking.step() != true)
-    { 
-      timer.delay_ms(4);  
-    } 
+   
+    float diff   = d_req - ir_sensor.get()[3];  
 
-    timer.delay_ms(50);      
+    diff = clip(diff, -150.0, 150.0);  
+    diff = 0.00002*diff;    
 
+    float r = 1.0/(abs(diff) + 0.00001);     
 
-    trajectory_tracking.start(-100, -130.0*PI/180.0);
-    while (trajectory_tracking.step() != true)
-    {
-      timer.delay_ms(4); 
-    } 
+    r = sgn(diff)*clip(r, r_min, r_max);
 
-    timer.delay_ms(50);
-
-
-
-    trajectory_tracking.start(100, -130.0*PI/180.0);
-    while (trajectory_tracking.step() != true)
-    { 
-      timer.delay_ms(4);  
-    } 
-
-    timer.delay_ms(50);      
-
-
-    trajectory_tracking.start(-100, 130.0*PI/180.0);
-    while (trajectory_tracking.step() != true)
-    {
-      timer.delay_ms(4);
-    } 
-
-    timer.delay_ms(50);
+    position_control.set_circle_motion(r, speed);
+    timer.delay_ms(4);
   }
-  */
 
+  /*
+  float k = 0.1;
 
-  
+  float dangle = 0.0;
 
-
-  /*  
-  while (1) 
+  while (1)
   {
-    position_control.set_circle_motion(80.0, 100.0);
-    timer.delay_ms(4); 
+    float speed = 150.0;
+    float d_req = 70.0;
+
+    float diff   = d_req - ir_sensor.get()[3];   
+
+    dangle = (1.0 - k)*dangle + k*0.005*diff;
+    dangle = clip(dangle, -1, 1);
+    
+    float distance = position_control.distance + speed;
+    float angle    = position_control.angle    + dangle;
+    
+    position_control.set(distance, angle);
+
+    timer.delay_ms(4);
   }
   */
 
