@@ -12,9 +12,10 @@ class LineFollowing
         
         int main();
 
-    private:
+    public:
         float estimate_turn_radius(float sensor_reading, float eps);
         void line_search(uint32_t line_lost_type);
+        void obstacle_avoid();
 
         
     private:

@@ -128,6 +128,12 @@ void PositionControlLQG::set(float req_distance, float req_angle)
     this->req_distance  = req_distance;
     this->req_angle     = req_angle;
 }
+
+void PositionControlLQG::stop()
+{
+    this->req_distance  = position_control.distance;
+    this->req_angle     = position_control.angle;
+}
  
 void PositionControlLQG::set_circle_motion(float radius, float speed)
 {

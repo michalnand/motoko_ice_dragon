@@ -141,53 +141,11 @@ int main(void)
   //smooth_motor_driver_test();
   //robot_dynamics_identification();
 
-
-  //line_following.main();
-
-  float r_min = 300.0; 
-  float r_max = 10000.0;
-  float speed = 150.0;
-  float d_req = 70.0;   
-
-  while (1)
-  {
-   
-    float diff   = d_req - ir_sensor.get()[3];  
-
-    diff = clip(diff, -150.0, 150.0);  
-    diff = 0.00002*diff;    
-
-    float r = 1.0/(abs(diff) + 0.00001);     
-
-    r = sgn(diff)*clip(r, r_min, r_max);
-
-    position_control.set_circle_motion(r, speed);
-    timer.delay_ms(4);
-  }
-
-  /*
-  float k = 0.1;
-
-  float dangle = 0.0;
-
-  while (1)
-  {
-    float speed = 150.0;
-    float d_req = 70.0;
-
-    float diff   = d_req - ir_sensor.get()[3];   
-
-    dangle = (1.0 - k)*dangle + k*0.005*diff;
-    dangle = clip(dangle, -1, 1);
-    
-    float distance = position_control.distance + speed;
-    float angle    = position_control.angle    + dangle;
-    
-    position_control.set(distance, angle);
-
-    timer.delay_ms(4);
-  }
-  */
+  
+  line_following.main();
+  //line_following.brick_avoid();
+  
+  
 
   while (1) 
   {

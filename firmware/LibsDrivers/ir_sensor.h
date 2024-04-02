@@ -23,6 +23,9 @@ class IRSensor
 
         float* get();
 
+        int obstacle_detected();
+
+
         void print();
     
     private:

@@ -40,6 +40,15 @@ int LineFollowing::main()
     {
         float position = line_sensor.right_position; 
 
+        int obstacle = ir_sensor.obstacle_detected();
+
+        if (obstacle == 2) 
+        {
+          position_control.disable_lf();
+          obstacle_avoid();
+          position_control.enable_lf();
+        }
+
         if (line_sensor.line_lost_type != LINE_LOST_NONE)   
         {
           position_control.disable_lf();
@@ -57,6 +66,8 @@ int LineFollowing::main()
         radius  = -sgn(position)*clip(radius, r_min, r_max);      
 
         float q = 1.0 - this->q_penalty*quality_filter.max(); 
+
+      
       
         q = clip(q, 0.0, 1.0);          
 
@@ -65,6 +76,13 @@ int LineFollowing::main()
 
         //if quality is high (close to 1), use higher speed
         float speed = q*speed_max + (1.0 - q)*speed_min_curr;  
+
+        //obstacle warning, set minimal speed
+        if (obstacle != 0)
+        {
+          speed = speed_min/16; 
+          speed_min_curr = speed;
+        } 
 
         position_control.set_circle_motion(kr*radius, speed);
 
@@ -158,7 +176,69 @@ void LineFollowing::line_search(uint32_t line_lost_type)
       state = 0;
     }
   }
- 
+}
+
+
+void LineFollowing::obstacle_avoid()
+{
+  /*
+  position_control.stop();
+
+  while (1)
+  {
+    timer.delay_ms(10); 
+  }
+  */
+
+  float r_min = 650.0;   
+  float r_max = 10000.0;
+  float speed = 150.0;
+  float d_req = 80.0;    
+
+  //turn left, 90degrees
+  float angle_target = position_control.angle + PI/2.0;
+  while (angle_target > position_control.angle)
+  {
+    position_control.set_circle_motion(160.0, speed);
+    timer.delay_ms(4);   
+  }
+
+
+  uint32_t state = 0;
+  float angle_mark     = position_control.angle - 0.75*PI;
+  
+  while (1)
+  {
+    if (state == 0 && position_control.angle < angle_mark)
+    {
+      state = 1;  
+    }
+    else if (state == 1 && line_sensor.line_lost_type == LINE_LOST_NONE)
+    {
+      break;
+    } 
+
+    float diff   = d_req - ir_sensor.get()[3];  
+
+    diff = clip(diff, -150.0, 150.0);      
+
+    float r = 1.0/(abs(0.00004*diff) + 0.00000001);     
+
+    r = sgn(diff)*clip(r, r_min, r_max);
+
+    position_control.set_circle_motion(r, speed);
+    timer.delay_ms(4);   
+  }
+
+  //turn left, 90degrees
+  angle_target = position_control.angle + PI/2.0;
+  while (angle_target > position_control.angle)
+  {
+    position_control.set_circle_motion(160.0, speed);
+    timer.delay_ms(4);   
+  }   
+
+  position_control.stop();
 }
 
 

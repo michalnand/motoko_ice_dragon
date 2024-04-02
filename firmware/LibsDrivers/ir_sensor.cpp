@@ -106,6 +106,25 @@ void IRSensor::callback()
         distance[i] = (1.0 - filter_coeff)*distance[i] + filter_coeff*d;
     }
 }
+
+
+int IRSensor::obstacle_detected()
+{
+    float d = (distance[2] + distance[3])/2.0;
+
+    if (d < 100.0)   
+    {
+        return 2;
+    }
+    else if (d < 150.0)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
  
 
 float* IRSensor::get()

@@ -67,6 +67,7 @@ void ir_sensor_test()
       {
         terminal << ir_sensor.get()[i] << " ";
       }
+      terminal << ir_sensor.obstacle_detected() << " ";
       terminal << "\n\n\n";
   }
 }
