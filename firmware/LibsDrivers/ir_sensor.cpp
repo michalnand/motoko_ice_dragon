@@ -9,6 +9,7 @@
 
 //cubic polynomial calibration coefficients
 
+
 //robot A
 const float ir_calibration[] = 
 {
@@ -28,6 +29,7 @@ const float ir_calibration[] =
      1.83792407e+01,  4.68946392e-02, -2.65283530e-05,  8.01138781e-09
 }; 
 */
+
 
 void IRSensor::init()
 {
@@ -100,6 +102,7 @@ void IRSensor::callback()
 
         //compute distance from raw readings
         float d = calibration((float*)(ir_calibration + i*4), dif);
+        
         //float d = dif;
 
         //filter values
@@ -112,11 +115,11 @@ int IRSensor::obstacle_detected()
 {
     float d = (distance[2] + distance[3])/2.0;
 
-    if (d < 100.0)   
+    if (d < 160.0)        
     {
         return 2;
     }
-    else if (d < 150.0)
+    else if (d < 180.0)
     {
         return 1;
     }
@@ -141,7 +144,17 @@ float IRSensor::calibration(float *callibration, float x)
     y+= callibration[1]*x;
     y+= callibration[2]*x*x;
     y+= callibration[3]*x*x*x;
-    
+
+    if (y < 0.0)
+    {
+        y = 0.0;
+    }
+
+    if (y > 200.0)
+    {
+        y = 200.0;
+    }
+
     return y;
 }
 

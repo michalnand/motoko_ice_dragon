@@ -192,6 +192,12 @@ float MotorControl::get_left_position()
     return -left_encoder.position*2.0*PI/4096.0;
 }
 
+float MotorControl::get_left_position_fil()
+{
+    return -left_encoder.position_fil*2.0*PI/4096.0;
+}
+
+
 float MotorControl::get_left_velocity()
 {
     return -left_encoder.angular_velocity*2.0*PI/4096.0;
@@ -209,6 +215,12 @@ float MotorControl::get_right_position()
 {
     return right_encoder.position*2.0*PI/4096.0;
 } 
+
+float MotorControl::get_right_position_fil()
+{
+    return right_encoder.position_fil*2.0*PI/4096.0;
+}
+
 
 float MotorControl::get_right_velocity()
 {

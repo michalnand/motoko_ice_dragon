@@ -32,8 +32,12 @@ class AS5600T
 {
     public:
         int32_t angle; 
+
         int32_t position;
         int32_t angular_velocity;
+
+        int32_t position_fil;
+        int32_t angular_velocity_fil;
 
     private:
         int32_t position_prev;
@@ -81,6 +85,8 @@ class AS5600T
             this->position_prev     = 0;
             this->angular_velocity  = 0;
             this->prev_value        = 0;
+
+            this->position_fil      = 0;
 
             //set zero angle
             set_zero();
@@ -135,7 +141,8 @@ class AS5600T
             int32_t tmp = ((this->position - this->position_prev)*1000000)/dt_us;
             
             //complementary LP filter
-            this->angular_velocity = (7*this->angular_velocity + 1*tmp)/8;  
+            this->position_fil     = (7*this->position_fil + 1*this->position)/8;  
+            this->angular_velocity = (7*this->angular_velocity + 1*tmp)/8;      
              
             this->prev_value       = value;
         }

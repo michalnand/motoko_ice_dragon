@@ -30,7 +30,7 @@ bool TrajectoryTracking::step(float distance_th, float angle_th)
 
     if (this->target_distance < this->start_distance)
     {
-        //have no idea why robot needs turn more shapr when going back
+        //have no idea why robot needs turn more sharp when going back
         w = 2.5*w; 
     } 
 

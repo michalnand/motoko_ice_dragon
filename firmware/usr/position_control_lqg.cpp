@@ -37,8 +37,11 @@ void PositionControlLQG::init()
     //max speed, 1500rpm
     this->speed_max     = 1500*2.0*PI/60.0;
 
-    float dist_ramp  = 5.0; 
-    float angle_ramp = 10.0;  
+    //float dist_ramp  = 5.0; 
+    //float angle_ramp = 10.0;  
+
+    float dist_ramp  = 2.0; 
+    float angle_ramp = 5.0;  
  
     distance_shaper.init(dist_ramp, 0.98);
     angle_shaper.init(angle_ramp, 0.5);
@@ -62,13 +65,26 @@ void PositionControlLQG::init()
         0.0, 0.0, 1.0, 0.0, 
         0.0, 0.0, 0.0, 1.0 };
 
+    
+    /*
     float k[] = {
-        0.005200292, -0.27277815, 0.011130019, -0.06414945, 
-        0.005200292, 0.27277815, 0.011130019, 0.06414945 };
+		  0.005200292, -0.27277815, 0.011130019, -0.06414945, 
+		  0.005200292, 0.27277815, 0.011130019, 0.06414945 };
 
     float ki[] = {
-        0.00023509684, -0.016834622, 0.0, 0.0, 
-        0.00023509684, 0.016834622, 0.0, 0.0 };
+      0.00023509684, -0.016834622, 0.0, 0.0, 
+      0.00023509684, 0.016834622, 0.0, 0.0 };
+    */
+
+    
+    float k[] = {
+      0.0102796145, -0.27277815, 0.019506542, -0.06414945, 
+      0.0102796145, 0.27277815, 0.019506542, 0.06414945 };
+
+    float ki[] = {
+      0.00077209674, -0.016834622, 0.0, 0.0, 
+      0.00077209674, 0.016834622, 0.0, 0.0 };
+       
 
     float f[] = {
         0.13137825, 0.0, 0.0, 0.0, 
@@ -205,7 +221,9 @@ void PositionControlLQG::callback()
 {
     //fill required values
     lqg.yr[0] = this->distance_shaper.step(this->req_distance);
+    lqg.yr[1] = this->angle_shaper.step(this->req_angle);
 
+    /*
     if (this->lf_mode == true)
     {
       lqg.yr[1] = this->req_angle; 
@@ -215,13 +233,14 @@ void PositionControlLQG::callback()
     {
       lqg.yr[1] = this->angle_shaper.step(this->req_angle);
     }
-    
+    */
+
     //fill current state 
-    float left_position  = motor_control.get_left_position();
-    float right_position = motor_control.get_right_position();
+    float left_position  = motor_control.get_left_position_fil();
+    float right_position = motor_control.get_right_position_fil();
 
     this->distance_prev = this->distance;
-    this->distance = 0.25*(right_position + left_position)*wheel_diameter;
+    this->distance      = 0.25*(right_position + left_position)*wheel_diameter;
 
     this->angle_prev = this->angle;
     this->angle      = 0.5*(right_position - left_position)*wheel_diameter / wheel_brace;

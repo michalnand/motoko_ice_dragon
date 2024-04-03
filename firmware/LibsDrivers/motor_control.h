@@ -34,19 +34,21 @@ class MotorControl
         //return raw angle from encoder, 0..4095
         int32_t get_left_angle();
         
-        //wheel position (angle), 1.0 is equal to one full forward rotation, -1.0 for backward
+        //wheel position (angle), 2PI is equal to one full forward rotation, -2PI for backward
         float get_left_position();
+        float get_left_position_fil();  
         
-        //wheel angular velocity, 1.0 is equal to one full forward rotation per second, -1.0 for backward
+        //wheel angular velocity, 2PI is equal to one full forward rotation per second, -2PI for backward
         float get_left_velocity();
 
         //return raw angle from encoder, 0..4095
         int32_t get_right_angle();
-
-        //wheel position (angle), 1.0 is equal to one full forward rotation, -1.0 for backward
+        
+        //wheel position (angle), 2PI is equal to one full forward rotation, -2PI for backward
         float get_right_position();
+        float get_right_position_fil();
 
-        //wheel angular velocity, 1.0 is equal to one full forward rotation per second, -1.0 for backward
+        //wheel angular velocity, 2PI is equal to one full forward rotation per second, -2PI for backward
         float get_right_velocity();
 
     private:
