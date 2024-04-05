@@ -21,7 +21,7 @@ class LineFollowing
 
         
     private:
-        FirFilter<float, 64> quality_filter;
+        FirFilter<float, 32> quality_filter;
         SharpRightDetect sharp_turn_detect;
         
         float r_min, r_max, speed_min, speed_max;

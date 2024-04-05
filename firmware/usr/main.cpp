@@ -141,9 +141,10 @@ int main(void)
   //smooth_motor_driver_test();
   //robot_dynamics_identification();
 
-    
+
   line_following.main();
   //line_following.obstacle_avoid();
+  //line_following.line_search(LINE_LOST_CENTER);
   
   
 

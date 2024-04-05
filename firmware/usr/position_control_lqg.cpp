@@ -37,16 +37,13 @@ void PositionControlLQG::init()
     //max speed, 1500rpm
     this->speed_max     = 1500*2.0*PI/60.0;
 
-    //float dist_ramp  = 5.0; 
-    //float angle_ramp = 10.0;  
+    float dist_ramp  = 5.0; 
+    float angle_ramp = 10.0;  
+    
+    distance_shaper.init(dist_ramp, 5*dist_ramp, 0.02, 0.02); 
+    angle_shaper.init(angle_ramp, angle_ramp, 0.5, 0.5);     
 
-    float dist_ramp  = 2.0; 
-    float angle_ramp = 5.0;  
- 
-    distance_shaper.init(dist_ramp, 0.98);
-    angle_shaper.init(angle_ramp, 0.5);
-
-    // q = 10**-7, 0.5*10**-3
+    // q = 10**-7, 0.5*10**-3    
     float a[] = {
         1.0, 0.0, 0.7173754, 0.0, 
         0.0, 1.0, 0.0, 0.20310567, 
@@ -84,7 +81,7 @@ void PositionControlLQG::init()
     float ki[] = {
       0.00077209674, -0.016834622, 0.0, 0.0, 
       0.00077209674, 0.016834622, 0.0, 0.0 };
-       
+      
 
     float f[] = {
         0.13137825, 0.0, 0.0, 0.0, 
@@ -223,17 +220,7 @@ void PositionControlLQG::callback()
     lqg.yr[0] = this->distance_shaper.step(this->req_distance);
     lqg.yr[1] = this->angle_shaper.step(this->req_angle);
 
-    /*
-    if (this->lf_mode == true)
-    {
-      lqg.yr[1] = this->req_angle; 
-      this->angle_shaper.set(this->req_angle);
-    }
-    else
-    {
-      lqg.yr[1] = this->angle_shaper.step(this->req_angle);
-    }
-    */
+    
 
     //fill current state 
     float left_position  = motor_control.get_left_position_fil();
@@ -272,7 +259,7 @@ void PositionControlLQG::callback()
 
     // scale to motors
     float v_left_req  = this->speed_max*lqg.u[0]; 
-    float v_right_req = this->speed_max*lqg.u[1]; 
+    float v_right_req = this->speed_max*lqg.u[1];  
 
     // send to wheel velocity controll
     motor_control.set_velocity(v_left_req, v_right_req);

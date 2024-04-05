@@ -14,6 +14,7 @@ class TrajectoryTracking
     private:
         float start_distance, start_angle;
         float target_distance, target_angle;
+        float target_distance_curr;
 };
 
 

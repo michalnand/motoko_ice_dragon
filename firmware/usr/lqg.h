@@ -65,8 +65,6 @@ class LQG
         }       
 
     
-
-
     public:
         //inputs and outputs
         Matrix<float, system_outputs, 1> y;

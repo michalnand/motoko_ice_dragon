@@ -146,13 +146,26 @@ void LineSensor::process()
         left_position  = k*integrate(left_idx);
         right_position = left_position;
 
-        line_lost_type  = LINE_LOST_NONE;
     }
 
     if (right_valid)
     {
         right_position  = k*integrate(right_idx);
+    }   
 
+  
+    //solve if line lost
+    if ((left_valid == false) && (right_valid == false))
+    {
+        if (left_position < -0.8)
+            line_lost_type = LINE_LOST_LEFT;
+        else if (left_position > 0.8) 
+            line_lost_type = LINE_LOST_RIGHT;
+        else
+            line_lost_type = LINE_LOST_CENTER;
+    }
+    else
+    {
         line_lost_type  = LINE_LOST_NONE;
     }
 
@@ -160,19 +173,7 @@ void LineSensor::process()
     left_angle  = fatan(left_position * (SENSORS_BRACE/2.0) / SENSORS_DISTANCE);
     right_angle = fatan(right_position * (SENSORS_BRACE/2.0) / SENSORS_DISTANCE);
 
-    //solve if line lost
-    if ((left_valid == false) && (right_valid == false))
-    {
-        if (left_position < -0.85)
-            line_lost_type = LINE_LOST_LEFT;
-        else
-        if (left_position > 0.85) 
-            line_lost_type = LINE_LOST_RIGHT;
-        else
-            line_lost_type = LINE_LOST_CENTER;
-    }
  
-
     measurement_id++;
 }
 

@@ -19,6 +19,7 @@ const float ir_calibration[] =
     -3.66428832e+00,  1.97931509e-01, -1.71666039e-04,  6.12578482e-08
 }; 
 
+
 /*
 //robot B
 const float ir_calibration[] = 
@@ -115,11 +116,11 @@ int IRSensor::obstacle_detected()
 {
     float d = (distance[2] + distance[3])/2.0;
 
-    if (d < 160.0)        
+    if (d < 120.0)         
     {
         return 2;
     }
-    else if (d < 180.0)
+    else if (d < 150.0)
     {
         return 1;
     }
