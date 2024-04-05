@@ -108,10 +108,92 @@ int LineFollowing::main()
 
 
 
+
+
+
+
+
 void LineFollowing::line_search(uint32_t line_lost_type)
 {
-  position_control.disable_lf();
+  float search_distance = 120.0;
+
+  uint32_t state = 0; 
+  int      way   = 1;
+
+  if (line_lost_type == LINE_LOST_LEFT)
+  {
+    way   = 1;
+    state = 0;
+  }
+  else if (line_lost_type == LINE_LOST_RIGHT)
+  {
+    way   = -1;
+    state = 0; 
+  }
+  else
+  { 
+    way = 1;
+    state = 2;
+  }
   
+  while (1)
+  {
+    if (state == 0 || state == 1)
+    {
+      //turn until line found, or dostance trehold
+      float start_distance  = position_control.distance;
+      float target_distance = start_distance + search_distance;
+
+      while (position_control.distance < target_distance)
+      { 
+        position_control.set_circle_motion(way*2.0*r_min, speed_min);
+        timer.delay_ms(4);    
+
+        if (line_sensor.line_lost_type == LINE_LOST_NONE)
+        {
+          return;
+        }
+      }  
+
+      while (position_control.distance > start_distance)
+      { 
+        position_control.set_circle_motion(-way*2.0*r_min, speed_min);
+        timer.delay_ms(4);    
+
+        if (line_sensor.line_lost_type == LINE_LOST_NONE)
+        {
+          return;
+        }
+      } 
+
+      way*= -1;
+      state++;
+    }
+
+    //go forward, until line found or maximal distance reached
+    else
+    {
+      float target_distance = position_control.distance + search_distance;
+      while (position_control.distance < target_distance)
+      { 
+        position_control.set_circle_motion(r_max, speed_min);
+        timer.delay_ms(4);  
+
+        if (line_sensor.line_lost_type == LINE_LOST_NONE)
+        {
+          return;
+        }
+      } 
+
+      state = 0;  
+    }
+  }
+}
+  
+
+/*
+void LineFollowing::line_search(uint32_t line_lost_type)
+{  
   while (1)
   {
     line_lost_type = line_sensor.line_lost_type;
@@ -134,6 +216,7 @@ void LineFollowing::line_search(uint32_t line_lost_type)
     }
   }
 }
+*/
 
 /*
 void LineFollowing::line_search(uint32_t line_lost_type)
