@@ -132,7 +132,6 @@ void LineFollowing::line_search(uint32_t line_lost_type)
     { 
       position_control.set_circle_motion(r_max, speed_min);
     }
-
   }
 }
 
@@ -228,32 +227,37 @@ void LineFollowing::obstacle_avoid()
   float r_max = 10000.0;
   float speed = 150.0;  
   float d_req = 80.0;     
-  float r_turn= 160.0;  
-  
-  while (1)
+  float r_turn= 160.0;    
+
+
+  while (ir_sensor.obstacle_distance() < 50.0)
   {
-    //turn left, 90degrees
-    float angle_target = position_control.angle + PI/2.0;
-    uint32_t steps = 0;
+    position_control.set(position_control.distance - speed_min/2, position_control.angle);
+    timer.delay_ms(4);    
+  } 
 
-    while (angle_target > position_control.angle && steps > 100)
-    {
-      position_control.set_circle_motion(r_turn, speed);
-      steps++;
-      timer.delay_ms(4);   
-    } 
 
-    int obstacle = ir_sensor.obstacle_detected();
-    if (obstacle != 0)
-    {
-      position_control.set(position_control.distance - 40.0, 0.0);
-      timer.delay_ms(500); 
-    }
-    else
-    {
-      break;
-    }
+  while (ir_sensor.obstacle_distance() < 100.0)
+  {
+    position_control.stop();
+    timer.delay_ms(4); 
   }
+
+  return; 
+
+  
+
+  //turn left, 90degrees 
+  float angle_target = position_control.angle + PI/2.0;
+  uint32_t steps = 0;
+
+  while (angle_target > position_control.angle && steps > 100)
+  {
+    position_control.set_circle_motion(r_turn, speed);
+    steps++;
+    timer.delay_ms(4);   
+  } 
+
    
 
   uint32_t state  = 0;
@@ -284,7 +288,7 @@ void LineFollowing::obstacle_avoid()
   }
 
   //turn left, 90degrees  
-  float angle_target = position_control.angle + PI/2.0;
+  angle_target = position_control.angle + PI/2.0;
   while (angle_target > position_control.angle)
   {
     position_control.set_circle_motion(r_turn, speed);
@@ -304,17 +308,6 @@ float LineFollowing::estimate_turn_radius(float sensor_reading, float eps)
 
   return r;
 }
-
-
-
-void LineFollowing::slow_down()
-{
-  float bias = position_control.lqg.integral_action.sum()/2.0;
-
-  position_control.lqg.integral_action[0]-= bias;
-  position_control.lqg.integral_action[1]-= bias;   
-}
-
 
 
 

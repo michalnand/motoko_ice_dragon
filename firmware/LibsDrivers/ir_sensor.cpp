@@ -1,6 +1,6 @@
 #include "ir_sensor.h"
 #include "drivers.h"
-
+#include "fmath.h"
 
 
 
@@ -111,10 +111,14 @@ void IRSensor::callback()
     }
 }
 
+float IRSensor::obstacle_distance()
+{
+    return min(distance[2], distance[3]);
+}   
 
 int IRSensor::obstacle_detected()
 {
-    float d = (distance[2] + distance[3])/2.0;
+    float d = obstacle_distance();
 
     if (d < 120.0)         
     {

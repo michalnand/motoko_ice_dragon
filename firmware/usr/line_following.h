@@ -17,7 +17,6 @@ class LineFollowing
         void line_search(uint32_t line_lost_type);
         void obstacle_avoid();
 
-        void slow_down();
 
         
     private:
