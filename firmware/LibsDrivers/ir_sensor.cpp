@@ -120,9 +120,9 @@ int IRSensor::obstacle_detected()
 {
     float d = obstacle_distance();
 
-    if (d < 120.0)         
+    if (d < 80.0)          
     {
-        return 2;
+        return 2; 
     }
     else if (d < 150.0)
     {

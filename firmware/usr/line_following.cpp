@@ -306,46 +306,47 @@ void LineFollowing::line_search(uint32_t line_lost_type)
 
 void LineFollowing::obstacle_avoid()
 {
-  float r_min = 500.0;    
+  float r_min = 550.0;      
   float r_max = 10000.0;
-  float speed = 150.0;  
-  float d_req = 80.0;     
+  float speed = speed_min;  
+  float d_req = 80.0;      
   float r_turn= 160.0;    
 
+  float target_distance = position_control.distance - 10.0;  
+  float speed_curr = 0.0;   
 
-  while (ir_sensor.obstacle_distance() < 50.0)
+  while (ir_sensor.obstacle_distance() < 50.0 || position_control.distance > target_distance) 
   {
-    position_control.set(position_control.distance - speed_min/2, position_control.angle);
-    timer.delay_ms(4);    
+    speed_curr = clip(speed_curr + 1.0, 0.0, speed);
+    position_control.set(position_control.distance - speed_curr, position_control.angle);
+    timer.delay_ms(4);       
   } 
 
-
+  /*
   while (ir_sensor.obstacle_distance() < 100.0)
   {
     position_control.stop();
-    timer.delay_ms(4); 
+    timer.delay_ms(4);  
   }
 
   return; 
+  */
 
   
-
   //turn left, 90degrees 
   float angle_target = position_control.angle + PI/2.0;
-  uint32_t steps = 0;
 
-  while (angle_target > position_control.angle && steps > 100)
+  while (angle_target > position_control.angle)
   {
     position_control.set_circle_motion(r_turn, speed);
-    steps++;
     timer.delay_ms(4);   
   } 
 
-   
 
-  uint32_t state  = 0;
-  
-  float angle_mark    = position_control.angle - 0.6*PI;
+
+
+  uint32_t state = 0;  
+  float angle_mark = position_control.angle - 0.6*PI;
   
   while (1)   
   {
@@ -377,8 +378,7 @@ void LineFollowing::obstacle_avoid()
     position_control.set_circle_motion(r_turn, speed);
     timer.delay_ms(4);   
   }   
-  
-  //position_control.stop();
+
 }
 
 

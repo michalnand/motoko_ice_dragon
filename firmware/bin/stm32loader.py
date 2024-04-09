@@ -29,7 +29,7 @@ from functools import reduce
 import sys
 import getopt
 import serial
-import time
+import time 
 
 
 VERBOSITY = 5
@@ -52,6 +52,7 @@ CHIP_IDS = {
     0x413: "STM32F40xxx/41xxx",
     0x419: "STM3242xxx/43xxx",
     0x422: "STM32F30x",
+    0x451: "STM32F76x",
 
     # see ST AN4872
     # requires parity None
