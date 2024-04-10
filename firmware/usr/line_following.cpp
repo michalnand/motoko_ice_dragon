@@ -179,11 +179,58 @@ void LineFollowing::line_search(uint32_t line_lost_type)
         position_control.set_circle_motion(r_max, speed_min);
         timer.delay_ms(4);  
 
+
+        if (line_sensor.line_lost_type == LINE_LOST_NONE)
+        {
+          return;
+        }
+      }   
+
+      float start_angle = position_control.angle;
+      float target_angle;
+
+      target_angle = start_angle + 0.5*PI;
+
+      while (abs(position_control.angle - target_angle) > 0.02*PI)
+      { 
+        position_control.set(position_control.distance, target_angle);
+        timer.delay_ms(4);  
+
+        
+        if (line_sensor.line_lost_type == LINE_LOST_NONE)
+        {
+          return;
+        }
+      }   
+
+
+      target_angle = start_angle - 0.5*PI;
+
+      while (abs(position_control.angle - target_angle) > 0.02*PI)
+      { 
+        position_control.set(position_control.distance, target_angle);
+        timer.delay_ms(4);  
+
         if (line_sensor.line_lost_type == LINE_LOST_NONE)
         {
           return;
         }
       } 
+
+
+      target_angle = start_angle;
+
+      while (abs(position_control.angle - target_angle) > 0.1*PI)
+      { 
+        position_control.set(position_control.distance, target_angle);
+        timer.delay_ms(4);  
+
+        if (line_sensor.line_lost_type == LINE_LOST_NONE)
+        {
+          return;
+        }
+      } 
+
 
       state = 0;  
     }
