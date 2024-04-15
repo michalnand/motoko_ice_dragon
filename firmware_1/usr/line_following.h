@@ -16,6 +16,8 @@ class LineFollowing
         float estimate_turn_radius(float sensor_reading, float eps);
         void line_search(uint32_t line_lost_type);
         void obstacle_avoid();
+        void curtain_avoid();
+
 
 
         
@@ -26,7 +28,10 @@ class LineFollowing
         float r_min, r_max, speed_min, speed_max;
 
         float q_penalty, qr_max, qr_min;
-};
+
+        int obstacle_idx;
+        Array<bool, 2> obstacle_map;
+};  
  
 
 #endif

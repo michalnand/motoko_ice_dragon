@@ -13,13 +13,25 @@ LineFollowing::LineFollowing()
     this->r_max = 10000.0;
 
     this->speed_min = 100.0;     
-    this->speed_max = 250.0; //150.0, 250.0, 300.0, 400
-    //this->speed_max = 150.0; //150.0, 250.0, 300.0, 400
-
+    
+    //this->speed_max = 150.0;
+    this->speed_max = 250.0; 
+    //this->speed_max = 350.0;
+    
 
     this->q_penalty = 1.0;    
     this->qr_max    = 8.0;      
     this->qr_min    = 2.0;  
+
+
+    this->obstacle_idx = 0;
+
+    this->obstacle_map.set(true);
+
+    //obstacle_map[1] = false; 
+    //obstacle_map[2] = false;
+
+    obstacle_map[1] = false;
 
 
     sharp_turn_detect.init(60.0, 0.8);
@@ -45,22 +57,31 @@ int LineFollowing::main()
     {
         int obstacle = ir_sensor.obstacle_detected();
 
-
         if (obstacle == 2) 
         {
-          position_control.disable_lf();
-          obstacle_avoid(); 
-          position_control.enable_lf(); 
+          if (obstacle_map[this->obstacle_idx] == true)
+          {
+            position_control.disable_lf();
+            obstacle_avoid(); 
+            position_control.enable_lf(); 
 
-          speed_min_curr = 0.0; 
-          quality_filter.init(1.0);
+            speed_min_curr = 0.0; 
+            quality_filter.init(1.0);
+          }
+          else
+          {
+            curtain_avoid();
+
+            speed_min_curr = speed_min; 
+            quality_filter.init(1.0);
+          }
+
+          this->obstacle_idx = (this->obstacle_idx+1)%obstacle_map.size();
         }
         
-
         while (line_sensor.line_lost_type != LINE_LOST_NONE)   
         {
           position_control.disable_lf();
-          //position_control.stop(); 
           line_search(line_sensor.line_lost_type);
           position_control.enable_lf();
 
@@ -88,14 +109,12 @@ int LineFollowing::main()
         float speed = q*speed_max + (1.0 - q)*speed_min_curr;  
 
         //obstacle warning, set minimal speed
-        
         if (obstacle != 0)
         { 
           speed          = speed_min; 
           speed_min_curr = speed_min;
         } 
          
-        
         position_control.set_circle_motion(kr*radius, speed);
         timer.delay_ms(4);
     }   
@@ -105,12 +124,6 @@ int LineFollowing::main()
 
     return 0;
 }
-
-
-
-
-
-
 
 
 void LineFollowing::line_search(uint32_t line_lost_type)
@@ -203,7 +216,6 @@ void LineFollowing::line_search(uint32_t line_lost_type)
         }
       }   
 
-
       target_angle = start_angle - 0.5*PI;
 
       while (abs(position_control.angle - target_angle) > 0.02*PI)
@@ -216,7 +228,6 @@ void LineFollowing::line_search(uint32_t line_lost_type)
           return;
         }
       } 
-
 
       target_angle = start_angle;
 
@@ -231,125 +242,11 @@ void LineFollowing::line_search(uint32_t line_lost_type)
         }
       } 
 
-
       state = 0;  
     }
   }
 }
   
-
-/*
-void LineFollowing::line_search(uint32_t line_lost_type)
-{  
-  while (1)
-  {
-    line_lost_type = line_sensor.line_lost_type;
-
-    if (line_lost_type == LINE_LOST_NONE)
-    {
-      return;  
-    }
-    else if (line_lost_type == LINE_LOST_LEFT)
-    {
-      position_control.set_circle_motion(2*r_min, speed_min);
-    }
-    else if (line_lost_type == LINE_LOST_RIGHT)
-    {
-      position_control.set_circle_motion(-2*r_min, speed_min);
-    }
-    else 
-    { 
-      position_control.set_circle_motion(r_max, speed_min);
-    }
-  }
-}
-*/
-
-/*
-void LineFollowing::line_search(uint32_t line_lost_type)
-{
-  TrajectoryTracking trajectory_tracking;
-
-  position_control.disable_lf();
-
-  float search_distance = 100.0;
-  float search_angle    = 130.0*PI/180.0;
-
-  int      way   = 1;
-  uint32_t state = 0;
-
-  if (line_lost_type == LINE_LOST_LEFT)
-  {
-    way   = 1;
-    state = 0;
-  }
-  else if (line_lost_type == LINE_LOST_RIGHT)
-  {
-    way   = -1;
-    state = 0; 
-  }
-  else
-  { 
-    way = 1;
-    state = 2;
-  }
-
-  while (true)
-  {
-    //side line search
-    if (state == 0 || state == 1)
-    {
-      trajectory_tracking.start(search_distance, way*search_angle);
-      while (trajectory_tracking.step() != true)
-      { 
-        timer.delay_ms(4);  
-
-        if (line_sensor.line_lost_type == LINE_LOST_NONE)
-        {
-          return;
-        }
-      } 
-
-      timer.delay_ms(50);      
-
-      trajectory_tracking.start(-search_distance, -way*search_angle);
-      while (trajectory_tracking.step() != true)
-      {
-        timer.delay_ms(4); 
-
-        if (line_sensor.line_lost_type == LINE_LOST_NONE)
-        {
-          return;
-        }
-      } 
-
-      timer.delay_ms(50);
-
-      way*= -1;
-      state++;
-    } 
-
-    //forward line search
-    else
-    {
-      trajectory_tracking.start(search_distance, 0.0);
-      while (trajectory_tracking.step() != true)
-      {
-        timer.delay_ms(4); 
-
-        if (line_sensor.line_lost_type == LINE_LOST_NONE)
-        {
-          return;
-        }
-      } 
-
-      timer.delay_ms(50);
-
-      state = 0;
-    }
-  }
-}
-*/
 
 void LineFollowing::obstacle_avoid()
 {
@@ -369,17 +266,6 @@ void LineFollowing::obstacle_avoid()
     timer.delay_ms(4);       
   } 
 
-  /*
-  while (ir_sensor.obstacle_distance() < 100.0)
-  {
-    position_control.stop();
-    timer.delay_ms(4);  
-  }
-
-  return; 
-  */
-
-  
   //turn left, 90degrees 
   float angle_target = position_control.angle + PI/2.0;
 
@@ -389,9 +275,7 @@ void LineFollowing::obstacle_avoid()
     timer.delay_ms(4);   
   } 
 
-
-
-
+  //turn around bostacle, circular motion
   uint32_t state = 0;  
   float angle_mark = position_control.angle - 0.6*PI;
   
@@ -425,7 +309,24 @@ void LineFollowing::obstacle_avoid()
     position_control.set_circle_motion(r_turn, speed);
     timer.delay_ms(4);   
   }   
+}
 
+
+void LineFollowing::curtain_avoid()
+{
+  float curtain_distance = 250.0;
+  float target_distance = position_control.distance + curtain_distance;
+
+  while (position_control.distance < target_distance)
+  {
+    float position = line_sensor.right_position; 
+
+    float radius  = this->estimate_turn_radius(position, 1.0/r_max);
+    radius  = -sgn(position)*clip(radius, r_min, r_max);      
+
+    position_control.set_circle_motion(this->qr_min*radius, this->speed_min);
+    timer.delay_ms(4);
+  }
 }
 
 
@@ -438,6 +339,3 @@ float LineFollowing::estimate_turn_radius(float sensor_reading, float eps)
 
   return r;
 }
-
-
-

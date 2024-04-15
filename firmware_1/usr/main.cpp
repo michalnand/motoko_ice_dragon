@@ -34,7 +34,7 @@ void brick_avoid(PositionControlLQR &position_control, float a, float d, float a
   float points_distance[] = {0.0,    a,   0.0,   d,  0.0,  a,   0.0};
   float points_angle[]    = {angle, 0.0, -angle, 0.0, -angle, 0.0, angle}; 
 
-
+  
   for (unsigned int n = 0; n < 7; n++)
   {
     d_curr+= points_distance[n];
