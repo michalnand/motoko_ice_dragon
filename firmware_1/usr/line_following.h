@@ -3,7 +3,7 @@
 
 #include <drivers.h>
 #include <filter.h>
-#include <sharp_detect.h>
+#include <sharp_turn_detect.h>
 
 class LineFollowing
 {
@@ -13,17 +13,20 @@ class LineFollowing
         int main();
 
     public:
-        float estimate_turn_radius(float sensor_reading, float eps);
+        
         void line_search(uint32_t line_lost_type);
         void obstacle_avoid();
         void curtain_avoid();
+        
+    public:
+        float estimate_turn_radius(float sensor_reading, float eps);
 
 
 
         
     private:
         FirFilter<float, 32> quality_filter;
-        SharpRightDetect sharp_turn_detect;
+        SharpTurnDetect sharp_turn_detect;
         
         float r_min, r_max, speed_min, speed_max;
 

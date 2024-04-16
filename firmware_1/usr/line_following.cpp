@@ -34,7 +34,7 @@ LineFollowing::LineFollowing()
     //obstacle_map[1] = false;
 
 
-    sharp_turn_detect.init(60.0, 0.8);
+    sharp_turn_detect.init(40.0, 0.7);
 }
 
 
@@ -47,11 +47,8 @@ int LineFollowing::main()
     float speed_min_curr = 0.0;
 
     quality_filter.init(1.0);
-
   
     position_control.enable_lf();
-
-    float target_distance = position_control.distance + 700.0;
 
     while (1)
     {
@@ -87,9 +84,24 @@ int LineFollowing::main()
 
           speed_min_curr = speed_min; 
           quality_filter.init(1.0); 
-        } 
+        }   
         
-        float position = line_sensor.right_position; 
+        float position = line_sensor.right_position;
+
+        //splited line, or line loop detection
+        if (sharp_turn_detect.step(position)) 
+        {
+          float target_distance = position_control.distance + 150.0;
+
+          while (position_control.distance < target_distance)
+          { 
+            position_control.set_circle_motion(-2.0*r_min, speed_min);
+            timer.delay_ms(4);    
+          }
+          
+          speed_min_curr = 0.0; 
+          quality_filter.init(1.0);
+        }
 
         speed_min_curr = clip(speed_min_curr + speed_min/50.0, 0.0, speed_min);
 
@@ -328,6 +340,8 @@ void LineFollowing::curtain_avoid()
     timer.delay_ms(4);
   }
 }
+
+
 
 
 float LineFollowing::estimate_turn_radius(float sensor_reading, float eps)
