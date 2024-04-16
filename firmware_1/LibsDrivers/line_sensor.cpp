@@ -52,6 +52,9 @@ void LineSensor::init()
     left_position = 0.0;
     right_position = 0.0;
 
+    minimal_position = 0.0;
+    extremal_position = 0.0; 
+
     left_angle = 0.0;
     right_angle = 0.0;
 
@@ -168,6 +171,18 @@ void LineSensor::process()
     {
         line_lost_type  = LINE_LOST_NONE;
     }
+    
+    if (abs(left_position) < abs(right_position))
+    { 
+        minimal_position = left_position;
+        extremal_position= right_position;
+    }
+    else
+    {
+        minimal_position = right_position;
+        extremal_position= left_position;
+    }
+    
 
     //compute to robot angle in radians
     left_angle  = fatan(left_position * (SENSORS_BRACE/2.0) / SENSORS_DISTANCE);

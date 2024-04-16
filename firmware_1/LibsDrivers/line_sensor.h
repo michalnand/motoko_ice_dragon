@@ -1,17 +1,17 @@
 #ifndef _LINE_SENSOR_H_
 #define _LINE_SENSOR_H_
 
+#include <stdint.h>
 #include <gpio.h>
 #include <array.h>
+
 
 
 #define LINE_SENSOR_STEP                ((int32_t)128)
 
 //sensitivity
-//#define LINE_SENSOR_THRESHOLD           ((int32_t)400) 
-#define LINE_SENSOR_THRESHOLD           ((int32_t)300)  
-//#define LINE_SENSOR_THRESHOLD           ((int32_t)200) 
-//#define LINE_SENSOR_THRESHOLD           ((int32_t)100) 
+//#define LINE_SENSOR_THRESHOLD           ((int32_t)300)  
+#define LINE_SENSOR_THRESHOLD           ((int32_t)400)  
 
 
 //brace from first to last sesor in mm
@@ -60,8 +60,11 @@ class LineSensor
         uint32_t line_lost_type;
         uint32_t on_line_count;
 
+
         //this stores last valid line position <-1, 1>
         float left_position, right_position;
+
+        float minimal_position, extremal_position;
 
         //raw line position into angle (radians)
         float left_angle, right_angle;

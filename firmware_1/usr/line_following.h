@@ -3,7 +3,7 @@
 
 #include <drivers.h>
 #include <filter.h>
-#include <sharp_turn_detect.h>
+#include <split_line_detector.h>
 
 class LineFollowing
 {
@@ -26,7 +26,7 @@ class LineFollowing
         
     private:
         FirFilter<float, 32> quality_filter;
-        SharpTurnDetect sharp_turn_detect;
+        SplitLineDetector split_line_detector;
         
         float r_min, r_max, speed_min, speed_max;
 

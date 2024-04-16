@@ -16,7 +16,7 @@ LineFollowing::LineFollowing()
     
     //this->speed_max = 150.0;
     this->speed_max = 250.0; 
-    //this->speed_max = 350.0;
+    //this->speed_max = 350.0; 
     
 
     this->q_penalty = 1.0;    
@@ -34,7 +34,7 @@ LineFollowing::LineFollowing()
     //obstacle_map[1] = false;
 
 
-    sharp_turn_detect.init(40.0, 0.7);
+    split_line_detector.init(30.0, 0.8);
 }
 
 
@@ -54,6 +54,7 @@ int LineFollowing::main()
     {
         int obstacle = ir_sensor.obstacle_detected();
 
+        //obstacle avoiding
         if (obstacle == 2) 
         {
           if (obstacle_map[this->obstacle_idx] == true)
@@ -71,11 +72,14 @@ int LineFollowing::main()
 
             speed_min_curr = speed_min; 
             quality_filter.init(1.0);
-          }
+          } 
+
+          split_line_detector.reset();  
 
           this->obstacle_idx = (this->obstacle_idx+1)%obstacle_map.size();
         }
         
+        //lost line search
         while (line_sensor.line_lost_type != LINE_LOST_NONE)   
         {
           position_control.disable_lf();
@@ -84,24 +88,29 @@ int LineFollowing::main()
 
           speed_min_curr = speed_min; 
           quality_filter.init(1.0); 
+          split_line_detector.reset();
         }   
-        
-        float position = line_sensor.right_position;
+          
 
-        //splited line, or line loop detection
-        if (sharp_turn_detect.step(position)) 
+        //splited line
+        int split_detection = split_line_detector.step(line_sensor.extremal_position);
+
+        if (split_detection != 0) 
         {
-          float target_distance = position_control.distance + 150.0;
+          float target_distance = position_control.distance + 120.0;
 
           while (position_control.distance < target_distance)
           { 
             position_control.set_circle_motion(-2.0*r_min, speed_min);
             timer.delay_ms(4);    
-          }
-          
+          }     
+
           speed_min_curr = 0.0; 
           quality_filter.init(1.0);
         }
+
+        //main line following
+        float position = line_sensor.right_position;
 
         speed_min_curr = clip(speed_min_curr + speed_min/50.0, 0.0, speed_min);
 
