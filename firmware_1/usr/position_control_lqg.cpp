@@ -2,6 +2,7 @@
 #include <drivers.h>
 #include <fmath.h>
 
+#include <config.h>
 
 PositionControlLQG position_control;
 
@@ -39,6 +40,16 @@ void PositionControlLQG::init()
 
     float dist_ramp  = 2.0; 
     float angle_ramp = 10.0;  
+
+    if (FAST_RUN)
+    {
+      dist_ramp = 3.0;  
+    }
+    else
+    {
+      dist_ramp = 2.0;
+    }
+    
     
     distance_shaper.init(dist_ramp, 5*dist_ramp, 0.02, 0.02); 
     angle_shaper.init(angle_ramp, angle_ramp, 0.5, 0.5);     

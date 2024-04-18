@@ -6,21 +6,26 @@
 
 #include <trajectory_tracking.h>
 
+#include <config.h>
   
 LineFollowing::LineFollowing()
 {
     this->r_min = 80.0;
     this->r_max = 10000.0;
 
-    this->speed_min = 150.0;     
-    
-    //this->speed_max = 150.0; 
-    this->speed_max = 250.0;   
-    //this->speed_max = 350.0;
-    //this->speed_max = 450.0;  
-    
+    this->speed_min = 150.0;
 
-    this->q_penalty = 0.8;      
+    if (FAST_RUN) 
+    {
+      this->speed_max = 200.0;   
+    }
+    else
+    {
+      this->speed_max = 150.0;      
+    }
+    
+   
+    this->q_penalty = 2.0;      
     this->qr_max    = 8.0;      
     this->qr_min    = 2.0;  
 
@@ -50,6 +55,8 @@ int LineFollowing::main()
     quality_filter.init(1.0);
   
     position_control.enable_lf();
+
+    float brick_distance_mark = 0.0;
 
     while (1)
     {
@@ -90,26 +97,38 @@ int LineFollowing::main()
           speed_min_curr = speed_min; 
           quality_filter.init(1.0); 
           split_line_detector.reset();
+
+          brick_distance_mark = position_control.distance;
         }   
           
-         
-        //splited line
-        int split_detection = split_line_detector.step(line_sensor.extremal_position);
 
-        if (split_detection != 0)   
-        {
-          float target_distance = position_control.distance + 60.0;
-
-          while (position_control.distance < target_distance)
-          { 
-            position_control.set_circle_motion(-2.0*r_min, speed_min);
-            timer.delay_ms(4);    
-          }     
-
-          speed_min_curr = 0.0; 
-          quality_filter.init(1.0);
-        }
         
+        if (position_control.distance > (brick_distance_mark + 150))
+        {
+          //splited line
+          int split_detection = split_line_detector.step(line_sensor.left_position, line_sensor.right_position);
+
+          if (split_detection != 0)   
+          {
+            //position_control.stop();
+            //timer.delay_ms(500);   
+
+            float target_distance = position_control.distance + 80.0;
+
+            while (position_control.distance < target_distance)
+            { 
+              position_control.set_circle_motion(-2.0*r_min, speed_min);
+              timer.delay_ms(4);      
+            }     
+
+            speed_min_curr = 0.0; 
+            quality_filter.init(1.0);
+          } 
+        }
+        else
+        {
+          split_line_detector.reset();
+        }
 
         //main line following
         float position = line_sensor.right_position;
@@ -273,7 +292,18 @@ void LineFollowing::line_search(uint32_t line_lost_type)
 
 void LineFollowing::obstacle_avoid()
 {
-  float r_min = 850; //550.0;      
+  float r_min = 950; //550.0;  
+
+  if (FAST_RUN)
+  {
+    r_min = 550.0;
+  }
+  else
+  {
+    r_min = 950.0;
+  }
+
+  
   float r_max = 10000.0;
   float speed = speed_min;  
   float d_req = 80.0;      
