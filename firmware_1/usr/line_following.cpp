@@ -292,15 +292,15 @@ void LineFollowing::line_search(uint32_t line_lost_type)
 
 void LineFollowing::obstacle_avoid()
 {
-  float r_min = 950; //550.0;  
+  float r_min = 550; //550.0;  
 
   if (FAST_RUN)
   {
-    r_min = 550.0;
-  }
-  else
+    r_min = 700.0;
+  } 
+  else  
   {
-    r_min = 950.0;
+    r_min = 750.0;  
   }
 
   
