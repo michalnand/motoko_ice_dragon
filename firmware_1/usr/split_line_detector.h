@@ -1,6 +1,7 @@
 #ifndef _SPLIT_LINE_DETECTOR_H_
 #define _SPLIT_LINE_DETECTOR_H_
 
+
 class SplitLineDetector
 {
     public:
@@ -9,11 +10,11 @@ class SplitLineDetector
         int step(float position);
 
     private:
-        float max_distance,  threshold;
-        int state;
-        float distance_mark;
-        float angle_mark;
-
+        float   max_distance,  threshold;
+        int     state;  
+        float   distance_mark;
+        float   angle_mark;
+        float   sgn_mark; 
 };
 
 

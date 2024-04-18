@@ -12,14 +12,15 @@ LineFollowing::LineFollowing()
     this->r_min = 80.0;
     this->r_max = 10000.0;
 
-    this->speed_min = 100.0;     
+    this->speed_min = 150.0;     
     
-    //this->speed_max = 150.0;
-    this->speed_max = 250.0; 
-    //this->speed_max = 350.0; 
+    //this->speed_max = 150.0; 
+    this->speed_max = 250.0;   
+    //this->speed_max = 350.0;
+    //this->speed_max = 450.0;  
     
 
-    this->q_penalty = 1.0;    
+    this->q_penalty = 0.8;      
     this->qr_max    = 8.0;      
     this->qr_min    = 2.0;  
 
@@ -31,7 +32,7 @@ LineFollowing::LineFollowing()
     //obstacle_map[1] = false; 
     //obstacle_map[2] = false;
     
-    //obstacle_map[1] = false;
+    //obstacle_map[1] = false; 
 
 
     split_line_detector.init(30.0, 0.8);
@@ -91,13 +92,13 @@ int LineFollowing::main()
           split_line_detector.reset();
         }   
           
-
+         
         //splited line
         int split_detection = split_line_detector.step(line_sensor.extremal_position);
 
-        if (split_detection != 0) 
+        if (split_detection != 0)   
         {
-          float target_distance = position_control.distance + 120.0;
+          float target_distance = position_control.distance + 60.0;
 
           while (position_control.distance < target_distance)
           { 
@@ -108,11 +109,12 @@ int LineFollowing::main()
           speed_min_curr = 0.0; 
           quality_filter.init(1.0);
         }
+        
 
         //main line following
         float position = line_sensor.right_position;
 
-        speed_min_curr = clip(speed_min_curr + speed_min/50.0, 0.0, speed_min);
+        speed_min_curr = clip(speed_min_curr + speed_min/100.0, 0.0, speed_min);
 
         quality_filter.step(abs(position));
 
@@ -271,7 +273,7 @@ void LineFollowing::line_search(uint32_t line_lost_type)
 
 void LineFollowing::obstacle_avoid()
 {
-  float r_min = 550.0;      
+  float r_min = 850; //550.0;      
   float r_max = 10000.0;
   float speed = speed_min;  
   float d_req = 80.0;      

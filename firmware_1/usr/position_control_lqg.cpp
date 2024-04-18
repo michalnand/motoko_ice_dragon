@@ -28,7 +28,7 @@ void PositionControlLQG::init()
     //TODO - move this into config.h
 
     //250Hz sampling rate, 4ms
-    uint32_t dt_us = 4000;
+    uint32_t dt_us = 4000; 
  
     //dims in mm 
     this->wheel_diameter = 34.0;
@@ -37,7 +37,7 @@ void PositionControlLQG::init()
     //max speed, 1500rpm
     this->speed_max     = 1500*2.0*PI/60.0;
 
-    float dist_ramp  = 5.0; 
+    float dist_ramp  = 2.0; 
     float angle_ramp = 10.0;  
     
     distance_shaper.init(dist_ramp, 5*dist_ramp, 0.02, 0.02); 
