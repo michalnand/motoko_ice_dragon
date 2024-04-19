@@ -40,7 +40,7 @@ LineFollowing::LineFollowing()
     //obstacle_map[1] = false; 
 
 
-    split_line_detector.init(30.0, 0.8);
+    split_line_detector.init(30.0, 0.9);
 }
 
 
