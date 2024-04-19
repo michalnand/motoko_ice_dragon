@@ -2,6 +2,6 @@
 #define _CONFIG_H_
 
 
-#define FAST_RUN        ((bool)true)
+#define FAST_RUN        ((bool)false)
 
 #endif 
