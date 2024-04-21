@@ -31,8 +31,8 @@ void ADC_IRQHandler(void)
 
     //trigger next masurement
     //ADC_RegularChannelConfig(ADC1, g_adc_ptr->adc_channels[g_adc_ptr->adc_current_idx], 1, ADC_SampleTime_15Cycles);
-    //ADC_RegularChannelConfig(ADC1, g_adc_ptr->adc_channels[g_adc_ptr->adc_current_idx], 1, ADC_SampleTime_112Cycles); 
-    ADC_RegularChannelConfig(ADC1, g_adc_ptr->adc_channels[g_adc_ptr->adc_current_idx], 1, ADC_SampleTime_480Cycles); 
+    ADC_RegularChannelConfig(ADC1, g_adc_ptr->adc_channels[g_adc_ptr->adc_current_idx], 1, ADC_SampleTime_112Cycles); 
+    //ADC_RegularChannelConfig(ADC1, g_adc_ptr->adc_channels[g_adc_ptr->adc_current_idx], 1, ADC_SampleTime_480Cycles); 
 
     ADC_SoftwareStartConv(ADC1);
 }

@@ -64,23 +64,24 @@ void LineSensor::init()
 }
 
 
-void LineSensor::callback()
+void LineSensor::callback()  
 {
-    uint32_t state = adc.measurement_id%8;
+    uint32_t state = adc.measurement_id%ADC_CHANNELS_COUNT;
 
     if (state == 0)
     {
         for (unsigned int i = 0; i < adc_result.size(); i++)
         { 
             int v = 1000 - ((adc.get()[i] - adc_calibration_q[i])*1000)/adc_calibration_k[i];
+
             if (v < 0)
             {
                 v = 0;
-            }
+            }       
 
-            adc_result[i] = v;
-        }
-    
+            adc_result[i] = (3*adc_result[i] + v)/4; 
+        }   
+       
         process();
     }
 }
