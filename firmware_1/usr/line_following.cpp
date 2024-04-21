@@ -34,9 +34,24 @@ LineFollowing::LineFollowing()
 
     this->obstacle_map.set(true);
 
-    //obstacle_map[1] = false; 
-    //obstacle_map[2] = false;
+    //brick - curtain - curtain - brick
     
+    /*
+    obstacle_map[0] = true; 
+    obstacle_map[1] = false; 
+    obstacle_map[2] = false;
+    obstacle_map[3] = true;     
+    */
+
+    
+    /*
+    //curtain - brick - brick - brick
+    obstacle_map[0] = false; 
+    obstacle_map[1] = true; 
+    obstacle_map[2] = true;
+    obstacle_map[3] = false; 
+    */
+
     //obstacle_map[1] = false; 
 
 
@@ -102,7 +117,7 @@ int LineFollowing::main()
         }   
           
 
-        
+        /*
         if (position_control.distance > (brick_distance_mark + 150))
         {
           //splited line
@@ -129,6 +144,7 @@ int LineFollowing::main()
         {
           split_line_detector.reset();
         }
+        */  
 
         //main line following
         float position = line_sensor.right_position;
@@ -228,7 +244,7 @@ void LineFollowing::line_search(uint32_t line_lost_type)
     //go forward, until line found or maximal distance reached
     else
     {
-      float target_distance = position_control.distance + search_distance;
+      float target_distance = position_control.distance + search_distance*0.7;
       while (position_control.distance < target_distance)
       { 
         position_control.set_circle_motion(r_max, speed_min);
@@ -244,7 +260,7 @@ void LineFollowing::line_search(uint32_t line_lost_type)
       float start_angle = position_control.angle;
       float target_angle;
 
-      target_angle = start_angle + 0.5*PI;
+      target_angle = start_angle - 0.5*PI;
 
       while (abs(position_control.angle - target_angle) > 0.02*PI)
       { 
@@ -255,10 +271,10 @@ void LineFollowing::line_search(uint32_t line_lost_type)
         if (line_sensor.line_lost_type == LINE_LOST_NONE)
         {
           return;
-        }
+        } 
       }   
 
-      target_angle = start_angle - 0.5*PI;
+      target_angle = start_angle + 0.5*PI;
 
       while (abs(position_control.angle - target_angle) > 0.02*PI)
       { 
@@ -268,12 +284,12 @@ void LineFollowing::line_search(uint32_t line_lost_type)
         if (line_sensor.line_lost_type == LINE_LOST_NONE)
         {
           return;
-        }
+        } 
       } 
 
       target_angle = start_angle;
 
-      while (abs(position_control.angle - target_angle) > 0.1*PI)
+      while (abs(position_control.angle + target_angle) > 0.1*PI)
       { 
         position_control.set(position_control.distance, target_angle);
         timer.delay_ms(4);  

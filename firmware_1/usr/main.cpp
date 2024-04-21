@@ -25,37 +25,6 @@
 #define KEY_PIN           4 
 
 
-/*
-void brick_avoid(PositionControlLQR &position_control, float a, float d, float angle)
-{
-  float d_curr = position_control.distance;
-  float a_curr = position_control.angle;
-
-  float points_distance[] = {0.0,    a,   0.0,   d,  0.0,  a,   0.0};
-  float points_angle[]    = {angle, 0.0, -angle, 0.0, -angle, 0.0, angle}; 
-
-  
-  for (unsigned int n = 0; n < 7; n++)
-  {
-    d_curr+= points_distance[n];
-    a_curr+= points_angle[n]*PI/180.0;
-
-    position_control.set(d_curr, a_curr);
-
-    while (abs(d_curr - position_control.distance) > 5.0)
-    {
-      __asm("nop");
-    }
-
-    while (abs(a_curr - position_control.angle) > 5.0*PI/180.0)
-    {
-      __asm("nop");
-    }
-  }
-}
-*/
-
-
 int main(void)      
 { 
   drivers_init();

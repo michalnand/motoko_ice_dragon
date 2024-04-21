@@ -33,7 +33,7 @@ class LineFollowing
         float q_penalty, qr_max, qr_min;
 
         int obstacle_idx;
-        Array<bool, 2> obstacle_map;
+        Array<bool, 4> obstacle_map;
 };  
  
 

@@ -94,6 +94,16 @@ void LineSensor::print()
         terminal << adc_result[i] << " ";
     terminal << "\n";
 
+    for (unsigned int i = 0; i < adc_calibration_q.size(); i++)
+        terminal << adc_calibration_q[i] << " ";
+    terminal << "\n";
+
+    for (unsigned int i = 0; i < adc_calibration_k.size(); i++)
+        terminal << adc_calibration_k[i] << " ";
+    terminal << "\n";
+
+    terminal << "\n\n";
+
 
     terminal << "\n";   
 
