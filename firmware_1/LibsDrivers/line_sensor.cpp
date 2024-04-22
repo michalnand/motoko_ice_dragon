@@ -79,6 +79,7 @@ void LineSensor::callback()
                 v = 0;
             }       
 
+            //low pass filter
             adc_result[i] = (3*adc_result[i] + v)/4; 
         }   
        

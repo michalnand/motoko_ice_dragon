@@ -30,7 +30,7 @@ int main(void)
   drivers_init();
   
   //main LQR controller init
-  //position_control.init();  
+  position_control.init();  
 
   LineFollowing line_following;
 
@@ -95,7 +95,7 @@ int main(void)
   //right_motor_connect_test();
 
   //ir_sensor_test();
-  line_sensor_test();
+  //line_sensor_test();
   //gyro_sensor_test(); 
   //encoder_sensor_test();
   //sensors_test();
@@ -111,7 +111,7 @@ int main(void)
   //robot_dynamics_identification();
 
 
-  //line_following.main(); 
+  line_following.main(); 
   
   //line_following.obstacle_avoid();
   //line_following.line_search(LINE_LOST_CENTER);
