@@ -25,7 +25,7 @@
 #define MAGNITUDE_H_ADR     ((unsigned char)0x1B)
 #define MAGNITUDE_L_ADR     ((unsigned char)0x1C)
 
-
+#define ENCODER_RESOLUTION  ((int32_t)4096)
 
 template <unsigned char port_name, unsigned char sda_pin, unsigned char scl_pin, unsigned int bus_speed = 20>
 class AS5600T
@@ -67,17 +67,18 @@ class AS5600T
                 return -1;
             }  
 
-            //power on
-            //hysteresis 1 LSB
-            //slow filter only, 2x 
-            //i2c_write_reg(I2C_ADDRESS, CONF_L_ADR, (1<<2));
-            //i2c_write_reg(I2C_ADDRESS, CONF_H_ADR, (1<<0)|(1<<1));
-
+            
            
             //power on
             //hysteresis 1 LSB 
             //slow filter only, 8x 
-            i2c_write_reg(I2C_ADDRESS, CONF_L_ADR, (1<<2));
+            //i2c_write_reg(I2C_ADDRESS, CONF_L_ADR, (1<<2));
+            //i2c_write_reg(I2C_ADDRESS, CONF_H_ADR, (1<<0)); 
+
+
+            //hysteresis 2 LSB 
+            //slow filter only, 8x 
+            i2c_write_reg(I2C_ADDRESS, CONF_L_ADR, (1<<3));
             i2c_write_reg(I2C_ADDRESS, CONF_H_ADR, (1<<0)); 
             
  

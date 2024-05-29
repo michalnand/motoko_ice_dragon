@@ -13,7 +13,7 @@
 #define MOTOR_CONTROL_DT    ((uint32_t)250)
 
 
-#define MOTOR_POLES             ((int32_t)14)
+#define MOTOR_POLES             ((uint32_t)14)
 
 
 class MotorControl
@@ -51,8 +51,9 @@ class MotorControl
         //wheel angular velocity, 2PI is equal to one full forward rotation per second, -2PI for backward
         float get_right_velocity();
 
-    private:
-        void    set_torque_from_rotation(int32_t torque, int32_t phase, uint32_t rotor_angle, int motor_id);
+    private: 
+        //void    set_torque_from_rotation(int32_t torque, uint32_t rotor_angle, int motor_id);
+        void    set_torque_from_rotation(int32_t torque, bool brake, uint32_t rotor_angle, int motor_id);
         int32_t clamp(int32_t value, int32_t min, int32_t max);
         int32_t shrink(int32_t value, int32_t shrink_value);
 
@@ -81,7 +82,6 @@ class MotorControl
        
         LQGSingle left_controller;
         LQGSingle right_controller;
-       
 };
 
 #endif

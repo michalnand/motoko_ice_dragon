@@ -121,24 +121,33 @@ void MotorControl::set_velocity(float left_velocity, float right_velocity)
     this->left_req_velocity  = left_velocity;
     this->right_req_velocity = right_velocity;
 }
- 
+  
 
 void MotorControl::callback_torque()
 {
     left_encoder.update(MOTOR_CONTROL_DT);  
     right_encoder.update(MOTOR_CONTROL_DT);   
 
-    
+    left_req_velocity  = 200*2*PI/60.0;
+    right_req_velocity = 200*2*PI/60.0;
+
     int32_t left_torque  = MOTOR_CONTROL_MAX*left_controller.step(left_req_velocity,     get_left_velocity());
     int32_t right_torque = MOTOR_CONTROL_MAX*right_controller.step(right_req_velocity,   get_right_velocity());
  
     this->left_torque  = clamp(left_torque,  -MOTOR_CONTROL_MAX, MOTOR_CONTROL_MAX);
     this->right_torque = clamp(right_torque, -MOTOR_CONTROL_MAX, MOTOR_CONTROL_MAX);
 
-   
+    int32_t left_u, right_u; 
 
-    set_torque_from_rotation(left_torque,    false,  left_encoder.angle,   0);
-    set_torque_from_rotation(-right_torque,  false, right_encoder.angle,  1);
+    left_u  = left_torque;
+    right_u = right_torque;
+    
+    //left_u = 0;
+    //right_u = 0;
+    set_torque_from_rotation(left_u,  left_encoder.angle,   0);
+    set_torque_from_rotation(right_u, right_encoder.angle,  1);
+
+    theta_offset = 0;
 
     this->steps++;
 }
@@ -146,10 +155,10 @@ void MotorControl::callback_torque()
  
 void MotorControl::hold()
 {
-    set_torque_from_rotation(500,  true,   0,  0);
-    set_torque_from_rotation(500,  true,   0,  1);
+    set_torque_from_rotation(500, 0,  0);
+    set_torque_from_rotation(500, 0,  1);
  
-    timer.delay_ms(400); 
+    timer.delay_ms(200);
 }
 
 int32_t MotorControl::get_left_angle()
@@ -157,7 +166,7 @@ int32_t MotorControl::get_left_angle()
     return left_encoder.angle;
 }
      
-float MotorControl::get_left_position()
+float MotorControl::get_left_position() 
 {
     return -left_encoder.position*2.0*PI/ENCODER_RESOLUTION;
 }
@@ -198,57 +207,39 @@ float MotorControl::get_right_velocity()
 }
 
 
+/*
+    torque      : in range -MOTOR_CONTROL_MAX, MOTOR_CONTROL_MAX, sign determines rotation direction
+    rotor_angle : encoder readings, in range 0..ENCODER_RESOLUTION
+    motor_id    : 0, 1 for left or right motor
+*/
 
-void MotorControl::set_torque_from_rotation(int32_t torque, bool brake, uint32_t rotor_angle, int motor_id)
-{
-    int32_t q, d;
-
-    if (brake == true)
-    {   
-        q = torque;
-        d = 0;
-    }
-    else 
-    {
-        if (torque < 0) 
-        {
-            torque  = -torque;
-
-            q = 0;
-            d = -torque;
-        }
-        else 
-        {
-            q = 0;
-            d = torque;  
-        }
-    }
-
-    //convert mechanical angle to electrical angle, with respect to sine table size
+void MotorControl::set_torque_from_rotation(int32_t torque,  uint32_t rotor_angle, int motor_id)
+{   
+    //convert mechanical angle to electrical angle - multiply by MOTOR_POLES/2
+    //convert from 0..4096 into sine table size
     uint32_t theta = (rotor_angle*MOTOR_POLES*SINE_TABLE_SIZE)/(2*ENCODER_RESOLUTION);
 
-    //inverse Park transform
-    int32_t alpha = (d*cos_tab(theta) - q*sin_tab(theta))/SINE_TABLE_MAX;
-    int32_t beta  = (d*sin_tab(theta) + q*cos_tab(theta))/SINE_TABLE_MAX;
 
+    theta = theta + theta_offset;   
+ 
+    torque = 500;     
+ 
 
-    //inverse Clarke transform
-    int32_t a = alpha;
-    int32_t b = -(alpha/2) + (SQRT3*beta)/(2*1024);
-    int32_t c = -(alpha/2) - (SQRT3*beta)/(2*1024);
+    int32_t a = (torque*sin_tab(theta + (0*SINE_TABLE_SIZE)/3))/SINE_TABLE_MAX;
+    int32_t b = (torque*sin_tab(theta + (1*SINE_TABLE_SIZE)/3))/SINE_TABLE_MAX;
+    int32_t c = (torque*sin_tab(theta + (2*SINE_TABLE_SIZE)/3))/SINE_TABLE_MAX;
 
-
+    
     //transform into space-vector modulation, to achieve full voltage range
     int32_t min_val = min3(a, b, c);
     int32_t max_val = max3(a, b, c); 
 
-    int32_t com_val = (min_val + max_val)/2;  
+    int32_t com_val = (min_val + max_val)/2; 
 
-    //normalise into 0..MOTOR_CONTROL_MAX
+    //normalise into 0..MOTOR_CONTROL_MAX   
     int32_t a_pwm = ((a - com_val)*SQRT3INV)/1024 + MOTOR_CONTROL_MAX/2;
     int32_t b_pwm = ((b - com_val)*SQRT3INV)/1024 + MOTOR_CONTROL_MAX/2;
     int32_t c_pwm = ((c - com_val)*SQRT3INV)/1024 + MOTOR_CONTROL_MAX/2;
-   
      
     a_pwm = clamp((a_pwm*PWM_PERIOD)/MOTOR_CONTROL_MAX, 0, PWM_PERIOD-1);
     b_pwm = clamp((b_pwm*PWM_PERIOD)/MOTOR_CONTROL_MAX, 0, PWM_PERIOD-1);
@@ -258,7 +249,7 @@ void MotorControl::set_torque_from_rotation(int32_t torque, bool brake, uint32_t
     {
         left_pwm.set(b_pwm, a_pwm, c_pwm);
     }
-    else    
+    else
     {
         right_pwm.set(a_pwm, b_pwm, c_pwm);
     }

@@ -7,7 +7,7 @@
 <setting keepoldvectorfont="yes"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.05" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
+<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="no" active="no"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="no" active="no"/>
@@ -24451,35 +24451,66 @@ Source: http://www.mouser.com/ds/2/392/products_18-2245.pdf</description>
 <text x="-3.2766" y="-0.635" size="1.27" layer="25" ratio="6" rot="SR0">&gt;Name</text>
 <text x="-1.7272" y="-0.635" size="1.27" layer="27" ratio="6" rot="SR0">&gt;Value</text>
 </package>
-<package name="BRUSHLESS_GIMBAL_MOTOR_WHEEL">
-<wire x1="0" y1="14" x2="10" y2="14" width="0.127" layer="21"/>
-<wire x1="10" y1="14" x2="10" y2="4" width="0.127" layer="21"/>
-<wire x1="10" y1="4" x2="10" y2="-4" width="0.127" layer="21"/>
-<wire x1="10" y1="-4" x2="10" y2="-14" width="0.127" layer="21"/>
-<wire x1="10" y1="-14" x2="0" y2="-14" width="0.127" layer="21"/>
-<wire x1="0" y1="-14" x2="0" y2="14" width="0.127" layer="21"/>
-<hole x="4" y="-12" drill="3"/>
-<hole x="4" y="12" drill="3"/>
-<wire x1="0" y1="14" x2="-13" y2="14" width="0.127" layer="21"/>
-<wire x1="-13" y1="14" x2="-13" y2="-14" width="0.127" layer="21"/>
-<wire x1="-13" y1="-14" x2="0" y2="-14" width="0.127" layer="21"/>
-<wire x1="0" y1="14" x2="0" y2="14.5" width="0.127" layer="21"/>
-<wire x1="0" y1="14.5" x2="0" y2="15" width="0.127" layer="21"/>
-<wire x1="0" y1="15" x2="-13" y2="15" width="0.127" layer="21"/>
-<wire x1="-13" y1="15" x2="-13" y2="14" width="0.127" layer="21"/>
-<wire x1="-13" y1="-14" x2="-13" y2="-15" width="0.127" layer="21"/>
-<wire x1="-13" y1="-15" x2="0" y2="-15" width="0.127" layer="21"/>
-<wire x1="0" y1="-15" x2="0" y2="-14.5" width="0.127" layer="21"/>
-<wire x1="0" y1="-14.5" x2="0" y2="-14" width="0.127" layer="21"/>
-<wire x1="0" y1="-14.5" x2="10.5" y2="-14.5" width="0.127" layer="21"/>
-<wire x1="10.5" y1="-14.5" x2="10.5" y2="14.5" width="0.127" layer="21"/>
-<wire x1="10.5" y1="14.5" x2="0" y2="14.5" width="0.127" layer="21"/>
-<pad name="P$1" x="12.7" y="2.54" drill="1" shape="long"/>
-<pad name="P$2" x="12.7" y="0" drill="1" shape="long"/>
-<pad name="P$3" x="12.7" y="-2.54" drill="1" shape="long"/>
-<wire x1="10" y1="4" x2="15" y2="4" width="0.127" layer="21"/>
-<wire x1="15" y1="4" x2="15" y2="-4" width="0.127" layer="21"/>
-<wire x1="15" y1="-4" x2="10" y2="-4" width="0.127" layer="21"/>
+<package name="BRUSHLESS_MOTOR_WHEEL">
+<hole x="0" y="16" drill="3"/>
+<hole x="0" y="-16" drill="3"/>
+<wire x1="-5" y1="20" x2="5" y2="20" width="0.127" layer="21"/>
+<wire x1="5" y1="20" x2="5" y2="-11" width="0.127" layer="21"/>
+<wire x1="5" y1="-11" x2="5" y2="-20" width="0.127" layer="21"/>
+<wire x1="5" y1="-20" x2="-5" y2="-20" width="0.127" layer="21"/>
+<wire x1="-5" y1="-20" x2="-5" y2="-14" width="0.127" layer="21"/>
+<wire x1="-5" y1="-14" x2="-5" y2="14" width="0.127" layer="21"/>
+<wire x1="-5" y1="14" x2="-5" y2="20" width="0.127" layer="21"/>
+<wire x1="-5" y1="14" x2="-10" y2="14" width="0.127" layer="21"/>
+<wire x1="-10" y1="14" x2="-27" y2="14" width="0.127" layer="21"/>
+<wire x1="-27" y1="14" x2="-32" y2="14" width="0.127" layer="21"/>
+<wire x1="-32" y1="14" x2="-32" y2="-14" width="0.127" layer="21"/>
+<wire x1="-32" y1="-14" x2="-27" y2="-14" width="0.127" layer="21"/>
+<wire x1="-27" y1="-14" x2="-10" y2="-14" width="0.127" layer="21"/>
+<wire x1="-10" y1="-14" x2="-5" y2="-14" width="0.127" layer="21"/>
+<wire x1="-10" y1="14" x2="-10" y2="15" width="0.127" layer="21"/>
+<wire x1="-10" y1="15" x2="-10" y2="17" width="0.127" layer="21"/>
+<wire x1="-10" y1="17" x2="-27" y2="17" width="0.127" layer="21"/>
+<wire x1="-27" y1="17" x2="-27" y2="14" width="0.127" layer="21"/>
+<wire x1="-10" y1="-14" x2="-10" y2="-17" width="0.127" layer="21"/>
+<wire x1="-10" y1="-17" x2="-27" y2="-17" width="0.127" layer="21"/>
+<wire x1="-27" y1="-17" x2="-27" y2="-14" width="0.127" layer="21"/>
+<wire x1="-27" y1="-14" x2="-27" y2="14" width="0.127" layer="21"/>
+<wire x1="-10" y1="-14" x2="-10" y2="15" width="0.127" layer="21"/>
+<pad name="P$1" x="8.89" y="-17.78" drill="0.6" shape="long"/>
+<pad name="P$2" x="8.89" y="-15.24" drill="0.6" shape="long"/>
+<pad name="P$3" x="8.89" y="-12.7" drill="0.6" shape="long"/>
+<wire x1="5" y1="-20" x2="11" y2="-20" width="0.127" layer="21"/>
+<wire x1="11" y1="-20" x2="11" y2="-11" width="0.127" layer="21"/>
+<wire x1="11" y1="-11" x2="5" y2="-11" width="0.127" layer="21"/>
+<wire x1="-27" y1="-14" x2="-32" y2="-14" width="0.127" layer="22"/>
+<wire x1="-32" y1="-14" x2="-32" y2="14" width="0.127" layer="22"/>
+<wire x1="-32" y1="14" x2="-27" y2="14" width="0.127" layer="22"/>
+<wire x1="-27" y1="14" x2="-27" y2="-13" width="0.127" layer="22"/>
+<wire x1="-27" y1="-13" x2="-27" y2="-14" width="0.127" layer="22"/>
+<wire x1="-27" y1="-17" x2="-10" y2="-17" width="0.127" layer="22"/>
+<wire x1="-10" y1="-17" x2="-10" y2="-14" width="0.127" layer="22"/>
+<wire x1="-27" y1="-14" x2="-10" y2="-14" width="0.127" layer="22"/>
+<wire x1="-27" y1="-14" x2="-27" y2="-17" width="0.127" layer="22"/>
+<wire x1="-27" y1="14" x2="-27" y2="17" width="0.127" layer="22"/>
+<wire x1="-27" y1="17" x2="-10" y2="17" width="0.127" layer="22"/>
+<wire x1="-10" y1="17" x2="-10" y2="-17" width="0.127" layer="22"/>
+<wire x1="-27" y1="14" x2="-5" y2="14" width="0.127" layer="22"/>
+<wire x1="-5" y1="14" x2="-5" y2="13" width="0.127" layer="22"/>
+<wire x1="-5" y1="13" x2="-5" y2="-14" width="0.127" layer="22"/>
+<wire x1="-5" y1="-14" x2="-27" y2="-14" width="0.127" layer="22"/>
+<wire x1="-27" y1="-14" x2="-27" y2="-13" width="0.127" layer="22"/>
+<wire x1="-5" y1="13" x2="-5" y2="20" width="0.127" layer="22"/>
+<wire x1="-5" y1="20" x2="5" y2="20" width="0.127" layer="22"/>
+<wire x1="5" y1="20" x2="5" y2="-11" width="0.127" layer="22"/>
+<wire x1="5" y1="-11" x2="5" y2="-20" width="0.127" layer="22"/>
+<wire x1="5" y1="-20" x2="4" y2="-20" width="0.127" layer="22"/>
+<wire x1="4" y1="-20" x2="-5" y2="-20" width="0.127" layer="22"/>
+<wire x1="-5" y1="-20" x2="-5" y2="20" width="0.127" layer="22"/>
+<wire x1="5" y1="-11" x2="11" y2="-11" width="0.127" layer="22"/>
+<wire x1="11" y1="-11" x2="11" y2="-20" width="0.127" layer="22"/>
+<wire x1="11" y1="-20" x2="5" y2="-20" width="0.127" layer="22"/>
+<wire x1="5" y1="-20" x2="5" y2="-11" width="0.127" layer="22"/>
 </package>
 <package name="LGA14L">
 <wire x1="-1.5" y1="1.25" x2="-0.75" y2="1.25" width="0.127" layer="21"/>
@@ -24517,6 +24548,18 @@ Source: http://www.mouser.com/ds/2/392/products_18-2245.pdf</description>
 <wire x1="-1.5" y1="0" x2="-1.5" y2="0.75" width="0.127" layer="21"/>
 <wire x1="-1.5" y1="0.75" x2="-1.5" y2="1.75" width="0.127" layer="21"/>
 <wire x1="-1.5" y1="0.75" x2="-0.75" y2="0" width="0.127" layer="21"/>
+</package>
+<package name="DUCTED_FAN_35MM">
+<circle x="0" y="0" radius="19" width="0.127" layer="21"/>
+<circle x="0" y="0" radius="18.5" width="0.127" layer="21"/>
+<circle x="0" y="0" radius="18.5" width="0.127" layer="46"/>
+<circle x="0" y="0" radius="17.5" width="0.127" layer="21"/>
+<pad name="P$1" x="-2.54" y="-20.32" drill="0.6" shape="long" rot="R90"/>
+<pad name="P$2" x="0" y="-20.32" drill="0.6" shape="long" rot="R90"/>
+<pad name="P$3" x="2.54" y="-20.32" drill="0.6" shape="long" rot="R90"/>
+<wire x1="-4" y1="-18" x2="-4" y2="-22" width="0.127" layer="21"/>
+<wire x1="-4" y1="-22" x2="4" y2="-22" width="0.127" layer="21"/>
+<wire x1="4" y1="-22" x2="4" y2="-18" width="0.127" layer="21"/>
 </package>
 </packages>
 <symbols>
@@ -24594,6 +24637,15 @@ Source: http://www.mouser.com/ds/2/392/products_18-2245.pdf</description>
 <wire x1="7.62" y1="-7.62" x2="-7.62" y2="-7.62" width="0.254" layer="94"/>
 <wire x1="-7.62" y1="-7.62" x2="-7.62" y2="7.62" width="0.254" layer="94"/>
 </symbol>
+<symbol name="DUCTED_FAN">
+<wire x1="0" y1="12.7" x2="0" y2="-12.7" width="0.254" layer="94"/>
+<wire x1="0" y1="-12.7" x2="12.7" y2="-12.7" width="0.254" layer="94"/>
+<wire x1="12.7" y1="-12.7" x2="12.7" y2="12.7" width="0.254" layer="94"/>
+<wire x1="12.7" y1="12.7" x2="0" y2="12.7" width="0.254" layer="94"/>
+<pin name="PWM" x="-5.08" y="7.62" length="middle"/>
+<pin name="VCC" x="-5.08" y="0" length="middle"/>
+<pin name="GND" x="-5.08" y="-7.62" length="middle"/>
+</symbol>
 </symbols>
 <devicesets>
 <deviceset name="MP6540HA" prefix="U">
@@ -24643,12 +24695,12 @@ Source: http://www.mouser.com/ds/2/392/products_18-2245.pdf</description>
 </device>
 </devices>
 </deviceset>
-<deviceset name="BRUSHLESS_GIMBAL_MOTOR_WHEEL">
+<deviceset name="BRUSHLESS_MOTOR_WHEEL">
 <gates>
-<gate name="G$1" symbol="BRUSHLESS_MOTOR" x="0" y="0"/>
+<gate name="G$1" symbol="BRUSHLESS_MOTOR" x="5.08" y="0"/>
 </gates>
 <devices>
-<device name="" package="BRUSHLESS_GIMBAL_MOTOR_WHEEL">
+<device name="" package="BRUSHLESS_MOTOR_WHEEL">
 <connects>
 <connect gate="G$1" pin="A" pad="P$1"/>
 <connect gate="G$1" pin="B" pad="P$2"/>
@@ -24700,6 +24752,23 @@ Source: http://www.mouser.com/ds/2/392/products_18-2245.pdf</description>
 <connect gate="G$1" pin="SDA" pad="P$3"/>
 <connect gate="G$1" pin="VCC" pad="P$4"/>
 <connect gate="G$1" pin="WP" pad="P$5"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="DUCTED_FAN_35MM">
+<gates>
+<gate name="G$1" symbol="DUCTED_FAN" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="DUCTED_FAN_35MM">
+<connects>
+<connect gate="G$1" pin="GND" pad="P$3"/>
+<connect gate="G$1" pin="PWM" pad="P$1"/>
+<connect gate="G$1" pin="VCC" pad="P$2"/>
 </connects>
 <technologies>
 <technology name=""/>
@@ -27457,8 +27526,8 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <part name="LED6" library="led" library_urn="urn:adsk.eagle:library:259" deviceset="LED" device="CHIPLED_1206" package3d_urn="urn:adsk.eagle:package:15823/2"/>
 <part name="LED7" library="led" library_urn="urn:adsk.eagle:library:259" deviceset="LED" device="CHIPLED_1206" package3d_urn="urn:adsk.eagle:package:15823/2"/>
 <part name="LED8" library="led" library_urn="urn:adsk.eagle:library:259" deviceset="LED" device="CHIPLED_1206" package3d_urn="urn:adsk.eagle:package:15823/2"/>
-<part name="U$1" library="my_library" deviceset="BRUSHLESS_GIMBAL_MOTOR_WHEEL" device=""/>
-<part name="U$2" library="my_library" deviceset="BRUSHLESS_GIMBAL_MOTOR_WHEEL" device=""/>
+<part name="U$1" library="my_library" deviceset="BRUSHLESS_MOTOR_WHEEL" device=""/>
+<part name="U$2" library="my_library" deviceset="BRUSHLESS_MOTOR_WHEEL" device=""/>
 <part name="C27" library="resistor" library_urn="urn:adsk.eagle:library:348" deviceset="C-EU" device="C0805" package3d_urn="urn:adsk.eagle:package:26137/1" value="100n"/>
 <part name="C35" library="resistor" library_urn="urn:adsk.eagle:library:348" deviceset="C-EU" device="C0805" package3d_urn="urn:adsk.eagle:package:26137/1" value="10uF"/>
 <part name="GND53" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
@@ -27568,6 +27637,7 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <part name="TP2" library="testpad" library_urn="urn:adsk.eagle:library:385" deviceset="TP" device="B1,27" package3d_urn="urn:adsk.eagle:package:27944/2"/>
 <part name="+3V38" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="+3V3" device=""/>
 <part name="GND28" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
+<part name="U$5" library="my_library" deviceset="DUCTED_FAN_35MM" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -28604,6 +28674,7 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <instance part="GND28" gate="1" x="245.11" y="71.12" smashed="yes">
 <attribute name="VALUE" x="242.57" y="68.58" size="1.778" layer="96"/>
 </instance>
+<instance part="U$5" gate="G$1" x="243.84" y="200.66" smashed="yes"/>
 </instances>
 <busses>
 </busses>

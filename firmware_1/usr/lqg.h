@@ -42,14 +42,6 @@ class LQG
             auto error = this->yr - this->y;
             auto integral_action_new = this->integral_action + this->ki*error;
             
-            /*
-            if (error[0] < -2.0)     
-            {
-                float tmp = error[0]*this->ki[0]*10;
-                integral_action_new = integral_action_new + tmp; 
-            }
-            */
-            
             //LQR controll law 
             auto u_new = this->k*this->x_hat*(-1.0) + integral_action_new;
 

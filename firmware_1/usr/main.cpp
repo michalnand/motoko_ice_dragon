@@ -24,19 +24,40 @@
 #define KEY_GPIO          TGPIOE 
 #define KEY_PIN           4 
 
+#include <gonio.h>
 
 int main(void)      
 { 
   drivers_init();
   
   //main LQR controller init
-  position_control.init();  
+  //position_control.init();  
 
   LineFollowing line_following;
 
   terminal << "\n\n\n"; 
   terminal << "machine ready\n";
 
+
+  float velocities[] = {0.0, 1.0, 10.0, 60.0, 100.0, 200.0, 500.0, 1000.0, 1500.0};
+  while (true)
+  {
+    for (unsigned int i = 0; i < 9; i++)
+    {
+      float left_velocity  = velocities[i];
+      float right_velocity = -velocities[i];
+      motor_control.set_velocity(left_velocity*2*PI/60.0, right_velocity*2*PI/60.0);
+
+      terminal << "setting velocity to " << left_velocity << " " << right_velocity << "\n";
+      timer.delay_ms(4000); 
+      float left_m =  motor_control.get_left_velocity()*60.0/(2.0*PI);
+      float right_m = motor_control.get_left_velocity()*60.0/(2.0*PI);
+      terminal << "meassured velocity  " << left_m << " " << right_m << "\n";
+      terminal << "\n\n";
+      timer.delay_ms(100);
+    }
+  }
+  
   
 
   Gpio<LED_1_GPIO, LED_1_PIN, GPIO_MODE_OUT> led_1;   //user led
@@ -106,12 +127,12 @@ int main(void)
   //encoder_sensor_test();
 
   //motor_identification();
-  //motor_driver_test();  
+  motor_driver_test();  
   //smooth_motor_driver_test();
   //robot_dynamics_identification();
 
 
-  line_following.main(); 
+  //line_following.main(); 
   
   //line_following.obstacle_avoid();
   //line_following.line_search(LINE_LOST_CENTER);
