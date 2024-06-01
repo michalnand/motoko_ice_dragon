@@ -54,6 +54,11 @@ float LQGSingle::step(float xr, float x)
     return u;
 }
 
+float LQGSingle::get_x_hat()
+{
+    return x_hat;
+}
+
 float LQGSingle::_clip(float v, float min_v, float max_v)
 {
     if (v < min_v)

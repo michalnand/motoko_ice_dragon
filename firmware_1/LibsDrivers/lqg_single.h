@@ -17,6 +17,9 @@ class LQGSingle
         //xr required value
         //x  actual value
         float step(float xr, float x);
+
+        float get_x_hat();
+
     
     private:
         float _clip(float v, float min_v, float max_v);

@@ -35,9 +35,7 @@ class AS5600T
 
         int32_t position;
         int32_t angular_velocity;
-
         int32_t position_fil;
-        int32_t angular_velocity_fil;
 
     private:
         int32_t position_prev;
@@ -144,10 +142,10 @@ class AS5600T
             //complementary LP filter
             this->position_fil     = (7*this->position_fil + 1*this->position)/8;  
             this->angular_velocity = (7*this->angular_velocity + 1*tmp)/8;      
-             
+                
             this->prev_value       = value;
         }
-
+ 
 
 
 

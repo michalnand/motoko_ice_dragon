@@ -55,10 +55,10 @@ void MotorControl::init()
     
     //LQR controller init with kalman observer (LQG)
 
+    /*
     //discrete dynamics model
     float a = 0.97402597;
     float b = 3.89575713;
-
 
     //LQR gain, q = 1.0, r = 1*10**6
     float k  =  0.01761271;
@@ -66,6 +66,19 @@ void MotorControl::init()
 
     //Kalman gain  
     float f  = 0.00124699;
+    */
+
+    //discrete dynamics model
+    float a = 0.95484104;
+    float b = 7.08995665;
+
+    //LQR gain, q = 1.0, r = 1*10**7
+    float k  =  0.00514003;
+    float ki =  0.00032194;
+
+    //Kalman gain  
+    float f  =  0.00818888;
+
 
     left_controller.init(a, b, k,  ki, f, antiwindup); 
     right_controller.init(a, b, k, ki, f, antiwindup); 
@@ -125,20 +138,21 @@ void MotorControl::set_velocity(float left_velocity, float right_velocity)
 
 void MotorControl::callback_torque()
 {
-    left_encoder.update(MOTOR_CONTROL_DT);  
+    left_encoder.update(MOTOR_CONTROL_DT);   
     right_encoder.update(MOTOR_CONTROL_DT);   
 
-    
-    int32_t left_torque  = MOTOR_CONTROL_MAX*left_controller.step(left_req_velocity,     get_left_velocity());
-    int32_t right_torque = MOTOR_CONTROL_MAX*right_controller.step(right_req_velocity,   get_right_velocity());
+    float left_velocity  = -left_encoder.angular_velocity*2.0*PI/ENCODER_RESOLUTION;
+    float right_velocity = right_encoder.angular_velocity*2.0*PI/ENCODER_RESOLUTION;
+
+    this->left_torque  = MOTOR_CONTROL_MAX*left_controller.step(left_req_velocity, left_velocity);
+    this->right_torque = MOTOR_CONTROL_MAX*right_controller.step(right_req_velocity, right_velocity);
  
-    this->left_torque  = clamp(left_torque,  -MOTOR_CONTROL_MAX, MOTOR_CONTROL_MAX);
-    this->right_torque = clamp(right_torque, -MOTOR_CONTROL_MAX, MOTOR_CONTROL_MAX);
+    this->left_torque  = clamp(this->left_torque,  -MOTOR_CONTROL_MAX, MOTOR_CONTROL_MAX);
+    this->right_torque = clamp(this->right_torque, -MOTOR_CONTROL_MAX, MOTOR_CONTROL_MAX);
 
    
-
-    set_torque_from_rotation(left_torque,    false,  left_encoder.angle,   0);
-    set_torque_from_rotation(-right_torque,  false, right_encoder.angle,  1);
+    set_torque_from_rotation(this->left_torque,    false,  left_encoder.angle,   0);
+    set_torque_from_rotation(-this->right_torque,  false, right_encoder.angle,  1);
 
     this->steps++;
 }
@@ -173,7 +187,7 @@ float MotorControl::get_left_velocity()
     return -left_encoder.angular_velocity*2.0*PI/ENCODER_RESOLUTION;
 }
 
-
+ 
 
 
 int32_t MotorControl::get_right_angle()
@@ -188,7 +202,7 @@ float MotorControl::get_right_position()
 
 float MotorControl::get_right_position_fil()
 {
-    return right_encoder.position_fil*2.0*PI/ENCODER_RESOLUTION;
+    return right_encoder.position_fil*2.0*PI/ENCODER_RESOLUTION;;
 }
 
 
